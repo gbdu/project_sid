@@ -6,15 +6,22 @@ from numpy import *
 class component:
     thread_id = None
     alive = False # Component state
-
-    # TODO: multiple layers of neurons here, to process input
-    #
-
+    myinput = None
     MyRef = None
 
-    def __init__(self, id):
+    def __init__(self, id, type):
+        self.type = type
         self.thread_id = id
         self.MyRef = self
+
+        if(type == "audio"):
+            self.myinput = array(1024) # input is 153600 matrix
+        elif(type == "video"):
+            self.myinput = array((480, 320)) # input is 153600 matrix
+        elif(type == "langu"):
+            self.myinput = array(1024) # text to process...
+        else: # must be x type...
+            self.myinput = array (10)
 
     def __call__(self, *args, **kwargs):
         self.alive = True
@@ -32,6 +39,7 @@ class component:
     def run(self):
         while True :
             if self.alive:
-                self.myinput = array((480, 320)) # input is 153600 matrix
+                # say hi and sleep for a sec
+                pass
             else:
                 print ("component thread " + thread_id + " terminated")
