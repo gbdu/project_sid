@@ -4,7 +4,7 @@ __author__ = 'gargantua'
 
 
 class Sid:
-    """ A form of basic intelligence, using using 64 Components :
+    ''' A form of basic intelligence, using using 64 Components :
 
         receive:    listen to 5 audio streams,
                     read 5 text streams,
@@ -23,25 +23,22 @@ class Sid:
                          < ned dies>
                         $ # the end
 
-    """
 
-'''
-Remember: you are to human what ned is to sid
+        Remember: you are to human what ned is to sid
             -> sid is a type of being
                     ned is a sid
-                    ghadeer is a human
+                    you are a human
 
                         #TODO: study these relations
 '''
 
 import threading
 
-import component
+import region
 
-#  todo: main todo
+# todo: main todo
 
 class sid:
-
     myname = None
     mythreads = []
     shutdown_event = threading.Event()
@@ -51,7 +48,7 @@ class sid:
 
     def init_a_thing(self, of_type):
         for i in range(21):
-            new_component = component.component(i, of_type)
+            new_component = region.region(i, of_type)
             t = threading.Thread(target=new_component, args=(i,))
             t.daemon = True
             t.start()
@@ -65,11 +62,11 @@ class sid:
         # build 21 langu components thing for text medium
         self.init_a_thing("langu")
 
-        x = component.component(64, "x")  # the last component.py
-        tx = threading.Thread(target=x, args=(64,))  # the last interesting component.py...
+        x = region.region(64, "x")  # the last region.py
+        tx = threading.Thread(target=x, args=(64,))  # the last interesting region.py...
         tx.daemon = True
 
-        self.mythreads.append(tx) # add the x component to the mix...
+        self.mythreads.append(tx)  # add the x component to the mix...
 
 
     def live(self, name, number):
@@ -78,8 +75,10 @@ class sid:
 
     def count_human_components(self):
         return 3;
+
     def get_media_numbers(self):
-        return 0; # todo: add code to watch media to ned
+        return 0;  # todo: add code to watch media to ned
+
     def last_words(self):
         pass
 
@@ -114,26 +113,38 @@ ned = sid()
 ned.live("ned", 45)
 
 # """
-#   print a panel describing ned's state.... this is a static func containing 65 threads...
+# print a panel describing ned's state.... this is a static func containing 65 threads...
 #   :return:
 # """
-def printpanel():
-    panel = "#     -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --     ;\n
-" #            Hello, Father...                                                       ;\n
-+"#  My name is: ned.name() and I am a sid.                                           ;\n
-+"#  I have 3 organs, with 21 components each. Right now, I am watching               ;\n
-+"# " + ned.get_media_numbers() + " things.                                           ;\n
-+"# If you want, tell me to watch more media, I can do 21 sources for                 ;\n
-+"# each type (23 audio, 23 video, 23 language) . Here are the commands               ;\n
-+"# for each thing you wish to add:                                                   ;\n
-+"#       - watch url_to_yt      # dedicate 2 components to watching youtube vids;\n"
-+"#       - watch me             # Will dedicate 12 components to webcam; \n
-+"#
-+"#                 #   watch file/url_to_mp3_stream
-+"#                 #   " #  I have ran everything " + str(times_ran) + " times in the last "
-+"""
+def print_panel():
+    panel = ("""
+                    -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --                          
+                                   Hello, FATHER
+            Name: """ + ned.name()  + """
+ I have 3 organs, with 21 components each. Right now, I am watching
+ + ned.get_media_numbers() + things. On ( ned.get_active_components )  different  computers
+ If you want, tell me to watch more media, I can do 21 sources for                             
+ each type (23 audio, 23 video, 23 language) . Here are the commands                           
+ for each media you wish to assign to each of my things:                                       
+                                                                                               
+                                                                                               
+       - watch url_to_yt      # dedicate 2 components to watching youtube vids                
+                                                                                              
+       - watch me             # Will dedicate 12 components to webcam                         
+                                                                                               
+                                                                                               
+;                 #   watch file/url_to_mp3_stream
+;                 #   I have ran everything " + str(times_ran) + " times in the last "  ; # and this is the last line
 
-print ned_panel
+        """
+    )
+
+    panel = "Name   : %s, I have %d organs and %d components, each with %d neuron (total %d neurons)" \
+            "I am watching %d different data streams. Tell me to watch more stuff by saying:" \
+            "   - watch_video url_to_yt";
+
+    print panel
+    return panel
 
 
 while True:
@@ -142,11 +153,10 @@ while True:
         # an accurate representation of ned here... Use a thread instead...
 
 
-        t_panel = threading.Thread(target=lambda x: self.printpanel, args=(64,))
-         # the last interesting component.py...
+        t_panel = threading.Thread(target=print_panel)
+        # the last interesting region.py...
         t_panel.daemon = True
-
-
+        t_panel.start() # start printing output
         i = raw_input("anything to say to ned? ")
 
         if i == "die":
@@ -156,9 +166,9 @@ while True:
             pass
     except EOFError:
         print "bye"  # todo: last 'abstract' state message from Sid here
-                            # - last_image_dreamt
-                            # - last_text_said
-                            # - last_snippet_string_said
+        # - last_image_dreamt
+        # - last_text_said
+        # - last_snippet_string_said
         break
 
 # we've broken out of the user error, kill
