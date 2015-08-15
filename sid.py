@@ -2,20 +2,61 @@
 
 __author__ = 'gargantua'
 
-
 import threading
+import component
 
-class Ned:
+class Sid:
+    '''create 64 components, then hang and print a message every 1 sec
+        as the components run
+        '''
+
     myname = None
+
+    mycomponents = []
     mythreads = []
+
     shutdown_event = threading.Event()
 
-    def __init__(self):
-        pass
+    def create_component(self, mid, component_hints):
+        new = component.component(component_hints)
+        tx = threading.Thread(target=new.run)
+        new.set_thread(mid)
+        tx.daemon = True
+        self.mycomponents.append(new)
+        self.mythreads.append(tx)
+        return tx
 
-    def live(self, name, number):
-        self.myname = name
-#        self.build_components()
+    def __init__(self):
+        # create default number of 63 types of components
+        for i in range(21):
+            thread_id = self.create_component(i+1, "langu")
+        for i in range(21, 42):
+            thread_id = self.create_component(i+1, "audio")
+        for i in range(42, 63):
+
+
+            thread_id = self.create_component(i+1, "video")
+
+        for i in self.mythreads:
+            print i
+
+
+    def _run_all_components(self):
+
+        for i in self.mycomponents:
+            i.run()
+
+
+    def setname(self, myn):
+        myname = myn
+
+    def live(self, g_name):
+        self._run_all_components()
+
+        while True:
+            import time
+            time.sleep(1)
+
 
     def count_human_components(self):
         return 3;
@@ -36,35 +77,3 @@ class Ned:
     def name(self):
         return self.myname;
 
-
-ned = Ned()
-ned.live("ned", 45)
-
-
-while True:
-    try:
-        # this thread hangs on user input, therefore we cannot print
-        # an accurate representation of ned here... Use a thread instead...
-
-        t_panel = threading.Thread(target=ned.print_panel)
-        # the last interesting region.py...
-        t_panel.daemon = True
-        t_panel.start() # start printing output
-        i = raw_input("anything to say to ned? ")
-
-        if i == "die":
-            raise EOFError()
-        else:
-            # we have 9 organs
-            pass
-    except EOFError:
-        print "bye"  # todo: last 'abstract' state message from Sid here
-        # - last_image_dreamt
-        # - last_text_said
-        # - last_snippet_string_said
-        break
-
-# we've broken out of the user error, kill
-# [done by python as soon as main thread exists (input from sid)] : kill all the processes here
-
-ned.died()
