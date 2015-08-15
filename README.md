@@ -6,5 +6,3 @@ his name is Ned and he is a type of "sid"
 information about him.
 
 ~ gbdu ( ogrum@live.com )
-
-aadded a new feature, but it it sa mistake
