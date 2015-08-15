@@ -1,13 +1,11 @@
-import numpy
-
 __author__ = 'gargantua'
 
+import numpy
+import random
 import threading
-
 import numpy
 
 class component:
-    thread_id = None
     alive = False  # Component state
     myinput = None
     MyRef = None
@@ -15,13 +13,9 @@ class component:
     # REMEMBER: THESE ARE RUN AS ASYNCH THREADS
     # EACH COMPONENT IS CREATED AS A THREAD
     # t_id is the python thread id in case needed
-    def __init__(self, type, t_id):
+    def __init__(self, type):
+        #innit all data types, this is not running yet
         self.type = type # a string of type hints, current: langu,audio,video
-        self.thread_id = t_id
-        self.MyRef = self
-
-        print "I am %d" %t_id
-
         if (type == "audio"):  # these are numpy arrays
             self.myinput = numpy.array(1024)  # input is 153600 matrix
         elif (type == "video"):
@@ -31,10 +25,29 @@ class component:
         else:  # must be x type...
             self.myinput = numpy.array(10)
 
-    def __call__(self, *args, **kwargs):
+
+    def set_thread(self, mid):
+        self.thread_id = mid
         self.alive = True
-        self.run()
+        return mid
+
+    def get_color_dim(self):
+        pass
+
+
+    def run(self):
+        self.alive = True
+        print "Thread:%s" % (self.thread_id)
         return
+
+    def get_color_dim(self):
+	    # return a random color
+
+	    r = random.randint(0, 255)
+	    g = random.randint(50, 255)
+	    b = random.randint(40, 255)
+
+	    return (r,g,b)
 
     def die(self):
         alive = False
@@ -43,11 +56,3 @@ class component:
     def read_user_input(self):
         pass
 
-    def run(self):
-        while True:
-            if self.alive:
-                # say hi and sleep for a sec
-                pass
-            else:
-                pass
-                # print ("component thread " + thread_id + " terminated")

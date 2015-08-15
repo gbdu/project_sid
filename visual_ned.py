@@ -12,6 +12,7 @@ degree = 0
 
 screen = pygame.display.set_mode((640, 480))
 
+
 MyNed = ned.Ned()
 MyComponents = MyNed.get_components();
 

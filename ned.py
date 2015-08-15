@@ -6,11 +6,11 @@ import threading
 
 '''
 
-
 class Ned(sid.Sid):
-    def __init__(self):
-        pass
-        pass
+    ''' provides visual representation of a sid
+        also takes user input
+    '''
+
     def get_panel(self):
         panel = "Name   : %s, I have %d organs and %d components, each with %d neuron (total %d neurons)\n" \
                 "I am watching %d different data streams. Tell me to watch more stuff by saying:\n" \
@@ -23,6 +23,9 @@ class Ned(sid.Sid):
         i = raw_input("anything to say to ned? ")
         if i == "die": raise EOFError
         return i
+
+    def get_components(self):
+	    return self.mycomponents;
 
     def catch_input(self):
         while True:
@@ -37,13 +40,9 @@ class Ned(sid.Sid):
                 break
 
 
-
-
-import threading
-
 if __name__ == "__main__":
     ned = Ned()  # create a new instance of our AI
-    ned.live("new ned", 45)
-    ned.catch_input();
+    ned.setname("ned")
+    ned.live(45)
 
 
