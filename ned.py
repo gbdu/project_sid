@@ -1,9 +1,9 @@
 import sid
-import threading
+
+# logging.basicConfig(filename='logs/ned',level=logging.DEBUG)
 
 '''
     a simple implementation of sid with user input
-
 '''
 
 class Ned(sid.Sid):
@@ -12,12 +12,10 @@ class Ned(sid.Sid):
     '''
 
     def get_panel(self):
-        panel = "Name   : %s, I have %d organs and %d components, each with %d neuron (total %d neurons)\n" \
-                "I am watching %d different data streams. Tell me to watch more stuff by saying:\n" \
-                "   - watch_video url_to_yt # for a youtube video\n" \
-                "   - watch_me " \
-                "# to watch webcam\n";
-        print panel
+        panel = "Hello, my name is " + self.getname() + "."
+        # panel += "   I have %d components running concurrently" % len ( self.mythreads )
+        # panel += str(threading.active_count())
+        return panel
 
     def catch_line(self):
         i = raw_input("anything to say to ned? ")
@@ -25,7 +23,7 @@ class Ned(sid.Sid):
         return i
 
     def get_components(self):
-	    return self.mycomponents;
+        return self.components;
 
     def catch_input(self):
         while True:
@@ -43,6 +41,6 @@ class Ned(sid.Sid):
 if __name__ == "__main__":
     ned = Ned()  # create a new instance of our AI
     ned.setname("ned")
-    ned.live(45)
+    ned.live()
 
 

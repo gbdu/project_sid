@@ -2,57 +2,114 @@ __author__ = 'gargantua'
 
 import numpy
 import random
-import threading
+from multiprocessing import Process, Value
 import numpy
+from time import sleep
+import logging
+
+formatter = logging.Formatter('[%(asctime)s] p%(process)s {%(name)s:%(lineno)d} %(levelname)s - %(message)s','%H:%M:%S')
+
+logger = logging.getLogger("component")
+hdlr = logging.FileHandler('logs/component')
+hdlr.setFormatter(formatter)
+logger.addHandler(hdlr)
+# logger.setLevel(logging.DEBUG)
+# ch = logging.StreamHandler()
+# ch.setFormatter(formatter)
+# logger.addHandler(ch)
+
 
 class component:
-    alive = False  # Component state
-    myinput = None
-    MyRef = None
+    ''' an octo is an 8 channel parallel (list of 8 floats from numpy)
+            perform thread synch when playing with it
+    '''
 
-    # REMEMBER: THESE ARE RUN AS ASYNCH THREADS
-    # EACH COMPONENT IS CREATED AS A THREAD
-    # t_id is the python thread id in case needed
-    def __init__(self, type):
-        #innit all data types, this is not running yet
-        self.type = type # a string of type hints, current: langu,audio,video
-        if (type == "audio"):  # these are numpy arrays
-            self.myinput = numpy.array(1024)  # input is 153600 matrix
-        elif (type == "video"):
-            self.myinput = numpy.array((480, 320))  # input is 153600 matrix
-        elif (type == "langu"):
-            self.myinput = numpy.array(1024)  # text to process...
+    octo_layer_average = []
+    mystate = None
+    mypipe = None
+    mycolor = None
+    
+    def init_data(self, hints):
+        '''inits the internal data stream, these are numpy arrays'''
+        if (hints == "audio"):
+            # 8 layers of 8192 (2^13) = 65536 (2^16)
+            self.mydatastream = numpy.zeros((8, 8192))
+        elif (hints == "video"):
+            # input is 153600 matrix
+            self.mydatastream = numpy.zeros((8, 8192))
+        elif (hints == "langu"):
+            self.mydatastream = numpy.zeros((8, 8192))  # text to process...
         else:  # must be x type...
-            self.myinput = numpy.array(10)
+            self.mydatastream = numpy.zeros((8, 8192))
+            
+        self.mycolor = [random.randint(0, 100), random.randint(40, 150),
+                        random.randint(40, 150)]
+        return
+    
+    
+    # todo: components that fire together wire together
+    
+    def __init__(self, global_state, component_state, pipe, type_hints):
+        self.type_hints = type_hints
+        self.state = component_state
+        self.mypipe = pipe
+        self.global_state = global_state
+        self.init_data(type_hints)
 
+    def OctoChannel_layer_average(self):
+        if(self.mydatastream.any()):
+            return numpy.mean(self.mydatastream)
+        else:
+            print "none set yet"
+        return 0
 
-    def set_thread(self, mid):
-        self.thread_id = mid
-        self.alive = True
-        return mid
-
-    def get_color_dim(self):
+    def get_input(self):
+        # if self.type_hints == "rand":
+        #self.mydatastream = numpy.fromfile()
         pass
 
+    def _get_color_dim(self):
+        '''returns a random color for now....'''
+        # return a random color
+#		avg = self.OctoChannel_layer_average()
+        
+        r = self.mycolor[0]
+        g = self.mycolor[1]
+        b = self.mycolor[2]
+        
+        if r >= 254:
+            r = 100;
+        
+        if g >= 254:
+            r = 150;
+        
+        if b >= 254:
+            r = 150;
+        
+        self.mycolor = [r, g, b]
+        return self.mycolor
 
-    def run(self):
-        self.alive = True
-        print "Thread:%s" % (self.thread_id)
+    def send_octo(self, connection):
+        '''send an 8 channel list representing current state of component'''
+        octo = [self._get_color_dim(), 2, 3, 4, 5, 6, 7, 8 ]
+        connection.send(octo)
+        
+    def live_loop(self):
+        '''loop repeatedly until global_state is not 1'''
+        
+        while self.global_state.value == 1:
+            if self.state.value == 1:
+                self.get_input()  # get a new data frame for this run
+                self.send_octo(self.mypipe)
+                sleep(1)
+            else:
+                # the component is not in a running state, do nothing
+                sleep(5)
+        
+        self.mypipe.close()
+        
         return
 
-    def get_color_dim(self):
-	    # return a random color
-
-	    r = random.randint(0, 255)
-	    g = random.randint(50, 255)
-	    b = random.randint(40, 255)
-
-	    return (r,g,b)
-
-    def die(self):
-        alive = False
-        return
-
+        
     def read_user_input(self):
         pass
-

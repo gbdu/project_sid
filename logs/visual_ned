@@ -1,0 +1,270 @@
+2015-08-20 12:07:51,979 - logs/visual_ned - INFO - A
+[08-20 12:08:59] p20133 {/home/gargantua/code/project_sid/visual_ned.py:26} INFO - A
+[08-20 12:09:23] p20251 {logs/visual_ned:26} INFO - A
+[12:09:35] p20328 {logs/visual_ned:26} INFO - A
+[12:09:57] p20438 {visual_ned:26} INFO - A
+[12:10:54] p20756 {visual_ned:109} INFO - init user console
+[12:10:54] p20756 {visual_ned:120} INFO - entering main draw loop
+[12:11:08] p20756 {visual_ned:99} INFO - extinguished
+[12:11:39] p21042 {visual_ned:109} INFO - init user console
+[12:11:39] p21042 {visual_ned:120} INFO - entering main draw loop
+[12:11:46] p21042 {visual_ned:99} INFO - extinguished
+[12:12:04] p21259 {visual_ned:109} INFO - init user console
+[12:12:04] p21259 {visual_ned:120} INFO - entering main draw loop
+[12:12:07] p21259 {visual_ned:99} INFO - extinguished
+[12:12:12] p21383 {visual_ned:140} INFO - updated
+[12:12:13] p21384 {visual_ned:109} INFO - init user console
+[12:12:13] p21384 {visual_ned:120} INFO - entering main draw loop
+[12:12:13] p21384 {visual_ned:99} INFO - extinguished
+[12:12:54] p21653 {visual_ned:142} INFO - updated
+[12:12:55] p21654 {visual_ned:109} INFO - init user console
+[12:12:55] p21654 {visual_ned:120} INFO - entering main draw loop
+[12:12:57] p21654 {visual_ned:99} INFO - extinguished
+[12:12:59] p21758 {visual_ned:142} INFO - updated
+[12:13:00] p21759 {visual_ned:109} INFO - init user console
+[12:13:00] p21759 {visual_ned:120} INFO - entering main draw loop
+[12:13:01] p21759 {visual_ned:99} INFO - extinguished
+[12:13:15] p21909 {visual_ned:142} INFO - updated
+[12:13:15] p21909 {visual_ned:142} INFO - updated
+[12:13:16] p21910 {visual_ned:109} INFO - init user console
+[12:13:16] p21910 {visual_ned:120} INFO - entering main draw loop
+[12:13:16] p21909 {visual_ned:142} INFO - updated
+[12:13:17] p21909 {visual_ned:142} INFO - updated
+[12:13:18] p21909 {visual_ned:142} INFO - updated
+[12:13:19] p21909 {visual_ned:142} INFO - updated
+[12:13:20] p21909 {visual_ned:142} INFO - updated
+[12:13:21] p21909 {visual_ned:142} INFO - updated
+[12:13:22] p21910 {visual_ned:99} INFO - extinguished
+[12:15:07] p22574 {visual_ned:142} INFO - updated
+[12:15:08] p22574 {visual_ned:142} INFO - updated
+[12:15:08] p22575 {visual_ned:109} INFO - init user console
+[12:15:08] p22575 {visual_ned:120} INFO - entering main draw loop
+[12:15:09] p22574 {visual_ned:142} INFO - updated
+[12:15:10] p22574 {visual_ned:142} INFO - updated
+[12:15:11] p22574 {visual_ned:142} INFO - updated
+[12:15:12] p22574 {visual_ned:142} INFO - updated
+[12:15:13] p22574 {visual_ned:142} INFO - updated
+[12:15:14] p22575 {visual_ned:99} INFO - extinguished
+[12:16:06] p22931 {visual_ned:142} INFO - updated
+[12:16:06] p22931 {visual_ned:142} INFO - updated
+[12:16:07] p22932 {visual_ned:109} INFO - init user console
+[12:16:07] p22932 {visual_ned:120} INFO - entering main draw loop
+[12:16:07] p22931 {visual_ned:142} INFO - updated
+[12:16:08] p22932 {visual_ned:99} INFO - extinguished
+[12:17:01] p23268 {visual_ned:142} INFO - updated
+[12:17:01] p23268 {visual_ned:142} INFO - updated
+[12:17:02] p23269 {visual_ned:109} INFO - init user console
+[12:17:02] p23269 {visual_ned:120} INFO - entering main draw loop
+[12:17:02] p23268 {visual_ned:142} INFO - updated
+[12:17:03] p23268 {visual_ned:142} INFO - updated
+[12:17:04] p23268 {visual_ned:142} INFO - updated
+[12:17:05] p23268 {visual_ned:142} INFO - updated
+[12:17:06] p23268 {visual_ned:142} INFO - updated
+[12:17:07] p23268 {visual_ned:142} INFO - updated
+[12:17:08] p23268 {visual_ned:142} INFO - updated
+[12:17:09] p23268 {visual_ned:142} INFO - updated
+[12:17:10] p23268 {visual_ned:142} INFO - updated
+[12:17:10] p23269 {visual_ned:99} INFO - extinguished
+[12:24:51] p25474 {visual_ned:142} INFO - updated
+[12:24:51] p25474 {visual_ned:142} INFO - updated
+[12:24:52] p25475 {visual_ned:109} INFO - init user console
+[12:24:52] p25475 {visual_ned:120} INFO - entering main draw loop
+[12:24:52] p25474 {visual_ned:142} INFO - updated
+[12:24:53] p25474 {visual_ned:142} INFO - updated
+[12:24:54] p25474 {visual_ned:142} INFO - updated
+[12:24:54] p25475 {visual_ned:99} INFO - extinguished
+[12:25:48] p25796 {visual_ned:146} INFO - updated
+[12:25:48] p25796 {visual_ned:146} INFO - updated
+[12:25:48] p25797 {visual_ned:113} INFO - init user console
+[12:25:48] p25797 {visual_ned:124} INFO - entering main draw loop
+[12:25:49] p25796 {visual_ned:146} INFO - updated
+[12:25:50] p25796 {visual_ned:146} INFO - updated
+[12:25:51] p25796 {visual_ned:146} INFO - updated
+[12:25:52] p25796 {visual_ned:146} INFO - updated
+[12:25:53] p25796 {visual_ned:146} INFO - updated
+[12:25:54] p25796 {visual_ned:146} INFO - updated
+[12:25:55] p25796 {visual_ned:146} INFO - updated
+[12:25:56] p25796 {visual_ned:146} INFO - updated
+[12:25:57] p25796 {visual_ned:146} INFO - updated
+[12:26:11] p26013 {visual_ned:146} INFO - updated
+[12:26:11] p26013 {visual_ned:146} INFO - updated
+[12:26:12] p26014 {visual_ned:113} INFO - init user console
+[12:26:12] p26014 {visual_ned:124} INFO - entering main draw loop
+[12:26:12] p26014 {visual_ned:68} WARNING - <multiprocessing.queues.Queue object at 0x7f3ce27f4950>
+[12:26:12] p26013 {visual_ned:146} INFO - updated
+[12:26:14] p26013 {visual_ned:146} INFO - updated
+[12:26:15] p26013 {visual_ned:146} INFO - updated
+[12:26:16] p26013 {visual_ned:146} INFO - updated
+[12:26:17] p26013 {visual_ned:146} INFO - updated
+[12:26:18] p26013 {visual_ned:146} INFO - updated
+[12:26:35] p26204 {visual_ned:145} INFO - updated
+[12:26:35] p26204 {visual_ned:145} INFO - updated
+[12:26:36] p26205 {visual_ned:112} INFO - init user console
+[12:26:36] p26205 {visual_ned:123} INFO - entering main draw loop
+[12:26:36] p26205 {visual_ned:68} WARNING - [94, 76, 43]
+[12:26:36] p26205 {visual_ned:68} WARNING - [57, 75, 106]
+[12:26:36] p26205 {visual_ned:68} WARNING - [61, 112, 53]
+[12:26:36] p26205 {visual_ned:68} WARNING - [47, 107, 131]
+[12:26:36] p26205 {visual_ned:68} WARNING - [48, 128, 141]
+[12:26:36] p26205 {visual_ned:68} WARNING - [72, 86, 132]
+[12:26:36] p26205 {visual_ned:68} WARNING - [77, 67, 44]
+[12:26:36] p26205 {visual_ned:68} WARNING - [56, 68, 82]
+[12:26:36] p26205 {visual_ned:68} WARNING - [59, 81, 52]
+[12:26:36] p26205 {visual_ned:68} WARNING - [47, 58, 46]
+[12:26:36] p26205 {visual_ned:68} WARNING - [54, 64, 131]
+[12:26:36] p26205 {visual_ned:68} WARNING - [67, 44, 104]
+[12:26:36] p26205 {visual_ned:68} WARNING - [45, 67, 95]
+[12:26:36] p26205 {visual_ned:68} WARNING - [91, 62, 125]
+[12:26:36] p26205 {visual_ned:68} WARNING - [89, 90, 111]
+[12:26:36] p26205 {visual_ned:68} WARNING - [80, 129, 112]
+[12:26:36] p26205 {visual_ned:68} WARNING - [70, 66, 77]
+[12:26:36] p26205 {visual_ned:68} WARNING - [63, 62, 68]
+[12:26:36] p26205 {visual_ned:68} WARNING - [98, 40, 117]
+[12:26:36] p26205 {visual_ned:68} WARNING - [15, 110, 51]
+[12:26:36] p26205 {visual_ned:68} WARNING - [1, 96, 136]
+[12:26:36] p26205 {visual_ned:68} WARNING - [65, 72, 144]
+[12:26:36] p26205 {visual_ned:68} WARNING - [10, 112, 104]
+[12:26:36] p26205 {visual_ned:68} WARNING - [36, 58, 107]
+[12:26:36] p26205 {visual_ned:68} WARNING - [12, 94, 47]
+[12:26:36] p26205 {visual_ned:68} WARNING - [3, 69, 115]
+[12:26:36] p26205 {visual_ned:68} WARNING - [31, 105, 145]
+[12:26:36] p26205 {visual_ned:68} WARNING - [19, 103, 89]
+[12:26:36] p26205 {visual_ned:68} WARNING - [36, 114, 58]
+[12:26:36] p26205 {visual_ned:68} WARNING - [81, 138, 116]
+[12:26:36] p26205 {visual_ned:68} WARNING - [34, 147, 65]
+[12:26:36] p26205 {visual_ned:68} WARNING - [14, 97, 74]
+[12:26:36] p26205 {visual_ned:68} WARNING - [21, 115, 109]
+[12:26:36] p26205 {visual_ned:68} WARNING - [86, 111, 107]
+[12:26:36] p26205 {visual_ned:68} WARNING - [69, 96, 91]
+[12:26:36] p26205 {visual_ned:68} WARNING - [28, 72, 90]
+[12:26:36] p26205 {visual_ned:68} WARNING - [99, 76, 114]
+[12:26:36] p26205 {visual_ned:68} WARNING - [19, 73, 118]
+[12:26:36] p26205 {visual_ned:68} WARNING - [28, 64, 71]
+[12:26:36] p26205 {visual_ned:68} WARNING - [8, 135, 100]
+[12:26:36] p26205 {visual_ned:68} WARNING - [45, 65, 88]
+[12:26:36] p26205 {visual_ned:68} WARNING - [97, 60, 121]
+[12:26:36] p26205 {visual_ned:68} WARNING - [50, 116, 47]
+[12:26:36] p26205 {visual_ned:68} WARNING - [43, 94, 108]
+[12:26:36] p26205 {visual_ned:68} WARNING - [85, 128, 70]
+[12:26:36] p26205 {visual_ned:68} WARNING - [63, 96, 128]
+[12:26:36] p26205 {visual_ned:68} WARNING - [46, 70, 46]
+[12:26:36] p26204 {visual_ned:145} INFO - updated
+[12:26:36] p26205 {visual_ned:68} WARNING - [10, 100, 93]
+[12:26:36] p26205 {visual_ned:68} WARNING - [64, 52, 129]
+[12:26:36] p26205 {visual_ned:68} WARNING - [90, 123, 105]
+[12:26:36] p26205 {visual_ned:68} WARNING - [85, 43, 138]
+[12:26:36] p26205 {visual_ned:68} WARNING - [9, 108, 113]
+[12:26:36] p26205 {visual_ned:68} WARNING - [31, 52, 72]
+[12:26:36] p26205 {visual_ned:68} WARNING - [56, 132, 117]
+[12:26:36] p26205 {visual_ned:68} WARNING - [16, 70, 86]
+[12:26:37] p26205 {visual_ned:68} WARNING - [30, 80, 122]
+[12:26:37] p26205 {visual_ned:68} WARNING - [96, 88, 68]
+[12:26:37] p26205 {visual_ned:68} WARNING - [64, 91, 100]
+[12:26:37] p26205 {visual_ned:68} WARNING - [94, 115, 75]
+[12:26:37] p26205 {visual_ned:68} WARNING - [36, 115, 114]
+[12:26:37] p26205 {visual_ned:68} WARNING - [4, 42, 45]
+[12:26:37] p26205 {visual_ned:68} WARNING - [65, 118, 100]
+[12:26:37] p26205 {visual_ned:68} WARNING - [54, 50, 132]
+[12:26:37] p26205 {visual_ned:68} WARNING - [94, 76, 43]
+[12:26:37] p26205 {visual_ned:68} WARNING - [57, 75, 106]
+[12:26:37] p26205 {visual_ned:68} WARNING - [61, 112, 53]
+[12:26:37] p26205 {visual_ned:68} WARNING - [47, 107, 131]
+[12:26:37] p26205 {visual_ned:68} WARNING - [48, 128, 141]
+[12:26:37] p26205 {visual_ned:68} WARNING - [72, 86, 132]
+[12:26:37] p26205 {visual_ned:68} WARNING - [77, 67, 44]
+[12:26:37] p26205 {visual_ned:68} WARNING - [56, 68, 82]
+[12:26:37] p26205 {visual_ned:68} WARNING - [59, 81, 52]
+[12:26:37] p26205 {visual_ned:68} WARNING - [47, 58, 46]
+[12:26:37] p26205 {visual_ned:68} WARNING - [54, 64, 131]
+[12:26:37] p26205 {visual_ned:68} WARNING - [67, 44, 104]
+[12:26:37] p26205 {visual_ned:68} WARNING - [45, 67, 95]
+[12:26:37] p26205 {visual_ned:68} WARNING - [91, 62, 125]
+[12:26:37] p26205 {visual_ned:68} WARNING - [89, 90, 111]
+[12:26:37] p26205 {visual_ned:68} WARNING - [80, 129, 112]
+[12:26:37] p26205 {visual_ned:68} WARNING - [70, 66, 77]
+[12:26:37] p26205 {visual_ned:68} WARNING - [63, 62, 68]
+[12:26:37] p26205 {visual_ned:68} WARNING - [98, 40, 117]
+[12:26:37] p26205 {visual_ned:68} WARNING - [15, 110, 51]
+[12:26:37] p26205 {visual_ned:68} WARNING - [1, 96, 136]
+[12:26:37] p26205 {visual_ned:68} WARNING - [65, 72, 144]
+[12:26:37] p26205 {visual_ned:68} WARNING - [10, 112, 104]
+[12:26:37] p26205 {visual_ned:68} WARNING - [36, 58, 107]
+[12:26:37] p26205 {visual_ned:68} WARNING - [12, 94, 47]
+[12:26:37] p26205 {visual_ned:68} WARNING - [3, 69, 115]
+[12:26:37] p26205 {visual_ned:68} WARNING - [31, 105, 145]
+[12:26:37] p26205 {visual_ned:68} WARNING - [19, 103, 89]
+[12:26:37] p26205 {visual_ned:68} WARNING - [36, 114, 58]
+[12:26:37] p26205 {visual_ned:68} WARNING - [81, 138, 116]
+[12:26:37] p26205 {visual_ned:68} WARNING - [34, 147, 65]
+[12:26:37] p26205 {visual_ned:68} WARNING - [14, 97, 74]
+[12:26:37] p26205 {visual_ned:68} WARNING - [21, 115, 109]
+[12:26:37] p26205 {visual_ned:68} WARNING - [86, 111, 107]
+[12:26:37] p26205 {visual_ned:68} WARNING - [69, 96, 91]
+[12:26:37] p26205 {visual_ned:68} WARNING - [28, 72, 90]
+[12:26:37] p26205 {visual_ned:68} WARNING - [99, 76, 114]
+[12:26:37] p26205 {visual_ned:68} WARNING - [19, 73, 118]
+[12:26:37] p26205 {visual_ned:68} WARNING - [28, 64, 71]
+[12:26:37] p26205 {visual_ned:68} WARNING - [8, 135, 100]
+[12:26:37] p26205 {visual_ned:68} WARNING - [45, 65, 88]
+[12:26:37] p26205 {visual_ned:68} WARNING - [97, 60, 121]
+[12:26:37] p26205 {visual_ned:68} WARNING - [50, 116, 47]
+[12:26:37] p26205 {visual_ned:68} WARNING - [43, 94, 108]
+[12:26:37] p26205 {visual_ned:68} WARNING - [85, 128, 70]
+[12:26:37] p26205 {visual_ned:68} WARNING - [63, 96, 128]
+[12:26:37] p26205 {visual_ned:68} WARNING - [46, 70, 46]
+[12:26:37] p26205 {visual_ned:68} WARNING - [10, 100, 93]
+[12:26:37] p26205 {visual_ned:68} WARNING - [64, 52, 129]
+[12:26:37] p26205 {visual_ned:68} WARNING - [90, 123, 105]
+[12:26:37] p26205 {visual_ned:68} WARNING - [85, 43, 138]
+[12:26:37] p26205 {visual_ned:68} WARNING - [9, 108, 113]
+[12:26:37] p26205 {visual_ned:68} WARNING - [31, 52, 72]
+[12:26:37] p26205 {visual_ned:68} WARNING - [56, 132, 117]
+[12:26:37] p26205 {visual_ned:68} WARNING - [16, 70, 86]
+[12:26:37] p26205 {visual_ned:68} WARNING - [30, 80, 122]
+[12:26:37] p26205 {visual_ned:68} WARNING - [96, 88, 68]
+[12:26:37] p26205 {visual_ned:68} WARNING - [64, 91, 100]
+[12:26:37] p26205 {visual_ned:68} WARNING - [94, 115, 75]
+[12:26:37] p26205 {visual_ned:68} WARNING - [36, 115, 114]
+[12:26:37] p26205 {visual_ned:68} WARNING - [4, 42, 45]
+[12:26:37] p26205 {visual_ned:68} WARNING - [65, 118, 100]
+[12:26:37] p26205 {visual_ned:68} WARNING - [54, 50, 132]
+[12:26:37] p26205 {visual_ned:68} WARNING - [94, 76, 43]
+[12:26:37] p26205 {visual_ned:102} INFO - extinguished
+[12:27:09] p26441 {visual_ned:146} INFO - updated
+[12:27:09] p26441 {visual_ned:146} INFO - updated
+[12:27:09] p26443 {visual_ned:113} INFO - init user console
+[12:27:09] p26443 {visual_ned:124} INFO - entering main draw loop
+[12:27:10] p26441 {visual_ned:146} INFO - updated
+[12:27:11] p26441 {visual_ned:146} INFO - updated
+[12:27:12] p26441 {visual_ned:146} INFO - updated
+[12:27:13] p26441 {visual_ned:146} INFO - updated
+[12:27:14] p26441 {visual_ned:146} INFO - updated
+[12:27:15] p26441 {visual_ned:146} INFO - updated
+[12:27:16] p26441 {visual_ned:146} INFO - updated
+[12:27:17] p26441 {visual_ned:146} INFO - updated
+[12:27:18] p26441 {visual_ned:146} INFO - updated
+[12:27:19] p26441 {visual_ned:146} INFO - updated
+[12:27:20] p26441 {visual_ned:146} INFO - updated
+[12:27:21] p26441 {visual_ned:146} INFO - updated
+[12:27:22] p26441 {visual_ned:146} INFO - updated
+[12:27:23] p26441 {visual_ned:146} INFO - updated
+[12:27:24] p26441 {visual_ned:146} INFO - updated
+[12:27:25] p26443 {visual_ned:103} INFO - extinguished
+[12:38:21] p29725 {visual_ned:147} INFO - updated
+[12:38:22] p29726 {visual_ned:114} INFO - init user console
+[12:38:22] p29726 {visual_ned:125} INFO - entering main draw loop
+[12:39:33] p30151 {visual_ned:147} INFO - updated
+[12:39:33] p30152 {visual_ned:114} INFO - init user console
+[12:39:33] p30152 {visual_ned:125} INFO - entering main draw loop
+[12:40:21] p30536 {visual_ned:147} INFO - updated
+[12:40:22] p30537 {visual_ned:114} INFO - init user console
+[12:40:22] p30537 {visual_ned:125} INFO - entering main draw loop
+[12:41:13] p30927 {visual_ned:147} INFO - updated
+[12:41:14] p30929 {visual_ned:114} INFO - init user console
+[12:41:14] p30929 {visual_ned:125} INFO - entering main draw loop
+[12:46:59] p376 {visual_ned:152} INFO - updated
+[12:47:00] p377 {visual_ned:119} INFO - init user console
+[12:47:00] p377 {visual_ned:130} INFO - entering main draw loop
+[12:47:27] p591 {visual_ned:152} INFO - updated
+[12:47:28] p592 {visual_ned:119} INFO - init user console
+[12:47:28] p592 {visual_ned:130} INFO - entering main draw loop
