@@ -1,0 +1,5 @@
+[18:46:28] p26040 {neuron_stim:23} INFO - acquired
+[19:18:21] p13753 {neuron_stim:42} INFO - dopamine is at 31169
+[19:18:24] p13799 {neuron_stim:42} INFO - dopamine is at 48598
+[19:20:16] p15220 {neuron_stim:47} INFO - dopamine is at 92624
+[19:20:16] p15220 {neuron_stim:34} INFO - responding to dopamine value 92624

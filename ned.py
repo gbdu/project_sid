@@ -10,7 +10,7 @@ class Ned(sid.Sid):
     ''' provides visual representation of a sid
         also takes user input
     '''
-
+    
     def get_panel(self):
         panel = "Hello, my name is " + self.getname() + "."
         # panel += "   I have %d components running concurrently" % len ( self.mythreads )

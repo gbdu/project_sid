@@ -8,6 +8,7 @@ from Text import Text
 
 import logging
 
+
 formatter = logging.Formatter('[%(asctime)s] p%(process)s {%(name)s:%(lineno)d} %(levelname)s - %(message)s','%H:%M:%S')
 
 drawlogger = logging.getLogger("drawing")
