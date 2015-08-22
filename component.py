@@ -13,7 +13,7 @@ def error(n):
     raise(BadValue(n))
 
 DEFAULT_NEURONS_PER_LAYER = 8
-DEFAULT_LAYERS_FOR_EACH_TYPE = 256
+DEFAULT_LAYERS_FOR_EACH_TYPE = 8
 
 class component:
     ''' an octo is an 8 channel parallel (list of 8 floats from numpy)

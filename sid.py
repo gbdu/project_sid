@@ -6,10 +6,12 @@ from multiprocessing import Process, Pipe, Value, Lock
 from component import component
 import getmylogger
 import os,sys
+import exceptions
 
 last_component_number = 0
 
-log = getmylogger.silent_logger("sid")
+log = getmylogger.loud_logger("sid")
+qlog = getmylogger.silent_logger("sid_silent")
 
 class Sid:
     '''create 256 components, then hang and print a message every 1 sec as
@@ -40,7 +42,7 @@ class Sid:
         tup = (c, s, a, b, h, l)
         
         # log.info("added a component with hints %s ", component_hints)
-        log.info("new comp %d " % last_component_number)
+        qlog.info("new comp %d " % last_component_number)
         self.components.append(tup)
         
     def get_component_tuples (self):
@@ -48,6 +50,7 @@ class Sid:
         the component itself'''
         if(self.mystate.value == 0):
             raise RunTimeError("Trying to get a component tuple off a dead component!")
+        
         
         # log.info("get components")
         l = []
@@ -60,10 +63,21 @@ class Sid:
         
         for i in range(21):
             self.add_component("langu")
+        
+        log.info("-----> (1/3) langu components added [ SUCCESS ]")
+        
         for i in range(21, 42):
             self.add_component("audio")
+            
+            
+        log.info("-----> (2/3) langu components added [ SUCCESS ]")
+        
+        
         for i in range(42, 63):
             self.add_component("video")
+            
+            
+        log.info("-----> (3/3) langu components added [ SUCCESS ] ")
         
         log.info("a new sid is init'd")
         
@@ -116,12 +130,14 @@ class Sid:
         will (hopefully) cause the live() loop to die and the forked processes
         to join'''
         
+        log.info("got signal extinguish")
         self.mystate.value = 0 # set global state to dead
         
         for c in self.components:
             c[1].value = 0 # Go over all forked components and set them to dead
                             # this will (hopefully) cause their live_loop to die
         
+        log.info("  ----> got signal extinguish [ SUCCESS ]")
         print self.last_words()
             
 

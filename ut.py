@@ -1,59 +1,117 @@
-# ut: universal tweener with asynch locks for python
-# ~ gbdu
+''' ut: universal tweener with asynch locks for python ~ gbdu'''
 
-from getmylogger import silent_logger
+from getmylogger import silent_logger,loud_logger
 from multiprocessing import Lock
 
-log = silent_logger("tweener")
+llog = loud_logger("tweener")
 DEFAULT_TWEEN_TO = 0
 DEFAULT_TWEEN_MIN = 0
 DEFAULT_TWEEN_VALUE = 0
 
-class ut:
+class Ut:
     '''universal tweener for python -- with locks'''
     _itl = []
+
+    def does_exist(self, name):
+        '''returns True if a tweener exists in internal list'''
+        if len(self._itl) == 0:
+            return False
+        
+        for i in self._itl :
+            if i['name'] == name:
+                llog.info("Found the tween...")
+                return True
+        
+        llog.warning("no tween found %s", name)
+        return False
+
     def add_tweener(self, name):
-        '''adds a tweener to this ut list'''
-        TweenTo = DEFAULT_TWEEN_TO
-        v = DEFAULT_TWEEN_VALUE
-        inner_dict = {}
-        inner_dict[name] = { 'lock':Lock(), 'value':v, 'to':TweenTo, "min": DEFAULT_TWEEN_MIN }
-        _itl.append(inner_dict)
-    
+        '''adds a tweener to this ut list, does nothing if it already exists'''
+        
+        if self.does_exist(name):
+            llog.warning("adding tweener that already exists...")
+            return
+        
+        tween_to = DEFAULT_TWEEN_TO
+        val = DEFAULT_TWEEN_VALUE
+        # adding an inner list
+        inner_dict = {
+            'name':name,
+            'lock':Lock(),
+            'value':val,
+            'to':tween_to,
+            "min": DEFAULT_TWEEN_MIN
+        }
+        llog.info("%s about to be appended....", inner_dict)
+        # appended
+        self._itl.append(inner_dict)
+
     def __init__(self, num_starting_vals):
         '''returns a ut object with internal tweens'''
-        for i in range(starting_vals):
+        for i in range(num_starting_vals):
             self.add_tweener(i)
-    
+
     def tween_to_up(self, name, tween_to):
         '''increases the value of the tween with called to tween_to'''
-        for i in self._itl:
-            if i[name] == name: #found our internal_tween
-                i["lock"].acquire()
-                i["to"] = tweento()
-                i["lock"].release()
+        if self.does_exist(name):
+            llog.info("I will tween %s up by %d every update frame ", name, tween_to)
+            for i in self._itl:
+                if i["name"] == name:
+                    i["lock"].acquire()
+                    i["to"] = tween_to
+                    i["lock"].release()
+                    llog.info("lock rlsd")
+            
+        else:
+            llog.error("%s not found, cant tween up", name)
+            raise exception.BadValue("aaaa")
+
+    def constant(self, name, constant):
+        '''set this tween to a constant that does not change'''
+        if self.does_exist(name):
+            llog.info("%s set to constant", name)
+            for i in self._itl:
+                if i['name'] == name:
+                    i["lock"].acquire()
+                    i["value"] = i["to"] = constant
+                    i["lock"].release()
+                    llog.info("lock rlsd")
                 
+        else:
+            llog.error("%s not found, cant constant the tween", name)
+            raise exception.BadValue("aaaa")
+        
     def get_tween_value(self, name):
         '''returns the current value of the tween'''
+        
         for i in self._itl:
-            if i[name] == name :
-                i["lock"].acquire()
-                i["value"] = name[1] # return the current val
-                i["lock"].release()
-    
+            if i['name'] == name:
+                i['lock'].acquire()
+                val = i["value"] # return the current val
+                i['lock'].release()
+                return val
+            
+        llog.warning("not found %s" , name)
+        return 10 # return the default guy
+        
+        
     def update_frame(self, increase_by=1, decrease_by=1):
+        '''updates internal values, fuzz is not implemented yet'''
+        
+        # llog.info("updating tween")
         for internal_dict in self._itl:
-            if internal_dict["value"] < internal_dict["to"]:
-                internal_dict["lock"].acquire()
-                internal_dict["value"] += increase_by
-                internal_dict["lock"].release()
+            if internal_dict['value'] == internal_dict['to']:
+                continue
+            
+            if internal_dict['value'] < internal_dict['to']:
+                internal_dict['lock'].acquire()
+                internal_dict['value'] += increase_by
+                internal_dict['lock'].release()
                 
-            elif internal_dict["value"] > internal_dict["to"]:
-                internal_dict["lock"].acquire()
-                internal_dict["value"] -= increase_by
-                internal_dict["lock"].release()
-            
-            else: # The values match, do nothing and check next tween
-                pass
-            
-        return time_it_took
+            if internal_dict['value'] >= internal_dict['to']:
+                internal_dict['lock'].acquire()
+                internal_dict['value'] = 0
+                internal_dict['lock'].release()
+                
+
+        return 10

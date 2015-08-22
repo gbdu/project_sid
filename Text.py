@@ -65,9 +65,9 @@ class Text():
 
 	def render(self, text=None):
 		if text is None: text = self._text
-
-		wrapped = trunc.wrapline(unicode(text), self.font, 200)
 		
+		wrapped = trunc.wrapline(unicode(text), self.font, 200)
+
 		self.lines = []
 		for i in wrapped :
 			self.lines.append(self.font.render(i, True, (160, 120, 160)))
@@ -82,4 +82,3 @@ class Text():
 		for i in self.lines:
 			self.screen.blit(i, (int(self.rect.left), int(self.rect.bottom) + j* 8 ))
 			j += 1
-
