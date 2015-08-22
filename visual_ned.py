@@ -13,7 +13,7 @@ from time import sleep
 import exceptions
 import ut
 
-__version__ = "1.2-alpha"
+__version__ = "base"
 
 USER_CONSOLE_ENABLED = True #only checked when drawing
 
