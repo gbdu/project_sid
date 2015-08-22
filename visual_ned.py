@@ -9,6 +9,7 @@ from multiprocessing import Process, Value
 from Text import Text
 from getmylogger import silent_logger,loud_logger
 import random
+
 from time import sleep
 import exceptions
 import ut
@@ -66,6 +67,14 @@ globals()["user_console"] = init_console(globals()["screen"], key_calls={"d": ex
 
 #### Start here
 
+def setup_color_tweens():
+        for i in range(64):
+                st = random.randint(0, 90)
+                color_ut.add_tweener(str(i), st, 100)
+                color_ut.tween_to_up(str(i), 100)
+                llog.info("set up '%s' with %d and %d", str(i), st, 100)
+        pass
+
 def init_color_tweeners():
         global color_ut
         color_ut = ut.Ut(1)
@@ -82,6 +91,12 @@ def init_color_tweeners():
         color_ut.add_tweener("nearbox_2")
         color_ut.tween_to_up("nearbox_2", 20)
         
+        try:
+                setup_color_tweens()
+        except Exception as e :
+                llog.error("Couldnt setup color tweens for components...")
+                print e
+                exit(1)
         return
 
 
@@ -110,6 +125,7 @@ def Draw(theNed):
         global llog
         
         llog.info("* PROCESS: Draw")
+        
 
         def get_component_color(component_pipe):
                 '''get the color of the box that represents the component'''
@@ -137,38 +153,37 @@ def Draw(theNed):
                 ## draw the border
                 pygame.draw.rect(surf, (45, 45, 45), c_r, 0 )
 
-                width = 16
-                height= 16
+                width = 32
+                height= 32
 
 
                 def draw_box(i, inrow, color, component_counter):
                         '''draw a single box'''
                         boxrect = pygame.Rect(inrow*width, i*height, width, height)
                         a = b = c = 0
-                        
-                        if boxrect.collidepoint(pos): # this is an active box
-                                a = color_ut.get_tween_value("active_box")
-                                color = [a,a,a]
+                                                       
+                               
+                        global color_ut
                         # left, top, width, height
 
                         boxrect_big = pygame.Rect(inrow*width - width*1, i*height - height*1, width*3, height*3)
-                        if boxrect_big.collidepoint(pos):
+                        t = color_ut.get_tween_value(str(component_counter))
+                        if boxrect.collidepoint(pos): # this is an active box
+                                a = color_ut.get_tween_value("active_box")
+                                color = [a,200,random.randint(0,100)]
+                        elif boxrect_big.collidepoint(pos):
                                 b = color_ut.get_tween_value("nearbox_1")
-                                color=[a+b, a+b, a+b]
-                        boxrect_bigger = pygame.Rect(inrow*width-3*width, i*height-3*height, width*7, height*7)
-
-                        if boxrect_bigger.collidepoint(pos):
-                                c = color_ut.get_tween_value("nearbox_2")
-                                color = [a+b+c, a+b+c, a+b+c]
+                                color=[a+b+t*2, a+b+t, 40]
+                        else: # This is a regular component, draw it using its tween
+                                color = [a+b+t, a+b+t, t/2]
                         try:
                                 pygame.draw.rect(surf, color, boxrect , 0)
                         except:
-                                llog.error("bad color?")
-                                exit(1)
-
+                                llog.warning("bad color?")
+                        
                 component_counter = 0
-                for i in range(0, 16):
-                        for inrow in range(16):
+                for i in range(0, 8):
+                        for inrow in range(8):
                                 d = color_ut.get_tween_value("default_box")
                                 color = [d,d,d]
                                 draw_box(i, inrow, color, component_counter)
@@ -203,12 +218,14 @@ def Draw(theNed):
         
         while main_breakout.value == 1:
                 ## This is our main loop, draw input screen and update tweener
+                
+                globals()['color_ut'].update_frame(increase_by=1)
+                
                 global user_console
                 user_console.process_input()
                 user_console.draw()
 
-                global color_ut
-                color_ut.update_frame(increase_by=1)
+                
                 
                 try:
                         color_ut.update_frame()

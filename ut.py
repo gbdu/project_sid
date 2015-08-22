@@ -3,7 +3,7 @@
 from getmylogger import silent_logger,loud_logger
 from multiprocessing import Lock
 
-llog = loud_logger("tweener")
+llog = silent_logger("tweener")
 DEFAULT_TWEEN_TO = 0
 DEFAULT_TWEEN_MIN = 0
 DEFAULT_TWEEN_VALUE = 0
@@ -19,21 +19,19 @@ class Ut:
         
         for i in self._itl :
             if i['name'] == name:
-                llog.info("Found the tween...")
                 return True
         
-        llog.warning("no tween found %s", name)
         return False
 
-    def add_tweener(self, name):
+    def add_tweener(self, name, init_val=20, tween_to=20):
         '''adds a tweener to this ut list, does nothing if it already exists'''
         
         if self.does_exist(name):
-            llog.warning("adding tweener that already exists...")
+            llog.warning("adding tweener that already exists..., did nothing")
             return
         
         tween_to = DEFAULT_TWEEN_TO
-        val = DEFAULT_TWEEN_VALUE
+        val = init_val
         # adding an inner list
         inner_dict = {
             'name':name,
@@ -42,7 +40,7 @@ class Ut:
             'to':tween_to,
             "min": DEFAULT_TWEEN_MIN
         }
-        llog.info("%s about to be appended....", inner_dict)
+        #llog.info("%s about to be appended....", inner_dict)
         # appended
         self._itl.append(inner_dict)
 
@@ -63,8 +61,9 @@ class Ut:
                     llog.info("lock rlsd")
             
         else:
-            llog.error("%s not found, cant tween up", name)
-            raise exception.BadValue("aaaa")
+            pass
+            #llog.error("%s not found, cant tween up", name)
+            #raise exception.BadValue("aaaa")
 
     def constant(self, name, constant):
         '''set this tween to a constant that does not change'''
@@ -90,10 +89,11 @@ class Ut:
                 val = i["value"] # return the current val
                 i['lock'].release()
                 return val
-            
-        llog.warning("not found %s" , name)
+           
+        llog.warning("not found '%s'" , name)
+        raise
         return 10 # return the default guy
-        
+    
         
     def update_frame(self, increase_by=1, decrease_by=1):
         '''updates internal values, fuzz is not implemented yet'''

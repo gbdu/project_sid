@@ -49,7 +49,8 @@ class Sid:
         '''returns a list of tuples which may be recv'd for info coming in from
         the component itself'''
         if(self.mystate.value == 0):
-            raise RunTimeError("Trying to get a component tuple off a dead component!")
+            import exceptions
+            raise exceptions.RuntimeError("Trying to get a component tuple off a dead component!")
         
         
         # log.info("get components")
@@ -83,7 +84,7 @@ class Sid:
         
     def create_process(self, c):
         '''start the asynch process and append it to list processes'''
-        # log.info("creating process")
+        log.info("creating process")
         p = Process(target=c.live_loop)
         self.processes.append(p)
         p.start()
