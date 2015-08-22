@@ -25,6 +25,7 @@ class component:
     mypipe = None # You get this from parent
     mycolor = None # You give this to parent
     mynumber = None # You get this from parent
+    myid = None # You get this from parent
     
     #internal:
     mymolecules = None # Internal list of neurotransmitter-like communication
@@ -83,14 +84,15 @@ class component:
         return
     
     
+    def get_id(self):
+        return self.myid
 
-    
-    def __init__(self, global_state, component_state, pipe, type_hints="audio", mynumber=0):
+    def __init__(self, global_state, component_state, pipe, type_hints="audio", myid=0):
         # from parent:
         self.type_hints = type_hints
         self.state = component_state
         self.mypipe = pipe
-        self.mynumber = mynumber
+        self.myid = myid
         self.global_state = global_state
         self.mycolor = [random.randint(0, 100), random.randint(40, 150),
                         random.randint(40, 150)]
@@ -114,27 +116,13 @@ class component:
         '''returns a random color for now....'''
         # return a random color
 #		avg = self.OctoChannel_layer_average()
-        
-        r = self.mycolor[0]
-        g = self.mycolor[1]
-        b = self.mycolor[2]
-        
-        if r >= 254:
-            r = 100;
-        
-        if g >= 254:
-            r = 150;
-        
-        if b >= 254:
-            r = 150;
-        
-        self.mycolor = [r, g, b]
-        return self.mycolor
+       
+        return (200,0,0)
 
-    def send_octo(self, connection):
+    def get_octo_state(self):
         '''send an 8 channel list representing current state of component'''
         octo = [self._get_color_dim(), 2, 3, 4, 5, 6, 7, 8 ]
-        connection.send(octo)
+        return octo
         
     def live_loop(self):
         '''loop repeatedly until global_state is not 1'''
@@ -142,7 +130,6 @@ class component:
         while self.global_state.value == 1:
             if self.state.value == 1:
                 self.get_input()  # get a new data frame for this run
-                self.send_octo(self.mypipe)
                 sleep(1)
                 log.info("COMPONENT %d RAN!", self.mynumber)
             else:

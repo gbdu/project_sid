@@ -1,5 +1,5 @@
 """draw a visual AI window"""
-"""Three  processes: NedProcess, DrawProcess, UpdateDataProcess"""
+"""2 processes: NedProcess, DrawProcess"""
 
 import os,sys
 import pygame,pyconsole
@@ -9,7 +9,6 @@ from multiprocessing import Process, Value
 from Text import Text
 from getmylogger import silent_logger,loud_logger
 import random
-
 from time import sleep
 import exceptions
 import ut
@@ -18,16 +17,15 @@ __version__ = "base"
 
 USER_CONSOLE_ENABLED = True #only checked when drawing
 
-
 globals()["dlog"] = silent_logger("drawing") #silent drawing logger
 globals()["llog"] = loud_logger("visual_ned") #loud logger (shows in console)
+llog = globals()["llog"]
 
 globals()["llog"].info("log setup! [ SUCCESS ] ")
 
 globals()["bigned"] = None
 
 try:
-        global llog
         globals()["screen"] = g.init_pygame()
         llog.info("init'd screen [ SUCCESS ]")
         globals()["gfont"] = g.create_font()
@@ -65,6 +63,9 @@ def init_console(screen, key_calls):
 
 globals()["user_console"] = init_console(globals()["screen"], key_calls={"d": extinguish_and_deload})
 
+#globals()["abstract_visual"] = abstract_visual.abstract_visual(400,300,color=(200,0,0),bg_color=(20,20,30))
+
+
 #### Start here
 
 def setup_color_tweens():
@@ -72,7 +73,7 @@ def setup_color_tweens():
                 st = random.randint(0, 90)
                 color_ut.add_tweener(str(i), st, 100)
                 color_ut.tween_to_up(str(i), 100)
-                llog.info("set up '%s' with %d and %d", str(i), st, 100)
+                #llog.info("set up '%s' with %d and %d", str(i), st, 100)
         pass
 
 def init_color_tweeners():
@@ -126,7 +127,6 @@ def Draw(theNed):
         
         llog.info("* PROCESS: Draw")
         
-
         def get_component_color(component_pipe):
                 '''get the color of the box that represents the component'''
                 #return component.get_color_dim()
@@ -137,6 +137,7 @@ def Draw(theNed):
                 dlog.log("draw component info")
                 c_r = pygame.Rect(0,0, 256, 100)
                 pygame.draw.rect(surf, (30, 40, 80), c_r, 0)
+
 
         def draw_components_on_surf(surf):
                 '''Draw a grid of 16x16 boxes representing our components'''
@@ -153,16 +154,15 @@ def Draw(theNed):
                 ## draw the border
                 pygame.draw.rect(surf, (45, 45, 45), c_r, 0 )
 
-                width = 16
-                height= 16
-
+                width = 32
+                height= 32
 
                 def draw_box(i, inrow, color, component_counter):
                         '''draw a single box'''
                         boxrect = pygame.Rect(inrow*width, i*height, width, height)
                         a = b = c = 0
-                                                       
-                               
+                        global bigned
+
                         global color_ut
                         # left, top, width, height
 
@@ -176,14 +176,12 @@ def Draw(theNed):
                                 color=[a+b+t*2, a+b+t, 40]
                         else: # This is a regular component, draw it using its tween
                                 color = [a+b+t, a+b+t, t/2]
-                        try:
-                                pygame.draw.rect(surf, color, boxrect , 0)
-                        except:
-                                llog.warning("bad color?")
+                        
+                        pygame.draw.rect(surf, color, boxrect , 0)
                         
                 component_counter = 0
-                for i in range(16):
-                        for inrow in range(16):
+                for i in range(8):
+                        for inrow in range(8):
                                 d = color_ut.get_tween_value("default_box")
                                 color = [d,d,d]
                                 draw_box(i, inrow, color, component_counter)
@@ -221,12 +219,12 @@ def Draw(theNed):
                 
                 globals()['color_ut'].update_frame(increase_by=1)
                 
+                #proc_mouse()
+                
                 global user_console
                 user_console.process_input()
                 user_console.draw()
 
-                
-                
                 try:
                         color_ut.update_frame()
                 except ValueError as e:
@@ -248,27 +246,7 @@ def Draw(theNed):
         return
         ## Draw() ends here
 
-def UpdateData(n):
-        #Current component duplex pipe::
-        llog.info("* PROCESS updatedata started")
-
-        while main_breakout.value == 1:
-                try:
-                        a = n.get_component_tuples()
-                except RuntimeError as e:
-                        llog.warning("unable to get component tuples")
-                        sleep(1)
-                        continue
-                
-                
-                for t in a:
-                        exit(1)
-                sleep(1)
-
-        llog.info("exiting updatedata loop")
-
 if __name__ == '__main__':
-        global llog
         global dlog
         global bigned
         
@@ -277,20 +255,15 @@ if __name__ == '__main__':
 
         # Create ned process
 
-        llog.info("creating processes")
-
+        
         bigned = Ned()
         bigned.setname("bigned-"+__version__)
 
         llog.info("this is ned %s" % __version__)
-        # log("creating processes")
         NedProcess = Process(target=bigned.live)
 
         # Create draw process
         DrawProcess = Process(target=Draw, args=(bigned,))
-
-        # Create UpdateDataProcess
-        UpdateDataProcess = Process(target=UpdateData, args=(bigned,))
 
         global main_breakout
         main_breakout.value = 1
@@ -301,9 +274,6 @@ if __name__ == '__main__':
         DrawProcess.start()
         llog.info("created draw process")
 
-        UpdateDataProcess.start()
-        llog.info("created updatedata process")
-
         llog.info("********* in main process... ")
 
         DrawProcess.join()
@@ -311,8 +281,5 @@ if __name__ == '__main__':
 
         NedProcess.join()
         llog.info("      -> joined ned [ SUCCESS ] ")
-
-        UpdateDataProcess.join()
-        llog.info("      -> joined update [ SUCCESS ] ")
 
         llog.info("All done bye")

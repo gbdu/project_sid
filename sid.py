@@ -47,38 +47,45 @@ class Sid:
         
     def get_component_tuples (self):
         '''returns a list of tuples which may be recv'd for info coming in from
-        the component itself'''
+        the component itself (c, s, a, b, h, l)'''
         if(self.mystate.value == 0):
             import exceptions
             raise exceptions.RuntimeError("Trying to get a component tuple off a dead component!")
+        return self.components
+
+    def get_component_tuple (self, want_id):
+        '''returns A tuple (c, s, a, b, h, l)'''
+        if self.components:
+            for i in self.components:
+                if i[0].get_id() == want_id:
+                    return i
+        else:
+            log.warning("no components found possible race condition")
+            return i[0]
         
-        
-        # log.info("get components")
-        l = []
-        for c in self.components:
-            l.append(c)
-        return l
 
     def __init__(self):
         log.info("a new sid wants to be created")
-        for i in range(64):
+        for i in range(21):
             self.add_component("langu")
         log.info("-----> (1/3) langu components added [ SUCCESS ]")
-        for i in range(64):
+        for i in range(21):
             self.add_component("audio")
         log.info("-----> (2/3) langu components added [ SUCCESS ]")
-        for i in range(64):
+        for i in range(22):
             self.add_component("video")
         log.info("-----> (3/3) langu components added [ SUCCESS ] ")
         log.info("a new sid is init'd")
         
     def create_process(self, c):
         '''start the asynch process and append it to list processes'''
-        log.info("creating process")
+        qlog.info("creating process")
         p = Process(target=c.live_loop)
         self.processes.append(p)
         p.start()
-
+        # do not join, just return
+        return
+    
     def getname(self):
         return self.myname
 
@@ -97,8 +104,8 @@ class Sid:
         for c in self.components:
             c[1].value = 1  # set shared value to 1 (indicating live)
             self.create_process(c[0])
+            ## This is where we block:
         
-        ## This is where we block:
         for p in self.processes:
             p.join() ## These will die once global state is set to 0
         
