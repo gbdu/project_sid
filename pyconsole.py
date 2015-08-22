@@ -156,7 +156,7 @@ class Console:
 		self.func_calls = {}
 		self.key_calls = {}
 		
-		self.add_func_calls({"echo":self.output, "clear": self.clear, "help":self.help})
+		self.add_func_calls({"echo":self.output, "clear": self.clear, "help":self.help, "exit":exit})
 		self.add_func_calls(functions)
 		
 		self.add_key_calls({"l":self.clear, "c":self.clear_input, "w":self.set_active})
@@ -193,7 +193,7 @@ class Console:
 		self.repeat_rate = [500,30]
 		self.python_mode = False
 		self.preserve_events = False
-		self.motd = ["[PyConsole 0.5]"]
+		self.motd = ["[Sid console]"]
 	
 	def safe_set_attr(self, name, value):
 		'''\

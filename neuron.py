@@ -25,10 +25,14 @@ log = getmylogger.loud_logger("neuron_stim")
 
 
 class Neuron:
-    def __init__(self, n):
-        '''n is a dict of moleculename:molecule_concentration,molecule_lock,
-        each sub-list is a reference to a molecule value and its lock'''
+    def __init__(self, n, parent_layer):
+        '''
+        n is a dict of moleculename:molecule_concentration,molecule_lock
+        parent_layer is a list of "friend" neurons (could include self!)
+        '''
         self.mymolecules = n
+        self.myfriends = parent_layer
+        self.friends = parent_layer # a list of friend neurons
         
     def dopamine_response(self, value):
         log.info("responding to dopamine value %d", value)
@@ -64,6 +68,6 @@ if __name__ == '__main__':
         molecules[name] = (Lock(), random.randint(40, 100000))
         
    
-    test_neuron = Neuron(molecules)
+    test_neuron = Neuron(molecules, [] ) 
     test_neuron.update_state()
     

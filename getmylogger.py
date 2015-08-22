@@ -3,7 +3,6 @@ import logging
 
 formatter = logging.Formatter('[%(asctime)s] p%(process)s {%(name)s:%(lineno)d} %(levelname)s - %(message)s','%H:%M:%S')
 
-
 def silent_logger(name):
     """use for high/busy logs"""
     l= logging.getLogger(name)

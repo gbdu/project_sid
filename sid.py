@@ -4,14 +4,14 @@ __author__ = 'gargantua'
 
 from multiprocessing import Process, Pipe, Value
 from component import component
-import logging
+import getmylogger
 
+last_component_number = 0
 
-# logging.basicConfig(filename='logs/sid',level=logging.DEBUG)
-# logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
+log = getmylogger.silent_logger("sid")
 
 class Sid:
-    '''create 64 components, then hang and print a message every 1 sec as
+    '''create 256 components, then hang and print a message every 1 sec as
     the components run'''
 
     # locks, myname
@@ -25,37 +25,42 @@ class Sid:
         
         state is an integer, 0 for dead, 1 for alive
         '''
-        
+        log.info("adding component")
         a, b = Pipe() ## parent,child 
         s = Value("d", 0)
         h = component_hints
-        c = component(self.mystate, s, b, component_hints)
-
+        c = component(self.mystate, s, b, component_hints, last_component_number)
         tup = (c, s, a, b, h)
-        
-        logging.info("added a component with hints %s ", component_hints)
+        log.info("added a component with hints %s ", component_hints)
         self.components.append(tup)
         
-    def get_component_pipes(self):
+    def get_component_tuples (self):
         '''returns a list of pipes which may be recv'd for info coming in from
         the component itself'''
         
+        log.info("get components")
+    
         l = []
         for c in self.components:
-            l.append(c[2])
+            l.append(c)
         
         return l
 
     def __init__(self):
+        log.info("a new sid wants to be created")
+        
         for i in range(21):
-            self.add_component("rand")
+            self.add_component("langu")
         for i in range(21, 42):
             self.add_component("audio")
         for i in range(42, 63):
             self.add_component("video")
-
+        
+        log.info("a new sid is init'd")
+        
     def create_process(self, c):
         '''start the asynch process and append it to list processes'''
+        log.info("creating process")
         p = Process(target=c.live_loop)
         self.processes.append(p)
         p.start()
@@ -71,6 +76,7 @@ class Sid:
         states to alive and creates new processes to run them, then it waits
         for the processes to finish and dies'''
         
+        log.info("living sid")
         self.mystate.value = 1 # set global state as alive
         
         for c in self.components:

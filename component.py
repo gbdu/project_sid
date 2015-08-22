@@ -9,13 +9,13 @@ import logging
 from neuron import Neuron
 import getmylogger
 
-log = getmylogger.loud_logger("component")
+log = getmylogger.silent_logger("component")
 
 def error(n):
     log.exception(RuntimeError(n))
     raise(RuntimeError(n))
 
-DEFAULT_NEURONS_PER_LAYER = 16384
+DEFAULT_NEURONS_PER_LAYER = 16
 DEFAULT_LAYERS_FOR_EACH_TYPE = 8
 
 class component:
@@ -27,67 +27,79 @@ class component:
     mystate = None # You get this from parent
     mypipe = None # You get this from parent
     mycolor = None # You give this to parent
+    mynumber = None # You get this from parent
     
+    #internal:
     mymolecules = None # Internal list of neurotransmitter-like communication
+    mylayers = None # a list of neurons + their neurotransmitters
     
-    def _create_molecules(self):
+    def get_molecule_list(self):
+        return ["dopamine", "beans", "potato", "from component"]
+    
+    
+    def create_molecule_pool(self):
         '''returns a list of molecules for internal use'''
+        
         molecules = {}
-        for name in get_molecule_list():
-            molecules[name] = (Lock(), random.randint(40, 100000))
+        for name in self.get_molecule_list():
+            molecules[name] = (Lock(), random.randint(40, 100000)) #random molecules for each layers 
         
         return molecules
         
-    def create_default_neuron_layer(self, size):
+    def create_default_neuron_layer(self, size, molecule_pool):
         """returns a default, basic neuron layer"""
-        if not self.mymolecules:
-            log.exception("need to set neurotransmitters first!")
-            raise(RuntimeError("no internal mymolecules list"))
+        if not molecule_pool:
+            error("need to set neurotransmitters first!")
         
-        l = [ Neuron(self.mymolecules) for x in range(size)]
+        
+        l = []
+        for i in range(size):
+            new_neuron = Neuron(molecule_pool, l)
+            l.append(new_neuron)
+            
         return l
         
-    def create_get_default_layers(self):
+    def create_layers(self):
         l = []
         # Create 8 layers of 128^2 neurons
-        for i in DEFAULT_LAYERS_FOR_EACH_TYPE:
-            for j in DEFAULT_NEURONS_PER_LAYER:
-                l.append(self.create_default_neuron_layer(DEFAULT_NEURONS_PER_LAYER))
+        for i in range(DEFAULT_LAYERS_FOR_EACH_TYPE):
+            for j in range(DEFAULT_NEURONS_PER_LAYER):
+                #log.info("created layer")
+                new_pool = self.create_molecule_pool()
+                new_layer = self.create_default_neuron_layer(DEFAULT_NEURONS_PER_LAYER, new_pool)
+                
+                l.append(new_layer)
+        return 
         
-        return l
-    
-    def get_audio_layers(self):
-        pass
-    
-    def create_layers(self):
-        if not self.hints:
-            error("no hints set on this component... cannnot create layers")
-            
+        log.info("created layers")
             
         
-    def init_data(self, hints):
+    def init_layers(self, hints):
         '''inits the internal data stream, these are numpy arrays'''
+        log.info("setting the data for component with hints %s", hints)
         
         self.mylayers = self.create_layers()
-            
-        self.mycolor = [random.randint(0, 100), random.randint(40, 150),
-                        random.randint(40, 150)]
+        
+        log.info("layers created ")
+        
+        
         return
     
     
     # todo: components that fire together wire together
     
-    def __init__(self, global_state, component_state, pipe, type_hints):
+    def __init__(self, global_state, component_state, pipe, type_hints="audio", mynumber=0):
         # from parent:
         self.type_hints = type_hints
         self.state = component_state
         self.mypipe = pipe
+        self.mynumber = mynumber
         self.global_state = global_state
+        self.mycolor = [random.randint(0, 100), random.randint(40, 150),
+                        random.randint(40, 150)]
         
         #internal:
-        self.mymolecules = _create_molecules()
-        
-        self.init_data(type_hints)
+        self.init_layers(type_hints)
          
     def OctoChannel_layer_average(self):
         if(self.mydatastream.any()):
@@ -135,6 +147,7 @@ class component:
                 self.get_input()  # get a new data frame for this run
                 self.send_octo(self.mypipe)
                 sleep(1)
+                log.info("COMPONENT %d RAN!", self.my)
             else:
                 # the component is not in a running state, do nothing
                 sleep(5)

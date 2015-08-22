@@ -3,3 +3,11 @@
 [19:18:24] p13799 {neuron_stim:42} INFO - dopamine is at 48598
 [19:20:16] p15220 {neuron_stim:47} INFO - dopamine is at 92624
 [19:20:16] p15220 {neuron_stim:34} INFO - responding to dopamine value 92624
+[20:04:09] p10284 {neuron_stim:51} INFO - dopamine is at 78419
+[20:04:09] p10284 {neuron_stim:38} INFO - responding to dopamine value 78419
+[20:05:59] p11462 {neuron_stim:51} INFO - dopamine is at 64488
+[20:05:59] p11462 {neuron_stim:38} INFO - responding to dopamine value 64488
+[20:06:57] p12064 {neuron_stim:51} INFO - dopamine is at 89214
+[20:06:57] p12064 {neuron_stim:38} INFO - responding to dopamine value 89214
+[20:07:28] p12413 {neuron_stim:51} INFO - dopamine is at 11511
+[20:07:28] p12413 {neuron_stim:38} INFO - responding to dopamine value 11511
