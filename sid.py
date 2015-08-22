@@ -61,25 +61,15 @@ class Sid:
 
     def __init__(self):
         log.info("a new sid wants to be created")
-        
-        for i in range(21):
+        for i in range(64):
             self.add_component("langu")
-        
         log.info("-----> (1/3) langu components added [ SUCCESS ]")
-        
-        for i in range(21, 42):
+        for i in range(64):
             self.add_component("audio")
-            
-            
         log.info("-----> (2/3) langu components added [ SUCCESS ]")
-        
-        
-        for i in range(42, 63):
+        for i in range(64):
             self.add_component("video")
-            
-            
         log.info("-----> (3/3) langu components added [ SUCCESS ] ")
-        
         log.info("a new sid is init'd")
         
     def create_process(self, c):

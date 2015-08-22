@@ -68,7 +68,7 @@ globals()["user_console"] = init_console(globals()["screen"], key_calls={"d": ex
 #### Start here
 
 def setup_color_tweens():
-        for i in range(64):
+        for i in range(256):
                 st = random.randint(0, 90)
                 color_ut.add_tweener(str(i), st, 100)
                 color_ut.tween_to_up(str(i), 100)
@@ -153,8 +153,8 @@ def Draw(theNed):
                 ## draw the border
                 pygame.draw.rect(surf, (45, 45, 45), c_r, 0 )
 
-                width = 32
-                height= 32
+                width = 16
+                height= 16
 
 
                 def draw_box(i, inrow, color, component_counter):
@@ -182,8 +182,8 @@ def Draw(theNed):
                                 llog.warning("bad color?")
                         
                 component_counter = 0
-                for i in range(0, 8):
-                        for inrow in range(8):
+                for i in range(16):
+                        for inrow in range(16):
                                 d = color_ut.get_tween_value("default_box")
                                 color = [d,d,d]
                                 draw_box(i, inrow, color, component_counter)
