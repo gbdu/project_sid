@@ -12,6 +12,7 @@ current_view_component = 1
 big_counter = 0 # between 0-255
 processes = []
 user_console = None
+TheBigNed = 0
 
 dlog = silent_logger("drawing")
 log = loud_logger("visual_ned")
@@ -42,14 +43,8 @@ def init_pygame():
 def extinguish_and_deload():
         main_breakout.Value = 0
         log.info("extinguished")
-        pygame.display.quit()
-        pygame.quit()
+        TheBigNed.signal_extinguish()
         
-        for p in processes :
-                p.join()
-        
-        log.info("really extinguished")
-        exit
 
 def init_console(screen):
         r = pygame.Rect(300, 20, 320, 256)
@@ -167,7 +162,8 @@ def Draw(theNed):
 
         log.info("entering main draw loop")
         user_console.output("hello")
-        while main_breakout.value == 1:
+        
+        while main_breakout.Value == 1:
                 user_console.process_input()
                 user_console.draw()
                 draw_version_label(sc)
@@ -177,34 +173,30 @@ def Draw(theNed):
                 component_box_where= (20,20)
                 sc.blit(component_surf, component_box_where)
         
-                component_info_surf = pygame.Surface((256,100))
-                component_info_where = (256+60,256+60)
-                draw_component_info_on_surf(component_info_surf, component_info_where)
+                #component_info_surf = pygame.Surface((256,100))
+                #component_info_where = (256+60,256+60)
+                #draw_component_info_on_surf(component_info_surf, component_info_where)
         
-                sc.blit(component_info_surf, component_info_where)
+               # sc.blit(component_info_surf, component_info_where)
                 pygame.display.flip()
 
-
+        log.info("exiting main draw loop...")
+       
+        
+        return
         ## Draw() ends here
 
 def UpdateData(n):
         #Current component duplex pipe::
         log.info("updatedata started")
-        while  main_breakout.value == 1:
+        while main_breakout.Value == 1:
+                
                 sleep(1)
+                
                 a = n.get_component_tuples()[2]
                 b = n.get_component_tuples()[3]
                 
-                log.info("updated stuff")
-                pass
-        #       log.info("updated")
-        #
-        #       for idx, val in enumerate(l):
-        #               octos_locks[idx].acquire()
-        #               octos_snapshot[idx] = val.recv()
-        #               octos_locks[idx].release()
-        #
-                        #octos[1]=[12,12,12]
+        log.info("exiting updatedata loop")
 
 if __name__ == '__main__':
         # Create the three processes:
@@ -214,9 +206,12 @@ if __name__ == '__main__':
         user_console = init_console(sc)
         user_console.output("info:Created console")
         log.info('create console')
+        
         # Create ned process
         n = Ned()
-
+        
+        global TheBigNed
+        TheBigNed = n
 
         log.info("creating processes")
 
@@ -232,23 +227,27 @@ if __name__ == '__main__':
         # Create UpdateDataProcess
         UpdateDataProcess = Process(target=UpdateData, args=(n,))
 
-
-        main_breakout.value=1
+        main_breakout.Value=1
         
-        processes.append(NedProcess)
-        processes.append(DrawProcess)
-        processes.append(UpdateDataProcess)
-        
-
         NedProcess.start()
         log.info("created ned process")
 
         DrawProcess.start()
         log.info("created draw process")
 
-        UpdateDataProcess.start()
+        #UpdateDataProcess.start()
         log.info("created updatedata process")
 
-        NedProcess.join()
-        UpdateDataProcess.join()
+        log.info("********* in main process... ")
+        
         DrawProcess.join()
+        log.info("      -> joined draw process")
+        
+        NedProcess.join()
+        log.info("      -> joined ned")
+        
+        # UpdateDataProcess.join()
+        log.info("      -> joined update")
+        
+        log.info("All done!")
+        

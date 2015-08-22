@@ -8,7 +8,7 @@ import getmylogger
 
 last_component_number = 0
 
-log = getmylogger.silent_logger("sid")
+log = getmylogger.loud_logger("sid")
 
 class Sid:
     '''create 256 components, then hang and print a message every 1 sec as
@@ -25,11 +25,14 @@ class Sid:
         
         state is an integer, 0 for dead, 1 for alive
         '''
-        log.info("adding component")
         a, b = Pipe() ## parent,child 
         s = Value("d", 0)
         h = component_hints
         c = component(self.mystate, s, b, component_hints, last_component_number)
+        
+        global last_component_number
+        last_component_number += 1
+        
         tup = (c, s, a, b, h)
         log.info("added a component with hints %s ", component_hints)
         self.components.append(tup)
@@ -60,7 +63,7 @@ class Sid:
         
     def create_process(self, c):
         '''start the asynch process and append it to list processes'''
-        log.info("creating process")
+        # log.info("creating process")
         p = Process(target=c.live_loop)
         self.processes.append(p)
         p.start()

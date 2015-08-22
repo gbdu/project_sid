@@ -147,7 +147,7 @@ class component:
                 self.get_input()  # get a new data frame for this run
                 self.send_octo(self.mypipe)
                 sleep(1)
-                log.info("COMPONENT %d RAN!", self.my)
+                log.info("COMPONENT %d RAN!", self.mynumber)
             else:
                 # the component is not in a running state, do nothing
                 sleep(5)
