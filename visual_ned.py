@@ -1,4 +1,4 @@
-import os,sys
+import os
 import pygame
 from ned import Ned
 from pyconsole import Console
@@ -8,66 +8,80 @@ from getmylogger import silent_logger,loud_logger
 import random
 from time import sleep
 
-current_view_component = 1
-big_counter = 0 # between 0-255
-processes = []
-user_console = None
-TheBigNed = 0
-
-dlog = silent_logger("drawing")
-log = loud_logger("visual_ned")
-
-#       Three  processes:
-#       NedProcess                                      DrawProcess(Ned Object)                 UpdateDataProcess
-#        |                                                                                |                                                     |
-#       Runs a regular ned          Repeatedly draws info on screen      (Updates data recv'd from pipes)
-#
-
 __version__ = "1.1-alpha"
 
+
+current_view_component = 1
+big_counter = 0 # between 0-255
+user_console = None
+TheBigNed = None
 font = None
+current_component_tuple_snapshot = None
+
 main_breakout = Value("d", 0)
 
-octos_snapshot = [] # should be 64
-octos_locks = [Lock() for i in range(64)]
+dlog = silent_logger("drawing") ## Drawing fast paced log, goes only to file...
+llog = loud_logger("visual_ned") ## loud visual/user log ...
+
 
 def init_pygame():
         '''init pygame and return a screen object'''
         pygame.init()
         screen = pygame.display.set_mode((640, 480))
-        dlog.info("init pygame")
-        #hide the mouse
-
         return screen
 
+## First actual line is here...
+
+
+sc = init_pygame() ## Assume this goes through... TODO: catch possible error
+
+
 def extinguish_and_deload():
-        main_breakout.Value = 0
-        log.info("extinguished")
+        main_breakout.value = 0
+        dlog.info("extinguished")
         TheBigNed.signal_extinguish()
         
-
 def init_console(screen):
         r = pygame.Rect(300, 20, 320, 256)
         user_console = Console(screen, r, key_calls={"d": extinguish_and_deload } )
-        log.info("init user console")
+        dlog.info("init user console")
         return user_console
 
-sc = init_pygame()
+user_console = init_console(sc)
+
+
+def log(myin):
+        llog.info(myin)
+        # user console needs to be set up first 
+        user_console.output(myin)
+
+# Three  processes: NedProcess, DrawProcess, UpdateDataProcess
+
+octos_snapshot = [] # should be 64
+octos_locks = [Lock() for i in range(64)]
+
+
 
 def octo_getcolor(octo):
         return octo[0]
 
 def Draw(theNed):
-        """Initialize pygame then draw the given Ned"""
-
-
+        """draw the given Ned on global scr"""
+        # TODO:
+        # Things to draw on main screen:
+        #       - What sid thinks it looks like (as a person)
+        #       - output from one of the text components
+        # Things to input:
+        #       - Right-click menu
+        #       - components that fire together wire together
+        log("* PROCESS: Draw")
         def get_component_color(component_pipe):
                 '''get the color of the box that represents the component'''
                 #return component.get_color_dim()
                 return component_pipe.recv()
 
         def draw_component_info_on_surf(surf, where):
-                dlog.info("draw component info")
+                log("draw component info")
                 c_r = pygame.Rect(0,0, 256, 100)
                 pygame.draw.rect(surf, (30, 40, 80), c_r, 0)
 
@@ -160,10 +174,9 @@ def Draw(theNed):
         init_fonts()
 
 
-        log.info("entering main draw loop")
-        user_console.output("hello")
+        log("entering main draw loop")
         
-        while main_breakout.Value == 1:
+        while main_breakout.value == 1:
                 user_console.process_input()
                 user_console.draw()
                 draw_version_label(sc)
@@ -172,15 +185,10 @@ def Draw(theNed):
         
                 component_box_where= (20,20)
                 sc.blit(component_surf, component_box_where)
-        
-                #component_info_surf = pygame.Surface((256,100))
-                #component_info_where = (256+60,256+60)
-                #draw_component_info_on_surf(component_info_surf, component_info_where)
-        
-               # sc.blit(component_info_surf, component_info_where)
+
                 pygame.display.flip()
 
-        log.info("exiting main draw loop...")
+        log("exiting main draw loop...")
        
         
         return
@@ -188,37 +196,35 @@ def Draw(theNed):
 
 def UpdateData(n):
         #Current component duplex pipe::
-        log.info("updatedata started")
-        while main_breakout.Value == 1:
+        log("* PROCESS updatedata started")
+        while main_breakout.value == 1:
+                a = n.get_component_tuples()
+                for t in a:
+                        pass # each tuple is here as t
+                                # each typle is  (c, s, a, b, h)
+                        log(t)
+                        exit(1)
+                sleep(1)      
                 
-                sleep(1)
-                
-                a = n.get_component_tuples()[2]
-                b = n.get_component_tuples()[3]
-                
-        log.info("exiting updatedata loop")
+        log("exiting updatedata loop")
 
 if __name__ == '__main__':
         # Create the three processes:
         # -----
-        log.info("here we go")
-
-        user_console = init_console(sc)
-        user_console.output("info:Created console")
-        log.info('create console')
+        log("here we go")
+        dlog.info('create console')
         
         # Create ned process
         n = Ned()
         
-        global TheBigNed
         TheBigNed = n
 
-        log.info("creating processes")
+        log("creating processes")
 
         n.setname("ned-"+__version__)
 
-        log.info ("this is ned %s" % __version__)
-        # log.info("creating processes")
+        log ("this is ned %s" % __version__)
+        # log("creating processes")
         NedProcess = Process(target=n.live)
 
         # Create draw process
@@ -227,27 +233,27 @@ if __name__ == '__main__':
         # Create UpdateDataProcess
         UpdateDataProcess = Process(target=UpdateData, args=(n,))
 
-        main_breakout.Value=1
+        main_breakout.value=1
         
         NedProcess.start()
-        log.info("created ned process")
+        log("created ned process")
 
         DrawProcess.start()
-        log.info("created draw process")
+        log("created draw process")
 
-        #UpdateDataProcess.start()
-        log.info("created updatedata process")
+        UpdateDataProcess.start()
+        log("created updatedata process")
 
-        log.info("********* in main process... ")
+        log("********* in main process... ")
         
         DrawProcess.join()
-        log.info("      -> joined draw process")
+        log("      -> joined draw process")
         
         NedProcess.join()
-        log.info("      -> joined ned")
+        log("      -> joined ned")
         
-        # UpdateDataProcess.join()
-        log.info("      -> joined update")
+        UpdateDataProcess.join()
+        log("      -> joined update")
         
-        log.info("All done!")
+        log("All done!")
         

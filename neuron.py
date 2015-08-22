@@ -17,7 +17,6 @@ def get_molecule_list():
 
 log = getmylogger.loud_logger("neuron_stim")
 
-# todo:
 # -class*
 # -communicate with neighbours (?)
 

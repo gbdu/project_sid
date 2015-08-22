@@ -2,21 +2,22 @@
 
 __author__ = 'gargantua'
 
-from multiprocessing import Process, Pipe, Value
+from multiprocessing import Process, Pipe, Value, Lock
 from component import component
 import getmylogger
+import os,sys
 
 last_component_number = 0
 
-log = getmylogger.loud_logger("sid")
+log = getmylogger.silent_logger("sid")
 
 class Sid:
     '''create 256 components, then hang and print a message every 1 sec as
     the components run'''
-
+    
     # locks, myname
     mystate = Value("d", 0) # 0 for dead, 1 for alive, set by creator
-    components = []
+    components = [] # alist of tuples of form  (c, s, a, b, h, l)
     processes = []
 
     def add_component(self, component_hints):
@@ -25,28 +26,33 @@ class Sid:
         
         state is an integer, 0 for dead, 1 for alive
         '''
+        
+        global last_component_number
+        
         a, b = Pipe() ## parent,child 
         s = Value("d", 0)
         h = component_hints
         c = component(self.mystate, s, b, component_hints, last_component_number)
+        l  = Lock() # Component lock
         
-        global last_component_number
         last_component_number += 1
         
-        tup = (c, s, a, b, h)
-        log.info("added a component with hints %s ", component_hints)
+        tup = (c, s, a, b, h, l)
+        
+        # log.info("added a component with hints %s ", component_hints)
+        log.info("new comp %d " % last_component_number)
         self.components.append(tup)
         
     def get_component_tuples (self):
-        '''returns a list of pipes which may be recv'd for info coming in from
+        '''returns a list of tuples which may be recv'd for info coming in from
         the component itself'''
+        if(self.mystate.value == 0):
+            raise RunTimeError("Trying to get a component tuple off a dead component!")
         
-        log.info("get components")
-    
+        # log.info("get components")
         l = []
         for c in self.components:
             l.append(c)
-        
         return l
 
     def __init__(self):
@@ -79,7 +85,8 @@ class Sid:
         states to alive and creates new processes to run them, then it waits
         for the processes to finish and dies'''
         
-        log.info("living sid")
+        log.info("* PROCESS living sid")
+        
         self.mystate.value = 1 # set global state as alive
         
         for c in self.components:
@@ -121,3 +128,11 @@ class Sid:
     def print_panel(self):
         sid_panel = ""
         return sid_panel
+
+
+
+if __name__ == "__main__":
+    ned = Sid()  # create a new instance of our AI
+    ned.setname("ned")
+    ned.live()
+

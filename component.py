@@ -1,11 +1,8 @@
 __author__ = 'gargantua'
 
-import numpy
 import random
 from multiprocessing import Process, Value, Lock
-import numpy
 from time import sleep
-import logging
 from neuron import Neuron
 import getmylogger
 
@@ -13,10 +10,10 @@ log = getmylogger.silent_logger("component")
 
 def error(n):
     log.exception(RuntimeError(n))
-    raise(RuntimeError(n))
+    raise(BadValue(n))
 
-DEFAULT_NEURONS_PER_LAYER = 16
-DEFAULT_LAYERS_FOR_EACH_TYPE = 8
+DEFAULT_NEURONS_PER_LAYER = 8
+DEFAULT_LAYERS_FOR_EACH_TYPE = 256
 
 class component:
     ''' an octo is an 8 channel parallel (list of 8 floats from numpy)
@@ -86,7 +83,7 @@ class component:
         return
     
     
-    # todo: components that fire together wire together
+
     
     def __init__(self, global_state, component_state, pipe, type_hints="audio", mynumber=0):
         # from parent:
