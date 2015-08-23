@@ -31,39 +31,20 @@ class Sid:
         
         global last_component_number
         
-        a, b = Pipe() ## parent,child 
-        s = Value("d", 0)
-        h = component_hints
-        c = component(self.mystate, s, b, component_hints, last_component_number)
-        l  = Lock() # Component lock
+        # Components get their id based on the order they were added to the list...
+        c = component(self.mystate, component_hints, len(self.components))
+        lock = Lock()
         
-        last_component_number += 1
-        
-        tup = (c, s, a, b, h, l)
-        
-        # log.info("added a component with hints %s ", component_hints)
-        qlog.info("new comp %d " % last_component_number)
-        self.components.append(tup)
-        
-    def get_component_tuples (self):
-        '''returns a list of tuples which may be recv'd for info coming in from
-        the component itself (c, s, a, b, h, l)'''
-        if(self.mystate.value == 0):
-            import exceptions
-            raise exceptions.RuntimeError("Trying to get a component tuple off a dead component!")
-        return self.components
+        self.components.append({"component":c, "lock":lock})
 
-    def get_component_tuple (self, want_id):
-        '''returns A tuple (c, s, a, b, h, l)'''
-        if self.components:
-            for i in self.components:
-                if i[0].get_id() == want_id:
-                    return i
-        else:
-            log.warning("no components found possible race condition")
-            return i[0]
+    def get_component_by_id(self, c_id):
+        '''returns a handle to the component object if found'''
+        for i in self.components:
+            if i["component"].get_id() == c_id:
+                return i
         
-
+        raise exceptions.ValueError("component not found [%d]" % c_id)
+   
     def __init__(self):
         log.info("a new sid wants to be created")
         for i in range(21):
@@ -75,11 +56,10 @@ class Sid:
         for i in range(22):
             self.add_component("video")
         log.info("-----> (3/3) langu components added [ SUCCESS ] ")
-        log.info("a new sid is init'd")
         
     def create_process(self, c):
-        '''start the asynch process and append it to list processes'''
-        qlog.info("creating process")
+        '''start the asynch process and appends it to list processes'''
+        qlog.info("creating process for new sid component ... ")
         p = Process(target=c.live_loop)
         self.processes.append(p)
         p.start()
@@ -102,8 +82,7 @@ class Sid:
         self.mystate.value = 1 # set global state as alive
         
         for c in self.components:
-            c[1].value = 1  # set shared value to 1 (indicating live)
-            self.create_process(c[0])
+            self.create_process(c['component'])
             ## This is where we block:
         
         for p in self.processes:
@@ -132,7 +111,7 @@ class Sid:
         self.mystate.value = 0 # set global state to dead
         
         for c in self.components:
-            c[1].value = 0 # Go over all forked components and set them to dead
+            c['component'].signal_death() # Go over all forked components and set them to dead
                             # this will (hopefully) cause their live_loop to die
         
         log.info("  ----> got signal extinguish [ SUCCESS ]")

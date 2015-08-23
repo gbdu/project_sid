@@ -22,7 +22,6 @@ class component:
 
     octo_layer_average = []
     mystate = None # You get this from parent
-    mypipe = None # You get this from parent
     mycolor = None # You give this to parent
     mynumber = None # You get this from parent
     myid = None # You get this from parent
@@ -74,32 +73,29 @@ class component:
         
     def init_layers(self, hints):
         '''inits the internal data stream, these are numpy arrays'''
-        log.info("setting the data for component with hints %s", hints)
-        
+        log.info("setting the data for component with hints %s", hints)    
         self.mylayers = self.create_layers()
-        
         log.info("layers created ")
-        
-        
         return
     
     
     def get_id(self):
         return self.myid
 
-    def __init__(self, global_state, component_state, pipe, type_hints="audio", myid=0):
+    def __init__(self, global_state, type_hints="audio", myid=0):
         # from parent:
         self.type_hints = type_hints
-        self.state = component_state
-        self.mypipe = pipe
+        self.mystate = Value("d", 1)
         self.myid = myid
         self.global_state = global_state
+        
         self.mycolor = [random.randint(0, 100), random.randint(40, 150),
                         random.randint(40, 150)]
         
         #internal:
         self.init_layers(type_hints)
-         
+        
+    
     def OctoChannel_layer_average(self):
         if(self.mydatastream.any()):
             return numpy.mean(self.mydatastream)
@@ -108,37 +104,41 @@ class component:
         return 0
 
     def get_input(self):
-        # if self.type_hints == "rand":
-        #self.mydatastream = numpy.fromfile()
+        '''reads from data stream...'''
+        
+        ## For now just change the octo randomly...
+        
         pass
 
     def _get_color_dim(self):
         '''returns a random color for now....'''
-        # return a random color
-#		avg = self.OctoChannel_layer_average()
-       
         return (200,0,0)
 
-    def get_octo_state(self):
+    def get_octo(self):
         '''send an 8 channel list representing current state of component'''
-        octo = [self._get_color_dim(), 2, 3, 4, 5, 6, 7, 8 ]
+        self.mycolor = (random.randint(0, 100), random.randint(0, 100), random.randint(0, 100))
+        octo = [self.mycolor, 2, 3, 4, 5, 6, 7, 8 ]
         return octo
         
     def live_loop(self):
         '''loop repeatedly until global_state is not 1'''
         
         while self.global_state.value == 1:
-            if self.state.value == 1:
+            if self.mystate.value == 1:
                 self.get_input()  # get a new data frame for this run
                 sleep(1)
                 log.info("COMPONENT %d RAN!", self.mynumber)
+            elif self.mystate.value == 0:
+                #self.clean()
+                return 
             else:
                 # the component is not in a running state, do nothing
                 sleep(5)
         
-        self.mypipe.close()
-        
         return
+    
+    def signal_death(self):
+        self.mystate.value = 0 
 
         
     def read_user_input(self):
