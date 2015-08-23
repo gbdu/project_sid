@@ -1,2 +1,5 @@
-/
-!/*.py
+*.py[cod]
+scratches/
+logs/*
+*.komodoproject
+
