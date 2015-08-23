@@ -3,7 +3,7 @@ This is a basic form of AI
 his name is Ned and he is a type of "sid"
 
 
-![latest_screencast](/screencasts/latest.png)
+![latest_screencast](/screencasts/latest.gif)
 
 -- visual_ned is the monitoring tool that will display
 information about him.
