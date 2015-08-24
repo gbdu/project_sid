@@ -2,6 +2,11 @@
 
 A visual representation of a Sid
 
+This has the following asynch processes running:
+        - sid.live
+        - drawing
+        - universal tweener updater
+
 """
 
 __author__ = 'gbdu'
@@ -12,8 +17,8 @@ __version__ = "1.4-alpha"
 __email__ = "ogrum@live.com"
 __status__ = "dev"
 
-from dbgp.client import brkOnExcept
-brkOnExcept(host='mybox', port=9000)
+#from dbgp.client import brkOnExcept
+#brkOnExcept(host='mybox', port=9000)
 
 # Import main dependencies:
 try:
@@ -27,14 +32,14 @@ except ImportError as e:
         print "failed to import main dependencies... "
         print e
         exit(1)
-        
+
 # Import my dependencies:
 try:
         from helpers import getmylogger
         from ai import sid
         from mylibs import ut
         from gui import gui_helpers,pyconsole
-        
+
 except ImportError as e:
         print "failed to import bigned dependencies... "
         print e
@@ -43,13 +48,9 @@ except ImportError as e:
 
 USER_CONSOLE_ENABLED = True #only checked when drawing
 
+
 globals()["dlog"] =  getmylogger.silent_logger("drawing") #silent drawing logger
-globals()["llog"] = getmylogger.loud_logger("bigned") #loud logger (shows in console)
-llog = globals()["llog"]
-
-globals()["llog"].info("log setup! [ SUCCESS ] ")
-
-globals()["bigned"] = None
+globals()["llog"] =  getmylogger.loud_logger("drawing") #silent drawing logger
 
 try:
         globals()["screen"] = gui_helpers.init_pygame()
@@ -61,7 +62,7 @@ except Exception as e:
         llog.error("error while init  [ FAIL ] ")
         print e
         exit(1)
-        
+
 def extinguish_and_deload():
         llog.info("---> ABOUT TO DELOAD")
         globals()["main_breakout"].value = 0
@@ -85,7 +86,7 @@ globals()["selected_component_id"] = 0
 #### Start here
 
 def setup_color_tweens(): ## This is a list of tweens set up by default...
-        
+
         for i in range(256):
                 st = random.randint(40, 90)
                 color_ut.add_tweener(str(i))
@@ -93,35 +94,34 @@ def setup_color_tweens(): ## This is a list of tweens set up by default...
                 #llog.info("set up '%s' with %d and %d", str(i), st, 100)
         pass
 
-def init_color_tweeners():
-        global color_ut
-        color_ut = ut.Ut(1)
-        
-        color_ut.add_tweener("default_box")
-        color_ut.constant("default_box", 50)
-        
-        color_ut.add_tweener("default_box_text")
-        color_ut.tween_cycle("default_box_text",
+def add_color_tweeners(ut_obj):
+        ut_obj.add_tweener("rotation_angle")
+        ut_obj.tween_to_up("rotation_angle", 360)
+
+        ut_obj.add_tweener("default_box")
+        ut_obj.constant("default_box", 50)
+
+        ut_obj.add_tweener("default_box_text")
+        ut_obj.tween_cycle("default_box_text",
                              random.randint(0,50),
                              random.randint(50, 200))
-        
-        color_ut.add_tweener("active_box")
-        color_ut.tween_cycle("active_box", 0, 100)
-        
-        color_ut.add_tweener("nearbox_1")
-        color_ut.tween_cycle("nearbox_1", 0, 40)
-        
-        color_ut.add_tweener("nearbox_2")
-        color_ut.tween_cycle("nearbox_2", 0, 20)
-        
+
+        ut_obj.add_tweener("active_box")
+        ut_obj.tween_cycle("active_box", 0, 100)
+
+        ut_obj.add_tweener("nearbox_1")
+        ut_obj.tween_cycle("nearbox_1", 0, 40)
+
+        ut_obj.add_tweener("nearbox_2")
+        ut_obj.tween_cycle("nearbox_2", 0, 20)
+
         try:
                 setup_color_tweens()
         except Exception as e :
                 llog.error("Couldnt setup color tweens for components...")
                 print e
                 exit(1)
-        return
-
+        return ut_obj
 
 def get_color_inverse(color):
         inverse = [abs(250-color[0]), abs(250-color[1]), abs(250-color[2])]
@@ -131,26 +131,16 @@ def get_color_dimmer(color,a=20):
         inverse = [color[0]-a, color[1]-a, color[2]-a]
         return inverse
 
-try:
-        init_color_tweeners()
-except ValueError as e:
-        llog.error("failed to init tweeners: %s", e)
-        exit(1)
-except Exception as e:
-        print e
-        llog.error("unknown error while init tweeners")
-        exit(1)
 
+## Innit is done
 
-## Innit is done        
-
-def Draw(theNed):
+def Draw(theNed, color_ut):
         """draw the given Ned on global scr"""
 
         global llog
-        
+
         llog.info("* PROCESS: Draw")
-        
+
         def get_component_color(component_pipe):
                 '''get the color of the box that represents the component'''
                 #return component.get_color_dim()
@@ -193,25 +183,36 @@ def Draw(theNed):
                         boxrect = pygame.Rect(inrow*width, i*height, width, height)
                         a = b = c = 0
                         global bigned
-                        global color_ut
                         boxrect_big = pygame.Rect(inrow*width - width*1, i*height - height*1, width*3, height*3)
                         t = color_ut.get_tween_value(str(component_counter))
-                        
+
                         if boxrect.collidepoint(pos): # this is an active box
                                 a = color_ut.get_tween_value("active_box")
                                 global selected_component_id
                                 selected_component_id = component_counter
-                                color = [200, a, a]
+                                color = [200, 200 , 200+(t/2)]
                         elif boxrect_big.collidepoint(pos):
                                 b = color_ut.get_tween_value("nearbox_1")
-                                color=[a+b+t + 1 , a+b+t + 5 , t/2 + 40]
+                                color=[a+b+t + 20, a+b+t + 20 , t/2 + 40]
                         else: # This is a regular component, draw it using its tween
                                 color = [a+b+t, a+b+t, 20+ (t/2)]
-                                
+
+                        if(selected_component_id != component_counter):
+                                c_dict = bigned.get_component_by_id(component_counter)
+                                c_dict['lock'].acquire()
+                                octo = c_dict['component'].get_octo()
+                                c_dict['lock'].release()
+
+                                if(octo["type_hints"] == "audio"):
+                                        color = (color[0], color[1]+15, color[2]+10)
+                                if(octo["type_hints"] == "video"):
+                                        color = (color[0]+15, color[1]+10, color[2])
+                                if(octo["type_hints"] == "langu"):
+                                        color = (color[0]+15, color[1]+5, color[2]+20)
+
                         pygame.draw.rect(surf, color, boxrect , 0)
-                        
                         draw_box_label(i, inrow, get_color_inverse(color), component_counter)
-                        
+
                 component_counter = 0
                 for i in range(8):
                         for inrow in range(8):
@@ -224,35 +225,37 @@ def Draw(theNed):
 
                 return ## Draw components
 
-        def draw_version_label(screen):
-                #version_text=Text(screen, globals()["gfont"], pygame.Rect(0,0,0,0) ,
-                #                 "sid simulator " + __version__)
-                #version_text.draw()
-                dlog.info("drew version label")
+        def draw_version_label(surf,color=(200,200,200)):
+                global gfont
+                surf.fill((40,40,40))
+                text = gfont.render("bigned " + __version__, 1, color)
+                r=pygame.Rect(0,0,100,20)
+                surf.blit(text, r)
 
         def draw_panel_label(surf):
                 '''draw the bottom panel label'''
                 global selected_component_id
                 global gfont
-                
+
                 surf.fill((40,40,40))
                 info_paragraph = []
-                
+
                 info_paragraph.append("Currently selected component: %d " % selected_component_id)
                 c_dict = bigned.get_component_by_id(selected_component_id)
-                
+
                 c_dict['lock'].acquire()
                 octo = c_dict['component'].get_octo()
                 c_dict['lock'].release()
-                
-                info_paragraph.append("Internal octo: ")
-                s_octo = str(octo)
-                info_paragraph.append(s_octo)
-                
+
+                #info_paragraph.append("Internal octo: ")
+
+                info_paragraph.append("    component type : %s" % octo["type_hints"])
+                info_paragraph.append("    source : %s" % octo["source"])
+
                 info_paragraph.append("")
-                
+
                 for number,line in enumerate(info_paragraph):
-                        rpos = pygame.Rect(0, (number*gfont.get_height()), 20,20) # location of text 
+                        rpos = pygame.Rect(0, (number*gfont.get_height()), 20,20) # location of text
                         text = gfont.render(line, 1, (100,200,100))
                         surf.blit(text, rpos)
 
@@ -264,40 +267,44 @@ def Draw(theNed):
         global screen
         screen.fill((35, 35, 35))
 
-        llog.info("entering main draw loop")
 
-        global main_breakout
-        global color_ut
-        
-        panel_label_surf = pygame.Surface((256, 100))
+        panel_label_surf = pygame.Surface((256, 170))
         component_surf = pygame.Surface((256, 256))
+        version_label_surf = pygame.Surface((100, gfont.get_height()))
 
         component_box_where= (20,20)
         panel_label_where = (20, 300)
-        
+        version_label_where = (5,5)
+
+        global main_breakout
+        global user_console
+
+
+        llog.info("entering main draw loop")
         while main_breakout.value == 1:
                 ## This is our main loop, draw input screen and update tweener
-                
-                #globals()['color_ut'].update_frame(increase_by=1)
-                
-                #proc_mouse()
-                
-                global user_console
                 user_console.process_input()
                 user_console.draw()
-                
-                color_ut.update_frame()
-   
-                draw_version_label(screen)
-                
-                draw_panel_label(panel_label_surf)        
+                #
+                # color_ut.update_frame()
+                #
+                draw_version_label(version_label_surf)
+
+                draw_panel_label(panel_label_surf)
                 draw_components_on_surf(component_surf)
 
-                
+                #deg = color_ut.get_tween_value("rotation_angle");
+                #rotated_component_surf = pygame.transform.rotate(component_surf,  deg)
+                #print deg
+
+                screen.blit(version_label_surf, version_label_where)
                 screen.blit(component_surf, component_box_where)
+                screen.blit(component_surf, component_box_where)
+
                 screen.blit(panel_label_surf, panel_label_where)
-                
+
                 pygame.display.flip()
+
 
         llog.info("exiting main draw loop...")
 
@@ -308,30 +315,50 @@ def Draw(theNed):
 if __name__ == '__main__':
         global dlog
         global bigned
-        
+
         llog.info("Here we go!!!")
-        
+
         bigned = sid.Sid()
         bigned.setname("BigNed")
 
         llog.info("The sid %s was created successfully, he's not alive yet though [ SUCCESS ] " % bigned.getname() )
-        
-        SidProcess = Process(target=bigned.live)
 
-        # Create draw process
-        DrawProcess = Process(target=Draw, args=(bigned,))
+        color_ut = ut.Ut()
+
+        if not color_ut :
+                raise Exception("error init ut")
+                exit(1)
+
+
+        llog.info("init ut in main process")
+
+        try:
+                color_ut = add_color_tweeners(color_ut)
+        except :
+                llog.error("failed to init tweeners: %s", e)
+                exit(1)
+
+        SidProcess = Process(target=bigned.live) # sid process
+        DrawProcess = Process(target=Draw, args=(bigned,color_ut)) # draw process
+
+
+        TweenerProcess = Process(target=color_ut.update_frame,args=(1,))
+
 
         global main_breakout
         main_breakout.value = 1
 
+        TweenerProcess.start()
+        llog.info("[3/3] : tweener process was started")
+
         SidProcess.start()
-        llog.info("created ned process")
+        llog.info("[1/3] : sid process was started ")
 
         DrawProcess.start()
-        llog.info("created draw process")
+        llog.info("[2/3] : draw process was started")
 
-        llog.info("********* in main process... ")
 
+        # Important: start tweener updater before everything else?
         DrawProcess.join()
         llog.info("      -> joined draw process [ SUCCESS ] ")
 
