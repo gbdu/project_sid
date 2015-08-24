@@ -1,12 +1,34 @@
-__author__ = 'gargantua'
+"""
+
+AI component object, ran as a single asynch process to compute data streams
+Thing of it as a region in the brain. All components run asynchronously from
+one another.
+    ~ gbdu
+
+"""
+
+__author__ = 'gbdu'
+__copyright__ = "Copyright 2015, gbdu"
+__credits__ = ["gbdu"]
+__license__ = "GPL"
+__version__ = "1.0.1"
+__email__ = "ogrum@live.com"
+__status__ = "dev"
 
 import random
 from multiprocessing import Process, Value, Lock
 from time import sleep
-from neuron import Neuron
-import getmylogger
 
-log = getmylogger.silent_logger("component")
+try :
+    from neuron import Neuron
+    from helpers.getmylogger import loud_logger,silent_logger
+
+except ImportError as e:
+    print "Could not import from component"
+    print e
+    raise e
+
+log = silent_logger("component")
 
 def error(n):
     log.exception(RuntimeError(n))

@@ -1,32 +1,22 @@
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-# pyconsole - a simple console for pygame based applications 
-#
-# Copyright (C) 2006  John Schanck
-# 
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
-# 
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+"""
+a heavily modified version of pyconsole by John Schanck
+"""
 
+__author__ = 'gbdu'
+__copyright__ = "Copyright 2015, gbdu"
+__credits__ = ["gbdu", "john schnack"]
+__license__ = "GPL"
+__email__ = "ogrum@live.com"
+__status__ = "dev"
 
-import pygame, os, sys 
+from gui_helpers import create_font
+
+import pygame, os, sys
 from pygame.locals import *
-
-import re 		# Python's Regexp library. Used in pyconsole for parsing
+import re               # Python's Regexp library. Used in pyconsole for parsing
 import textwrap # Used for proper word wrapping
 from string import ascii_letters
-from code import InteractiveConsole		# Gives us access to the python interpreter
-
+from code import InteractiveConsole             # Gives us access to the python interpreter
 
 __version__ = "0.7"
 
@@ -38,7 +28,7 @@ IN = 1
 ERR = 2
 
 PYCONSOLE = 1
-PYTHON = 2 
+PYTHON = 2
 
 path = os.path.abspath(os.path.dirname(__file__))
 font_path = os.path.join(path, "fonts")
@@ -50,11 +40,11 @@ cfg_path = os.path.join(path, "pyconsole.cfg")
 re_token = re.compile(r"""[\"].*?[\"]|[\{].*?[\}]|[\(].*?[\)]|[\[].*?[\]]|\S+""")
 re_is_list = re.compile(r'^[{\[(]')
 re_is_number = re.compile(r"""
-						(?x)
-						[-]?[0][x][0-9a-fA-F]+[lLjJ]? | 	#  Hexadecimal
-						[-]?[0][0-7]+[lLjJ]? |				#  Octal
-						[-]?[\d]+(?:[.][\d]*)?[lLjJ]?		#  Decimal (Int or float)
-						""")
+												(?x)
+												[-]?[0][x][0-9a-fA-F]+[lLjJ]? |         #  Hexadecimal
+												[-]?[0][0-7]+[lLjJ]? |                          #  Octal
+												[-]?[\d]+(?:[.][\d]*)?[lLjJ]?           #  Decimal (Int or float)
+												""")
 re_is_assign = re.compile(r'[$](?P<name>[a-zA-Z_]+\S*)\s*[=]\s*(?P<value>.+)')
 re_is_comment =  re.compile(r'\s*#.*')
 re_is_var = re.compile(r'^[$][a-zA-Z_]+\w*\Z')
@@ -87,61 +77,61 @@ def balanced(t):
 		elif char in pairs:
 			stack.append(char)
 	return not bool(stack)
-	
+
 class Console:
 	def __init__(self, screen, rect, functions={}, key_calls={}, vars={}, syntax={}):
 		if not pygame.display.get_init():
 			raise pygame.error, "Display not initialized. Initialize the display before creating a Console"
-		
+
 		if not pygame.font.get_init():
 			pygame.font.init()
 
 		self.parent_screen = screen
 		self.rect = pygame.Rect(rect)
 		self.size = self.rect.size
-		
-		self.user_vars = vars		
+
+		self.user_vars = vars
 		self.user_syntax = syntax
 		self.user_namespace = {}
-		
+
 		self.variables = {\
-				"bg_alpha":int,\
-				"bg_color": list,\
-				"txt_color_i": list,\
-				"txt_color_o": list,\
-				"ps1": str,\
-				"ps2": str,\
-				"ps3": str,\
-				"active": bool,\
-				"repeat_rate": list,\
-				"preserve_events":bool,\
-				"python_mode":bool,\
-				"motd":list
-				}
-		
+						"bg_alpha":int,\
+						"bg_color": list,\
+						"txt_color_i": list,\
+						"txt_color_o": list,\
+						"ps1": str,\
+						"ps2": str,\
+						"ps3": str,\
+						"active": bool,\
+						"repeat_rate": list,\
+						"preserve_events":bool,\
+						"python_mode":bool,\
+						"motd":list
+						}
+
 		self.load_cfg()
-		
+
 		self.set_interpreter()
-		
+
 		pygame.key.set_repeat(*self.repeat_rate)
-			
+
 		self.bg_layer = pygame.Surface(self.size)
 		self.bg_layer.set_alpha(self.bg_alpha)
-		
+
 		self.txt_layer = pygame.Surface(self.size)
 		self.txt_layer.set_colorkey(self.bg_color)
-		
+
 		try:
-			self.font = pygame.font.Font(os.path.join(font_path,"forb.ttf"), 8)
+			self.font = create_font();
 		except IOError:
 			self.font = pygame.font.SysFont("monospace", 11)
-		
+
 		self.font_height = self.font.get_linesize()
 		self.max_lines = (self.size[HEIGHT] / self.font_height) - 1
-		
+
 		self.max_chars = (self.size[WIDTH]/(self.font.size(ascii_letters)[WIDTH]/len(ascii_letters))) - 1
 		self.txt_wrapper = textwrap.TextWrapper()
-		
+
 		self.c_out = self.motd
 		self.c_hist = [""]
 		self.c_hist_pos = 0
@@ -149,19 +139,19 @@ class Console:
 		self.c_pos = 0
 		self.c_draw_pos = 0
 		self.c_scroll = 0
-		
-		
+
+
 		self.changed = True
-		
+
 		self.func_calls = {}
 		self.key_calls = {}
-		
+
 		self.add_func_calls({"echo":self.output, "clear": self.clear, "help":self.help, "exit":exit})
 		self.add_func_calls(functions)
-		
+
 		self.add_key_calls({"l":self.clear, "c":self.clear_input, "w":self.set_active})
 		self.add_key_calls(key_calls)
-		
+
 
 	##################
 	#-Initialization-#
@@ -180,7 +170,7 @@ class Console:
 				elif len(tokens) != 2:
 					continue
 				self.safe_set_attr(tokens[0],tokens[1])
-	
+
 	def init_default_cfg(self):
 		self.bg_alpha = 255
 		self.bg_color = [0x0,0x0,0x0]
@@ -194,7 +184,7 @@ class Console:
 		self.python_mode = False
 		self.preserve_events = False
 		self.motd = ["[Sid console]"]
-	
+
 	def safe_set_attr(self, name, value):
 		'''\
 		Safely set the console variables
@@ -202,7 +192,7 @@ class Console:
 		if name in self.variables:
 			if isinstance(value, self.variables[name]) or not self.variables[name]:
 				self.__dict__[name] = value
-	
+
 	def add_func_calls(self, functions):
 		'''\
 		Add functions to the func_calls dictionary.
@@ -212,7 +202,7 @@ class Console:
 		if isinstance(functions,dict):
 			self.func_calls.update(functions)
 			self.user_namespace.update(self.func_calls)
-	
+
 	def add_key_calls(self, functions):
 		'''\
 		Add functions to the key_calls dictionary.
@@ -221,7 +211,7 @@ class Console:
 		'''
 		if isinstance(functions,dict):
 			self.key_calls.update(functions)
-	
+
 	def output(self, text):
 		'''\
 		Prepare text to be displayed
@@ -230,7 +220,7 @@ class Console:
 		'''
 		if not str(text):
 			return;
-		
+
 		try:
 			self.changed = True
 			if not isinstance(text,str):
@@ -243,7 +233,7 @@ class Console:
 					self.c_out.append(w)
 		except:
 			pass
-	
+
 	def set_active(self,b=None):
 		'''\
 		Activate or Deactivate the console
@@ -254,32 +244,32 @@ class Console:
 			self.active = not self.active
 		else:
 			self.active = b
-	
-	
+
+
 	def format_input_line(self):
 		'''\
 		Format input line to be displayed
 		'''
 		# The \v here is sort of a hack, it's just a character that isn't recognized by the font engine
-		text = self.c_in[:self.c_pos] + "\v" + self.c_in[self.c_pos+1:] 
+		text = self.c_in[:self.c_pos] + "\v" + self.c_in[self.c_pos+1:]
 		n_max = self.max_chars - len(self.c_ps)
 		vis_range = self.c_draw_pos, self.c_draw_pos + n_max
 		return self.c_ps + text[vis_range[0]:vis_range[1]]
-	
+
 	def draw(self):
 		'''\
 		Draw the console to the parent screen
 		'''
 		if not self.active:
 			return;
-		
+
 		if self.changed:
 			self.changed = False
 			# Draw Output
 			self.txt_layer.fill(self.bg_color)
 			lines = self.c_out[-(self.max_lines+self.c_scroll):len(self.c_out)-self.c_scroll]
 			y_pos = self.size[HEIGHT]-(self.font_height*(len(lines)+1))
-			
+
 			for line in lines:
 				tmp_surf = self.font.render(line, True, self.txt_color_o)
 				self.txt_layer.blit(tmp_surf, (1, y_pos, 0, 0))
@@ -290,7 +280,7 @@ class Console:
 			# Clear background and blit text to it
 			self.bg_layer.fill(self.bg_color)
 			self.bg_layer.blit(self.txt_layer,(0,0,0,0))
-		
+
 		# Draw console to parent screen
 		# self.parent_screen.fill(self.txt_color_i, (self.rect.x-1, self.rect.y-1, self.size[WIDTH]+2, self.size[HEIGHT]+2))
 		pygame.draw.rect(self.parent_screen, self.txt_color_i, (self.rect.x-1, self.rect.y-1, self.size[WIDTH]+2, self.size[HEIGHT]+2), 1)
@@ -310,12 +300,12 @@ class Console:
 			self.output("Entering Pyconsole mode")
 			self.python_mode = False
 			self.c_ps = self.ps1
-	
+
 	def catch_output(self):
 		if not self.tmp_fds:
 			self.tmp_fds = [sys.stdout, sys.stdin, sys.stderr]
 			sys.stdout, sys.stdin, sys.stderr = self.py_fds
-	
+
 	def release_output(self):
 		if self.tmp_fds:
 			sys.stdout, sys.stdin, sys.stderr = self.tmp_fds
@@ -329,7 +319,7 @@ class Console:
 		   2) Evaluate input
 		   3) Clear input line
 		'''
-	
+
 		self.clear_input()
 		self.output(self.c_ps + text)
 		self.c_scroll = 0
@@ -337,7 +327,7 @@ class Console:
 			self.send_python(text)
 		else:
 			self.send_pyconsole(text)
-		
+
 	def send_python(self, text):
 		'''\
 		Sends input the the python interpreter in effect giving the user the ability to do anything python can.
@@ -356,17 +346,17 @@ class Console:
 		for i in self.py_fds[OUT]+self.py_fds[ERR]:
 			self.output(i)
 		self.release_output()
-	
+
 	def send_pyconsole(self, text):
 		'''\
 		Sends input to pyconsole to be interpreted
 		'''
-		if not text:	# Output a blank row if nothing is entered
+		if not text:    # Output a blank row if nothing is entered
 			self.output("")
 			return;
-		
+
 		self.add_to_history(text)
-		
+
 		#Determine if the statement is an assignment
 		assign = re_is_assign.match(text)
 		try:
@@ -378,17 +368,17 @@ class Console:
 		except ParseError, e:
 			self.output(r'At Token: "%s"' % e.at_token())
 			return;
-		
+
 		if tokens == None:
 			return
-		
+
 		#Evaluate
 		try:
 			out = None
 			# A variable alone on a line
 			if (len(tokens) is 1) and re_is_var.match(text) and not assign:
 				out = tokens[0]
-			# Statement in the form $name = value	
+			# Statement in the form $name = value
 			elif (len(tokens) is 1) and assign:
 				self.setvar(assign.group('name'), tokens[0])
 			else:
@@ -397,15 +387,15 @@ class Console:
 				# Assignment from function's return value
 				if assign:
 					self.setvar(assign.group('name'), out)
-					
+
 			if not out == None:
 				self.output(out)
 		except (KeyError,TypeError):
 			self.output("Unknown Command: " + str(tokens[0]))
 			self.output(r'Type "help" for a list of commands.')
-			
-	
-	
+
+
+
 	####################################################
 	#-Functions for sharing variables with the console-#
 	def setvar(self, name, value):
@@ -417,7 +407,7 @@ class Console:
 			self.user_namespace.update(self.user_vars)
 		elif self.__dict__.has_key(name):
 			self.__dict__.update({name:value})
-		
+
 	def getvar(self, name):
 		'''\
 		Gets the value of a variable, this is useful for people that want to access console variables from within their game
@@ -426,28 +416,28 @@ class Console:
 			return self.user_vars[name]
 		elif self.__dict__.has_key(name):
 			return self.__dict__[name]
-	
+
 	def setvars(self, vars):
 		try:
 			self.user_vars.update(vars)
 			self.user_namespace.update(self.user_vars)
 		except TypeError:
 			self.output("setvars requires a dictionary")
-	
+
 	def getvars(self, opt_dict=None):
 		if opt_dict:
 			opt_dict.update(self.user_vars)
 		else:
 			return self.user_vars
-	
-	
+
+
 	def add_to_history(self, text):
 		'''\
 		Add specified text to the history
 		'''
 		self.c_hist.insert(-1,text)
 		self.c_hist_pos = len(self.c_hist)-1
-			
+
 	def clear_input(self):
 		'''\
 		Clear input line and reset cursor position
@@ -455,7 +445,7 @@ class Console:
 		self.c_in = ""
 		self.c_pos = 0
 		self.c_draw_pos = 0
-	
+
 	def set_pos(self, newpos):
 		'''\
 		Moves cursor safely
@@ -468,7 +458,7 @@ class Console:
 			if self.c_draw_pos < 0:
 				self.c_draw_pos = 0
 				self.c_pos = 0
-	
+
 	def str_insert(self, text, strn):
 		'''\
 		Insert characters at the current cursor position
@@ -476,19 +466,19 @@ class Console:
 		foo = text[:self.c_pos] + strn + text[self.c_pos:]
 		self.set_pos(self.c_pos + len(strn))
 		return foo
-		
+
 	def process_input(self):
 		'''\
 		Loop through pygame events and evaluate them
 		'''
 		if not self.active:
 			return;
-		
+
 		if self.preserve_events:
 			eventlist = pygame.event.get(KEYDOWN)
 		else:
 			eventlist = pygame.event.get()
-		
+
 		for event in eventlist:
 			if event.type == KEYDOWN:
 				self.changed = True
@@ -545,10 +535,10 @@ class Console:
 						char = str(event.unicode)
 						self.c_in = self.str_insert(self.c_in, char)
 
-	
+
 	def convert_token(self, tok):
 		'''\
-		Convert a token to its proper type 
+		Convert a token to its proper type
 		'''
 		tok = tok.strip("$")
 		try:
@@ -566,20 +556,20 @@ class Console:
 			raise ParseError, tok
 		else:
 			return tmp
-	
+
 	def tokenize(self, s):
 		'''\
 		Tokenize input line, convert tokens to proper types
 		'''
 		if re_is_comment.match(s):
 			return [s]
-		
+
 		for re in self.user_syntax:
 			group = re.match(s)
 			if group:
 				self.user_syntax[re](self, group)
 				return
-		
+
 		tokens = re_token.findall(s)
 		tokens = [i.strip("\"") for i in tokens]
 		cmd = []
@@ -587,11 +577,11 @@ class Console:
 		while i < len(tokens):
 			t_count = 0
 			val = tokens[i]
-			
+
 			if re_is_number.match(val):
 				cmd.append(self.convert_token(val))
-		 	elif re_is_var.match(val):
-		 		cmd.append(self.convert_token(val))
+			elif re_is_var.match(val):
+				cmd.append(self.convert_token(val))
 			elif val == "True":
 				cmd.append(True)
 			elif val == "False":
@@ -609,7 +599,7 @@ class Console:
 				cmd.append(val)
 			i += t_count + 1
 		return cmd
-	
+
 
 	##########################
 	#-Some Builtin functions-#
@@ -619,14 +609,14 @@ class Console:
 		'''
 		self.c_out = ["[Screen Cleared]"]
 		self.c_scroll = 0
-	
+
 	def help(self, *args):
 		'''\
 		Output information about functions
 		Arguments:
 		   args -- arbitrary argument list of function names
-			 |- No Args - A list of available functions will be displayed
-			 |- One or more Args - Docstring of each function will be displayed
+				 |- No Args - A list of available functions will be displayed
+				 |- One or more Args - Docstring of each function will be displayed
 		'''
 		if args:
 			items = [(i,self.func_calls[i]) for i in args if i  in self.func_calls]
@@ -638,7 +628,7 @@ class Console:
 				tmp_indent = self.txt_wrapper.subsequent_indent
 				self.txt_wrapper.subsequent_indent = " "*(len(i)+2)
 				self.output(out)
-				self.txt_wrapper.subsequent_indent = tmp_indent	
+				self.txt_wrapper.subsequent_indent = tmp_indent
 		else:
 			out = "Available commands: " + str(self.func_calls.keys()).strip("[]")
 			self.output(out)

@@ -1,24 +1,50 @@
-"""draw a visual AI window"""
-"""2 processes: NedProcess, DrawProcess"""
+"""
 
-import os,sys
-import pygame,pyconsole
-import gui_helpers as g
-from ned import Ned
-from multiprocessing import Process, Value
-from Text import Text
-from getmylogger import silent_logger,loud_logger
-import random
-from time import sleep
-import exceptions
-import ut
+A visual representation of a Sid
 
-__version__ = "1.3-alpha"
+"""
+
+__author__ = 'gbdu'
+__copyright__ = "Copyright 2015, gbdu"
+__credits__ = ["gbdu"]
+__license__ = "GPL"
+__version__ = "1.4-alpha"
+__email__ = "ogrum@live.com"
+__status__ = "dev"
+
+from dbgp.client import brkOnExcept
+brkOnExcept(host='mybox', port=9000)
+
+# Import main dependencies:
+try:
+        import os,sys
+        import pygame
+        from multiprocessing import Process, Value
+        from time import sleep
+        import random
+
+except ImportError as e:
+        print "failed to import main dependencies... "
+        print e
+        exit(1)
+        
+# Import my dependencies:
+try:
+        from helpers import getmylogger
+        from ai import sid
+        from mylibs import ut
+        from gui import gui_helpers,pyconsole
+        
+except ImportError as e:
+        print "failed to import bigned dependencies... "
+        print e
+        exit (1)
+
 
 USER_CONSOLE_ENABLED = True #only checked when drawing
 
-globals()["dlog"] = silent_logger("drawing") #silent drawing logger
-globals()["llog"] = loud_logger("visual_ned") #loud logger (shows in console)
+globals()["dlog"] =  getmylogger.silent_logger("drawing") #silent drawing logger
+globals()["llog"] = getmylogger.loud_logger("bigned") #loud logger (shows in console)
 llog = globals()["llog"]
 
 globals()["llog"].info("log setup! [ SUCCESS ] ")
@@ -26,16 +52,14 @@ globals()["llog"].info("log setup! [ SUCCESS ] ")
 globals()["bigned"] = None
 
 try:
-        globals()["screen"] = g.init_pygame()
-        llog.info("init'd screen [ SUCCESS ]")
-        globals()["gfont"] = g.create_font()
-        llog.info("init'd font successful [ SUCCESS ] ")
+        globals()["screen"] = gui_helpers.init_pygame()
+        globals()["gfont"] = gui_helpers.create_font()
         globals()["gselected_component"] = 1
         globals()["main_breakout"] = Value("d", 0)
-        llog.info("ut init'd successfully...  [ SUCCESS ] ")
         globals()["color_ut"] = None
-except:
+except Exception as e:
         llog.error("error while init  [ FAIL ] ")
+        print e
         exit(1)
         
 def extinguish_and_deload():
@@ -77,7 +101,9 @@ def init_color_tweeners():
         color_ut.constant("default_box", 50)
         
         color_ut.add_tweener("default_box_text")
-        color_ut.tween_cycle("default_box_text", random.randint(0,50), random.randint(50, 200))
+        color_ut.tween_cycle("default_box_text",
+                             random.randint(0,50),
+                             random.randint(50, 200))
         
         color_ut.add_tweener("active_box")
         color_ut.tween_cycle("active_box", 0, 100)
@@ -205,9 +231,9 @@ def Draw(theNed):
                 return ## Draw components
 
         def draw_version_label(screen):
-                version_text=Text(screen, globals()["gfont"], pygame.Rect(0,0,0,0) ,
-                                 "sid simulator " + __version__)
-                version_text.draw()
+                #version_text=Text(screen, globals()["gfont"], pygame.Rect(0,0,0,0) ,
+                #                 "sid simulator " + __version__)
+                #version_text.draw()
                 dlog.info("drew version label")
 
         def draw_panel_label(surf):
@@ -289,17 +315,14 @@ if __name__ == '__main__':
         global dlog
         global bigned
         
-        llog.info("here we go")
-        dlog.info('create console')
-
-        # Create ned process
-
+        llog.info("Here we go!!!")
         
-        bigned = Ned()
-        bigned.setname("bigned-"+__version__)
+        bigned = sid.Sid()
+        bigned.setname("BigNed")
 
-        llog.info("this is ned %s" % __version__)
-        NedProcess = Process(target=bigned.live)
+        llog.info("The sid %s was created successfully, he's not alive yet though [ SUCCESS ] " % bigned.getname() )
+        
+        SidProcess = Process(target=bigned.live)
 
         # Create draw process
         DrawProcess = Process(target=Draw, args=(bigned,))
@@ -307,7 +330,7 @@ if __name__ == '__main__':
         global main_breakout
         main_breakout.value = 1
 
-        NedProcess.start()
+        SidProcess.start()
         llog.info("created ned process")
 
         DrawProcess.start()
@@ -318,7 +341,7 @@ if __name__ == '__main__':
         DrawProcess.join()
         llog.info("      -> joined draw process [ SUCCESS ] ")
 
-        NedProcess.join()
+        SidProcess.join()
         llog.info("      -> joined ned [ SUCCESS ] ")
 
         llog.info("All done bye")

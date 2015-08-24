@@ -1,9 +1,16 @@
 ''' ut: universal tweener with asynch locks for python ~ gbdu'''
 
-from getmylogger import silent_logger,loud_logger
-from multiprocessing import Lock
-import exceptions
-
+try:
+    from helpers.getmylogger import silent_logger,loud_logger
+    from multiprocessing import Lock
+    import exceptions
+except Exception as e:
+    print "Could not load ut dependencies: "
+    print e
+    exit(1)
+    
+logger = loud_logger("gui_helpers")
+    
 llog = silent_logger("tweener")
 DEFAULT_TWEEN_TO = 0
 DEFAULT_TWEEN_MIN = 0

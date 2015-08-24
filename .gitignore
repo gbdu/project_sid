@@ -1,5 +1,6 @@
 *.py[cod]
-scratches/
 logs/*
 *.komodoproject
 
+hidden/
+hidden/*

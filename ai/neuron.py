@@ -1,7 +1,22 @@
-from multiprocessing import Lock
-import getmylogger
-import random
+'''
+An atom in the sid system...
+'''
 
+
+try:
+    from multiprocessing import Lock
+    import random
+except:
+    print "Could not load main dependencies for neuron"
+    
+try :
+    from helpers.getmylogger import silent_logger, loud_logger
+    
+except ImportError as e:
+    print "Could not load internal helpers for neuron..."
+    print e
+    exit(1)
+    
 def random_line(afile):
     line = next(afile)
     for num, aline in enumerate(afile):
@@ -15,7 +30,7 @@ def get_molecule_list():
     
     return ["dopamine", "bacon", "tomato"]
 
-log = getmylogger.loud_logger("neuron_stim")
+log = loud_logger("neuron_stim")
 
 # -class*
 # -communicate with neighbours (?)

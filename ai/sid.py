@@ -2,12 +2,23 @@
 
 __author__ = 'gargantua'
 
-from multiprocessing import Process, Pipe, Value, Lock
-from component import component
-import getmylogger
-import os,sys
 import exceptions
 
+try:    
+    from multiprocessing import Process, Pipe, Value, Lock
+    import os,sys
+except ImportError as e:
+    print "Could not import from sid ... "
+    exit(1)
+
+try:
+    from component import component
+    from helpers import getmylogger
+
+except ImportError as e:    
+    print "could not import internal from sid"
+    print e
+    exit(1)
 last_component_number = 0
 
 log = getmylogger.loud_logger("sid")
@@ -77,7 +88,7 @@ class Sid:
         states to alive and creates new processes to run them, then it waits
         for the processes to finish and dies'''
         
-        log.info("* PROCESS living sid")
+        log.info("* PROCESS %s.live was created!", self.myname)
         
         self.mystate.value = 1 # set global state as alive
         
