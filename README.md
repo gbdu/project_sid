@@ -1,7 +1,8 @@
-        project_sid :
-            This is a basic form of AI, his name is Ned and he is a type of "sid"
+##project_sid:
+##based on: 1.4-alpha
 
-**based on: 1.4-alpha
+This is a basic form of AI, his name is Ned and he is a type of "sid"
+
 
 demo for latest version:
 ![latest_screencast](/screencasts/latest.gif)
