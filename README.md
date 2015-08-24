@@ -10,12 +10,9 @@
 ##Installation:
     
 1. Make sure you have pygame installed, on linux this can be done like this:    
-    
-    
     pip install pygame
     
 2. Clone sid from this repo:
-    
     
     git clone -b master https://github.com/gbdu/project_sid.git
         
