@@ -60,3 +60,5 @@
 [23:46:00] p3466 {gui_helpers:62} ERROR - unable to create font... <type 'exceptions.IOError'> 
 [23:46:38] p4076 {gui_helpers:41} INFO - screen initd
 [23:46:38] p4076 {gui_helpers:41} INFO - screen initd
+[03:32:33] p10111 {gui_helpers:41} INFO - screen initd
+[03:32:33] p10111 {gui_helpers:41} INFO - screen initd

@@ -146,13 +146,7 @@ except Exception as e:
 
 def Draw(theNed):
         """draw the given Ned on global scr"""
-        # TODO:
-        # Things to draw on main screen:
-        #       - What sid thinks it looks like (as a person)
-        #       - output from one of the text components
-        # Things to input:
-        #       - Right-click menu
-        #       - components that fire together wire together
+
         global llog
         
         llog.info("* PROCESS: Draw")
@@ -212,7 +206,7 @@ def Draw(theNed):
                                 b = color_ut.get_tween_value("nearbox_1")
                                 color=[a+b+t + 1 , a+b+t + 5 , t/2 + 40]
                         else: # This is a regular component, draw it using its tween
-                                color = [a+b+t, a+b+t, t/2]
+                                color = [a+b+t, a+b+t, 20+ (t/2)]
                                 
                         pygame.draw.rect(surf, color, boxrect , 0)
                         

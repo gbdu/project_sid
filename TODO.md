@@ -1,8 +1,18 @@
-#in dev:
+# future
+    [ ] What sid thinks it looks like (as a person)
+    [ ] output from one of the text components
+    [ ] Right-click menu
+    [ ] components that fire together wire together
 
+#in dev:
+    [ ] Allow for various kinds of components (deep dream, internal, yt, etc...)
+    [ ] User interactivity with components via GUI
+        [  ] set component option with mouse for example
+            
+
+#1.4 released...
     [*] Push new todo
     [*] Make sure github markup works fine...
-    
     
 #1.3 released...
     [*] tweening code is now complete with sine/cyclic support

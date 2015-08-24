@@ -1,6 +1,6 @@
 *.py[cod]
 logs/*
+logs
 *.komodoproject
-
 hidden/
 hidden/*

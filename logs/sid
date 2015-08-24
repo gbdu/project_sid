@@ -19,3 +19,10 @@
 [23:46:41] p4136 {sid:91} INFO - * PROCESS BigNed.live was created!
 [23:46:44] p4137 {sid:121} INFO - got signal extinguish
 [23:46:44] p4137 {sid:128} INFO -   ----> got signal extinguish [ SUCCESS ]
+[03:32:33] p10111 {sid:60} INFO - a new sid wants to be created
+[03:32:34] p10111 {sid:63} INFO - -----> (1/3) langu components added [ SUCCESS ]
+[03:32:35] p10111 {sid:66} INFO - -----> (2/3) langu components added [ SUCCESS ]
+[03:32:36] p10111 {sid:69} INFO - -----> (3/3) langu components added [ SUCCESS ] 
+[03:32:36] p10210 {sid:91} INFO - * PROCESS BigNed.live was created!
+[03:37:18] p10211 {sid:121} INFO - got signal extinguish
+[03:37:18] p10211 {sid:128} INFO -   ----> got signal extinguish [ SUCCESS ]
