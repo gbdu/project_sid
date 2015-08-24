@@ -4,7 +4,8 @@
     [ ] Right-click menu
     [ ] components that fire together wire together
 
-#in dev:
+#in dev (1.5) :
+    
     [ ] Allow for various kinds of components (deep dream, internal, yt, etc...)
     [ ] User interactivity with components via GUI
         [  ] set component option with mouse for example

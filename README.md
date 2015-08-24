@@ -5,7 +5,7 @@
 ##
 ![latest_screencast](/screencasts/latest.gif)
 ##
-[TODO and changelist](TODO.md)
+[](TODO.md)
 
 ##Installation:
     
