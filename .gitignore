@@ -1,7 +1,8 @@
 *.py[cod]
 /logs/[^.]*
 /logs/*
-
+/logs
+*logs*
 *.komodoproject
 hidden/
 hidden/*
