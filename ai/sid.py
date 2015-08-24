@@ -83,22 +83,25 @@ class Sid:
     def setname(self, myn):
         self.myname = myn
 
-    def live(self):
-        '''this tells sid to live, it goes over the compnents and sets their
+    # XXX: live loop #2, for sid
+    def live_loop(self, break_flag_ref):
+        '''
+        this tells sid to live, it goes over the compnents and sets their
         states to alive and creates new processes to run them, then it waits
-        for the processes to finish and dies'''
+        for the processes to finish and dies
+        '''
         
-        log.info("* PROCESS %s.live was created!", self.myname)
+        while 1:
+            if(break_flag_ref.value == 0):
+                break ;
+            
+            for c in self.components:
+                self.create_process(c['component'])
+                
+            for p in self.processes:
+                p.join() ## These will die once global state is set to 0
         
-        self.mystate.value = 1 # set global state as alive
-        
-        for c in self.components:
-            self.create_process(c['component'])
-            ## This is where we block:
-        
-        for p in self.processes:
-            p.join() ## These will die once global state is set to 0
-        
+        llog.info("sid live_loop exited")
         return
 
     def count_human_components(self):

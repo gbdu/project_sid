@@ -7,7 +7,6 @@ __author__ = 'gbdu'
 __copyright__ = "Copyright 2015, gbdu"
 __credits__ = ["gbdu"]
 __license__ = "GPL"
-__version__ = "1.0.1"
 __email__ = "ogrum@live.com"
 __status__ = "dev"
 

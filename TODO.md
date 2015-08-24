@@ -5,7 +5,11 @@
     [ ] Right-click menu
     [ ] components that fire together wire together
 
-#in dev (1.5) :
+#1.5 released :
+    [*] one all_loops_live or live_flag_ref to terminate all processes/loops
+            its in bigned  
+    [*] Turn bigned into an actual class...
+        (See mylibs.gut)
     [ ] Move tween updater to separate process
     [ ] Allow for various kinds of components (deep dream, internal, yt, etc...)
     [ ] User interactivity with components via GUI
