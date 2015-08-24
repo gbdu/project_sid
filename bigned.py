@@ -56,7 +56,7 @@ try:
         globals()["screen"] = gui_helpers.init_pygame()
         globals()["gfont"] = gui_helpers.create_font()
         globals()["gselected_component"] = 1
-        globals()["main_breakout"] = Value("d", 0)
+        globals()["main_breakout"] = Value("d", 1)
         globals()["color_ut"] = None
 except Exception as e:
         llog.error("error while init  [ FAIL ] ")
@@ -221,7 +221,7 @@ def Draw(theNed, color_ut):
                                 draw_box(i, inrow, color, component_counter)
                                 component_counter += 1
 
-                dlog.info("drew component grid....")
+                #dlog.info("drew component grid....")
 
                 return ## Draw components
 
@@ -312,6 +312,14 @@ def Draw(theNed, color_ut):
         return
         ## Draw() ends here
 
+
+def update_frame_loop(ut, update_by=1):
+    while main_breakout.value == 1:
+        llog.info("ran frame updater on %s ", ut)
+        ut.update_frame(update_by)
+        sleep(1)
+    llog.info("out of frame loop...")
+
 if __name__ == '__main__':
         global dlog
         global bigned
@@ -339,23 +347,21 @@ if __name__ == '__main__':
                 exit(1)
 
         SidProcess = Process(target=bigned.live) # sid process
-        DrawProcess = Process(target=Draw, args=(bigned,color_ut)) # draw process
-
-
-        TweenerProcess = Process(target=color_ut.update_frame,args=(1,))
+        DrawProcess = Process(target=Draw, args=(bigned,color_ut)) # draw
+        TweenerProcess = Process(target=update_frame_loop,args=(color_ut, 1))
 
 
         global main_breakout
         main_breakout.value = 1
 
         TweenerProcess.start()
-        llog.info("[3/3] : tweener process was started")
+        llog.info("[1/3] : tweener process was started")
 
         SidProcess.start()
-        llog.info("[1/3] : sid process was started ")
+        llog.info("[2/3] : sid process was started ")
 
         DrawProcess.start()
-        llog.info("[2/3] : draw process was started")
+        llog.info("[3/3] : draw process was started")
 
 
         # Important: start tweener updater before everything else?
@@ -365,4 +371,9 @@ if __name__ == '__main__':
         SidProcess.join()
         llog.info("      -> joined ned [ SUCCESS ] ")
 
-        llog.info("All done bye")
+
+        TweenerProcess.join()
+        llog.info("      -> joined tween process [ SUCCESS ] ")
+
+
+        llog.info("All done, bye!")

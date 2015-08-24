@@ -119,9 +119,8 @@ class Ut:
 
     def update_frame(self, increase_by=1, decrease_by=1):
         '''updates internal values, fuzz is not implemented yet'''
-        if len(self._itl) == 0:
-            raise Exception("ut: updating an empty tweener?")
 
+        logger.info("update frame on %s ", self)
         # llog.info("updating tween")
         for idict in self._itl:
             if idict["type"] == "constant":
