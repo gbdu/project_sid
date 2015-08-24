@@ -47,7 +47,7 @@ class component:
     mycolor = None # You give this to parent
     mynumber = None # You get this from parent
     myid = None # You get this from parent
-    
+    mysource = "None so far..."
     #internal:
     mymolecules = None # Internal list of neurotransmitter-like communication
     mylayers = None # a list of neurons + their neurotransmitters
@@ -116,8 +116,6 @@ class component:
         
         #internal:
         self.init_layers(type_hints)
-        
-    
     def OctoChannel_layer_average(self):
         if(self.mydatastream.any()):
             return numpy.mean(self.mydatastream)
@@ -139,7 +137,16 @@ class component:
     def get_octo(self):
         '''send an 8 channel list representing current state of component'''
         self.mycolor = (random.randint(0, 100), random.randint(0, 100), random.randint(0, 100))
-        octo = [self.mycolor, 2, 3, 4, 5, 6, 7, 8 ]
+        octo = {
+            "type_hints": self.type_hints,
+            "mycolor":self.mycolor,
+            "source":self.mysource,
+            "four":4,
+            "five":5,
+            "six":6,
+            "seven":7,
+            "eight":8
+        }
         return octo
         
     def live_loop(self):
