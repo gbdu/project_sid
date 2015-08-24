@@ -4,16 +4,18 @@
     [ ] output from one of the text components
     [ ] Right-click menu
     [ ] components that fire together wire together
-
-#1.5 released :
-    [*] one all_loops_live or live_flag_ref to terminate all processes/loops
-            its in bigned  
-    [*] Turn bigned into an actual class...
-        (See mylibs.gut)
-    [ ] Move tween updater to separate process
+    [ ] incorporate google images recognition
     [ ] Allow for various kinds of components (deep dream, internal, yt, etc...)
     [ ] User interactivity with components via GUI
         [  ] set component option with mouse for example
+
+#1.5 released :
+    [*] one all_loops_live or live_flag_ref to terminate all processes/loops
+        its in bigned , -1 indicates "pause"
+    [*] Turn bigned into an actual class...
+        (See mylibs.gut)
+    [ ] all the processes exit properly with ctrl-d now...
+    [-] Move tween updater to separate process
 
 
 #1.4 released...

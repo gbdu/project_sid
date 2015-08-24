@@ -136,8 +136,12 @@ class Ut:
     def get_tween_value(self, name):
         '''returns the current value of the tween'''
         i = self.find_tweener(name)
-        return i.value
-        
+        if i:
+            return i.value
+        else:
+            print "the name is : %s " % name 
+            raise Exception("get_tween_value called with improper name")
+            return 200
 
     def update_frame(self, increase_by=1, decrease_by=1):
         '''updates internal values, fuzz is not implemented yet'''

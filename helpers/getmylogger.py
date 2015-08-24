@@ -6,13 +6,12 @@ Returns a logger right away
 __author__ = 'gbdu'
 __copyright__ = "Copyright 2015, gbdu"
 __credits__ = ["gbdu"]
-__license__ = "GPL"
 __email__ = "ogrum@live.com"
 __status__ = "dev"
 
 import logging
 
-formatter = logging.Formatter('[%(asctime)s] p%(process)s {%(name)s:%(lineno)d} %(levelname)s - %(message)s','%H:%M:%S')
+formatter = logging.Formatter('%(asctime)s {%(name)s:%(lineno)d} %(levelname)s - %(message)s','%M:%S')
 
 def silent_logger(name):
     """use for high/busy logs"""
