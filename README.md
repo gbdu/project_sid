@@ -3,12 +3,12 @@
     
     This is a basic form of AI, his name is Ned and he is a type of "sid"
 
-
+##
 ![latest_screencast](/screencasts/latest.gif)
-
+##
 [TODO and changelist](TODO.md)
 
-****Installation:
+##Installation:
     
 1. Make sure you have pygame installed, on linux this can be done like this:
                 pip install pygame
