@@ -70,7 +70,6 @@ class Gut:
                 break ;
 
             self.update_frame(1)
-            print ("updated")
 
         print "out of frame loop..."
 

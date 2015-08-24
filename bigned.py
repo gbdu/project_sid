@@ -98,12 +98,14 @@ class BigNed:
                         print e
                         exit(1)
 
-        def draw_version_label(self, surf,color=(200,200,200)):
-                '''draws the version info on the top of the main screen'''
+        def draw_version_label(self, surf, fps , color=(200,200,200)):
+                '''draws the version info and fps on the top of the main screen'''
                 surf.fill((40,40,40))
-                text = self.myfont.render("bigned " + __version__, 1, color)
-                r=pygame.Rect(0,0,100,20)
+
+                text = self.myfont.render("bigned " + __version__ + " " + str(fps) + " fps", 1, color)
+                r=pygame.Rect(0,0,150,20)
                 surf.blit(text, r)
+
         def draw_panel_label(self, surf):
                 '''draw the bottom panel label'''
                 global selected_component_id
@@ -228,6 +230,7 @@ class BigNed:
 
                 frame_counter = 0
                 frame_counter_start_time = time.time()
+                fps = 0
 
                 while True :
                         ## This is our main loop, draw input screen and update tweener
@@ -242,13 +245,15 @@ class BigNed:
                         self.user_console.process_input()
                         self.user_console.draw()
 
-                        #self.mygut.update_frame() # TODO move this to independent process...
+                        self.mygut.update_frame() # TODO move this to independent process...
 
-                        self.draw_version_label(version_label_surf)
+                        self.draw_version_label(version_label_surf, fps)
+
                         self.draw_panel_label(panel_label_surf)
                         self.draw_components_on_surf(component_surf)
 
-                        self.screen.blit(version_label_surf, version_label_where)
+                        self.screen.blit(version_label_surf
+                        ,  version_label_where)
                         self.screen.blit(component_surf, component_box_where)
                         self.screen.blit(component_surf, component_box_where)
                         self.screen.blit(panel_label_surf, panel_label_where)
@@ -256,9 +261,9 @@ class BigNed:
                         pygame.display.flip()
                         elapsed_time = time.time() - frame_counter_start_time
 
-                        if(elapsed_time >= 10): # updates every 10 seconds
+                        if(elapsed_time >= 8): # updates every 3 seconds
                                 ## Calculate fps
-                                fps = frame_counter / 10 ## number of frames / 10 secs...
+                                fps = frame_counter / 8 ## number of frames / 10 secs...
                                 frame_counter_start_time = time.time() # set time again...
                                 frame_counter = 0 # set starting frame again
                         else:
@@ -311,43 +316,13 @@ if __name__ == '__main__':
         GLOBAL_LIVE_FLAG.value = 1
 
         p1.join();
-        llog.info("  -> sid process is done")
+        llog.info("p1  -> sid process is done")
         p2.join();
-        llog.info("  -> draw process is done")
+        llog.info("p2  -> draw process is done")
         p3.join();
-        llog.info("  -> tween process is done")
+        llog.info("p3  -> tween process is done")
 
         llog.info("All done, bye!")
 
-        #
-        #
-        # ## Only tweening:
-        # # globals()['gut'] = ut.Ut()
-        # # add_color_tweeners()
-        # # setup_color_tweens()
-        # # TweenerProcess = Process(target=update_gut)
-        # # llog.info("---> init ut in main process")
-        # # TweenerProcess.start()
-        # #
-        # SidProcess.start()
-        # llog.info("[2/3] : sid process was started ")
-        #
-        # DrawProcess.start()
-        # llog.info("[3/3] : draw process was started")
-        #
-        #
-        #
-        # # Important: start tweener updater before everything else?
-        # DrawProcess.join()
-        # llog.info("      -> joined draw process [ SUCCESS ] ")
-        #
-        # SidProcess.join()
-        # llog.info("      -> joined ned [ SUCCESS ] ")
-        #
-        #
-        # TweenerProcess.join()
-        # llog.info("      -> joined tween process [ SUCCESS ] ")
-        #
-        #
-        # llog.info("All done, bye!")
+        pygame.quit()
         pass
