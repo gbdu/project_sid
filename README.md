@@ -3,7 +3,7 @@
     This is a basic form of AI, his name is Ned and he is a type of "sid"
 
 ##
-![latest_screencast](https://i.imgur.com/0srA0MQ.gifv)
+![latest_screencast](https://i.imgur.com/0srA0MQ.gif)
 ##
 [](TODO.md)
 
