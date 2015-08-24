@@ -9,11 +9,10 @@
 
 ##Installation:
     
-1. Make sure you have pygame installed, on linux this can be done like this:    
+1. Make sure you have pygame installed, on linux this can be done like this:
     pip install pygame
     
 2. Clone sid from this repo:
-    
     git clone -b master https://github.com/gbdu/project_sid.git
         
 This will give you the latest stable version, if you want a more cutting-edge
@@ -27,5 +26,5 @@ version, try cloning the dev branch like this:
     python bigned.py
     
         
-~ gbdu ( ogrum@live.com )
+    ~ gbdu ( ogrum@live.com )
         
