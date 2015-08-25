@@ -59,6 +59,7 @@ class Sid:
     def get_component_by_id(self, c_id):
         '''returns a handle to the component object if found'''
         for i in self.components:
+            if i["component"].get_id() == c_id:
                 return i
 
         raise exceptions.ValueError("component not found [%d]" % c_id)

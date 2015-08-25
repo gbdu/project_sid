@@ -141,7 +141,7 @@ class component:
             "type_hints": self.type_hints,
             "mycolor":self.mycolor,
             "source":self.mysource,
-            "id":4,
+            "id": self.myid,
             "five":5,
             "six":6,
             "seven":7,

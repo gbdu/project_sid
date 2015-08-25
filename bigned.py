@@ -149,6 +149,7 @@ class BigNed:
                 a = b = c = 0
 
 
+
                 boxrect_big = pygame.Rect(inrow*width - width*1, i*height - height*1, width*3, height*3)
                 t = self.mygut.get_tween_value(str(component_counter))
 
@@ -200,37 +201,35 @@ class BigNed:
                 component_counter = 0
                 for i in range(8):
                         for inrow in range(8):
-                                d = self.mygut.get_tween_value("default_box")
-                                color = [d,d,d]
-                                self.draw_box(surf, i, inrow, color, width, height, component_counter)
-                                component_counter += 1
+                            d = self.mygut.get_tween_value("default_box")
+                            color = [d,d,d]
+                            self.draw_box(surf, i, inrow, color, width, height, component_counter)
+                            component_counter += 1
 
-                                dlog.info("drew box")
+                            dlog.info("drew box")
 
         def draw_a_link(self, surf, c1, c2):
             '''c1 c2 are ids'''
 
-            line_pos1_x = line_pos1_y= 10;
-            line_pos2_y = line_pos2_x= 40;
+            c = 0
+            for row in range(8):
+                for column in range(8):
+                    if c == c1:
+                        p1 = (row*10,column*10)
 
+                    if c == c2:
+                        p2 = (row*10),(column*10)
 
-            for c in self.myboxes:
+                    p1=p2=(0,1)
 
-                startp = (0,0)
-                endp = (100,100)
+                    c+=1
 
-                if c[0] == c1: ## We found the first box in our box list
-                    startp = (c[1][0], c[1][1])
-
-                if c[0] == c2: ## We found the first box in our box list
-                    endp = (c[1][0], c[1][1])
-
-                pygame.draw.line(surf, (200,0,0), startp, endp)
+            pygame.draw.line(surf, (200,0,0), p1, p2)
 
 
         def draw_links_on_surf(self, surf):
             friend_list = self.internal_sid.get_component_friends()
-            #friend_list.append((5,15))
+            friend_list.append((5,15))
             for f in friend_list :
                 c1_id = f[0]
                 c2_id = f[1]
@@ -294,6 +293,7 @@ class BigNed:
                             self.extinguish_and_deload()
 
                             pygame.quit(); sys.exit();
+
                     self.user_console.draw()
 
                     self.mygut.update_frame() # TODO move this to independent process...
@@ -303,10 +303,9 @@ class BigNed:
                     self.draw_panel_label(panel_label_surf)
                     self.draw_components_on_surf(component_surf)
 
-                    self.draw_links_on_surf(component_surf)
+                    #self.draw_links_on_surf(component_surf)
                     self.screen.blit(version_label_surf
                     ,  version_label_where)
-                    self.screen.blit(component_surf, component_box_where)
                     self.screen.blit(component_surf, component_box_where)
                     self.screen.blit(panel_label_surf, panel_label_where)
 
