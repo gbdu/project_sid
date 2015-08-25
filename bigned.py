@@ -124,8 +124,9 @@ class BigNed:
 
                 #info_paragraph.append("Internal octo: ")
 
-                info_paragraph.append("    component type : %s" % octo["type_hints"])
-                info_paragraph.append("    source : %s" % octo["source"])
+                info_paragraph.append("    octo-hints : %s" % octo["type_hints"])
+                info_paragraph.append("    octo-source : %s" % octo["source"])
+                info_paragraph.append("    octo-id : %s" % octo["id"])
 
                 info_paragraph.append("")
 
@@ -147,7 +148,6 @@ class BigNed:
                 boxrect = pygame.Rect(inrow*width, i*height, width, height)
                 a = b = c = 0
 
-                self.myboxes.append((component_counter, boxrect ))
 
                 boxrect_big = pygame.Rect(inrow*width - width*1, i*height - height*1, width*3, height*3)
                 t = self.mygut.get_tween_value(str(component_counter))
@@ -156,6 +156,7 @@ class BigNed:
                         a = self.mygut.get_tween_value("active_box")
                         global selected_component_id
                         selected_component_id = component_counter
+                        #llog.info("%d is selected", selected_component_counter)
                         color = [200, 200 , 200+(t/2)]
                 elif boxrect_big.collidepoint(pos):
                         b = self.mygut.get_tween_value("nearbox_1")
@@ -177,9 +178,7 @@ class BigNed:
                         if(octo["type_hints"] == "langu"):
                                 color = (color[0]+15, color[1]+5, color[2]+20)
 
-                selected = selected_component_id == component_counter
-                bordered = 1 if selected else 0
-                pygame.draw.rect(surf, color, boxrect , bordered)
+                pygame.draw.rect(surf, color, boxrect , 0)
                 self.draw_box_label(surf, color, component_counter, boxrect)
 
         def draw_components_on_surf(self, surf):
@@ -360,7 +359,7 @@ if __name__ == '__main__':
 
         GLOBAL_LIVE_FLAG.value = -1
 
-        bn.internal_sid.make_components_friends(2,16)
+        #bn.internal_sid.make_components_friends(2,16)
 
         # This gives around 2 seconds of synchronization
         # time for all processes to start.
