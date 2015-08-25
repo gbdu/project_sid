@@ -51,33 +51,33 @@ class component:
     #internal:
     mymolecules = None # Internal list of neurotransmitter-like communication
     mylayers = None # a list of neurons + their neurotransmitters
-    
+
     def get_molecule_list(self):
         return ["dopamine", "beans", "potato", "from component"]
-    
-    
+
+
     def create_molecule_pool(self):
         '''returns a list of molecules for internal use'''
-        
+
         molecules = {}
         for name in self.get_molecule_list():
-            molecules[name] = (Lock(), random.randint(40, 100000)) #random molecules for each layers 
-        
+            molecules[name] = (Lock(), random.randint(40, 100000)) #random molecules for each layers
+
         return molecules
-        
+
     def create_default_neuron_layer(self, size, molecule_pool):
         """returns a default, basic neuron layer"""
         if not molecule_pool:
             error("need to set neurotransmitters first!")
-        
-        
+
+
         l = []
         for i in range(size):
             new_neuron = Neuron(molecule_pool, l)
             l.append(new_neuron)
-            
+
         return l
-        
+
     def create_layers(self):
         l = []
         # Create 8 layers of 128^2 neurons
@@ -86,34 +86,34 @@ class component:
                 #log.info("created layer")
                 new_pool = self.create_molecule_pool()
                 new_layer = self.create_default_neuron_layer(DEFAULT_NEURONS_PER_LAYER, new_pool)
-                
+
                 l.append(new_layer)
-        return 
-        
+        return
+
         log.info("created layers")
-            
-        
+
+
     def init_layers(self, hints):
         '''inits the internal data stream, these are numpy arrays'''
-        log.info("setting the data for component with hints %s", hints)    
+        log.info("setting the data for component with hints %s", hints)
         self.mylayers = self.create_layers()
         log.info("layers created ")
         return
-    
-    
+
+
     def get_id(self):
         return self.myid
 
-    def __init__(self, global_state, type_hints="audio", myid=0):
+    def __init__(self, global_state, type_hints="langu", myid=0):
         # from parent:
         self.type_hints = type_hints
         self.mystate = Value("d", 1)
         self.myid = myid
         self.global_state = global_state
-        
+
         self.mycolor = [random.randint(0, 100), random.randint(40, 150),
                         random.randint(40, 150)]
-        
+
         #internal:
         self.init_layers(type_hints)
     def OctoChannel_layer_average(self):
@@ -125,9 +125,9 @@ class component:
 
     def get_input(self):
         '''reads from data stream...'''
-        
+
         ## For now just change the octo randomly...
-        
+
         pass
 
     def _get_color_dim(self):
@@ -148,10 +148,10 @@ class component:
             "eight":8
         }
         return octo
-        
+
     def live_loop(self):
         '''loop repeatedly until global_state is not 1'''
-        
+
         while self.global_state.value == 1:
             if self.mystate.value == 1:
                 self.get_input()  # get a new data frame for this run
@@ -159,16 +159,16 @@ class component:
                 log.info("COMPONENT %d RAN!", self.mynumber)
             elif self.mystate.value == 0:
                 #self.clean()
-                return 
+                return
             else:
                 # the component is not in a running state, do nothing
                 sleep(5)
-        
-        return
-    
-    def signal_death(self):
-        self.mystate.value = 0 
 
-        
+        return
+
+    def signal_death(self):
+        self.mystate.value = 0
+
+
     def read_user_input(self):
         pass

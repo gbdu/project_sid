@@ -1,3 +1,5 @@
+#!/usr/bin/python2.7
+
 """
 A visual representation of a Sid
 This has the following asynch processes running:
@@ -54,7 +56,7 @@ class BigNed:
         myfont = None
         user_console = None
         mygut = None
-
+        myboxes = []  # A list of tuples (component_id,boxrect)
         global dlog
         global llog
 
@@ -145,6 +147,8 @@ class BigNed:
                 boxrect = pygame.Rect(inrow*width, i*height, width, height)
                 a = b = c = 0
 
+                self.myboxes.append((component_counter, boxrect ))
+
                 boxrect_big = pygame.Rect(inrow*width - width*1, i*height - height*1, width*3, height*3)
                 t = self.mygut.get_tween_value(str(component_counter))
 
@@ -173,7 +177,9 @@ class BigNed:
                         if(octo["type_hints"] == "langu"):
                                 color = (color[0]+15, color[1]+5, color[2]+20)
 
-                pygame.draw.rect(surf, color, boxrect , 0)
+                selected = selected_component_id == component_counter
+                bordered = 1 if selected else 0
+                pygame.draw.rect(surf, color, boxrect , bordered)
                 self.draw_box_label(surf, color, component_counter, boxrect)
 
         def draw_components_on_surf(self, surf):
@@ -200,12 +206,47 @@ class BigNed:
                                 self.draw_box(surf, i, inrow, color, width, height, component_counter)
                                 component_counter += 1
 
+                                dlog.info("drew box")
+
+        def draw_a_link(self, surf, c1, c2):
+            '''c1 c2 are ids'''
+
+            line_pos1_x = line_pos1_y= 10;
+            line_pos2_y = line_pos2_x= 40;
+
+
+            for c in self.myboxes:
+
+                startp = (0,0)
+                endp = (100,100)
+
+                if c[0] == c1: ## We found the first box in our box list
+                    startp = (c[1][0], c[1][1])
+
+                if c[0] == c2: ## We found the first box in our box list
+                    endp = (c[1][0], c[1][1])
+
+                pygame.draw.line(surf, (200,0,0), startp, endp)
+
+
+        def draw_links_on_surf(self, surf):
+            friend_list = self.internal_sid.get_component_friends()
+            #friend_list.append((5,15))
+            for f in friend_list :
+                c1_id = f[0]
+                c2_id = f[1]
+
+                self.draw_a_link(surf, c1_id, c2_id)
+
+            #llog.info("drew component links... on %d " % len(friend_list))
+            #dlog.warn("drew links")
+            pass
+
         #XXX : INFINITE/BREAKABLE LOOP 1 (DRAW)
         def draw_loop(self, break_flag):
                 """
                 draw the given Ned on INIT'd scr
                 """
-
                 llog.info("* PROCESS: Draw process started")
 
 
@@ -213,6 +254,7 @@ class BigNed:
 
 
                 self.screen.fill((35, 35, 35))
+
 
 
                 panel_label_surf = pygame.Surface((256, 170))
@@ -228,46 +270,57 @@ class BigNed:
 
                 llog.info("entering main draw loop")
 
-                frame_counter = 0
+                frame_counter = 0.0
                 frame_counter_start_time = time.time()
-                fps = 0
+                fps = 0.0
+                FPS_AVG = 10.0
 
                 while True :
-                        ## This is our main loop, draw input screen and update tweener
 
-                        if(break_flag.value == -1): # -1 means "pause a bit..."
-                                sleep(2) # sleep for two seconds then try again
-                                continue;
-                        elif(break_flag.value == 0): # 0 means stop
-                                self.internal_sid.signal_extinguish()
-                                break ;
 
-                        self.user_console.process_input()
-                        self.user_console.draw()
 
-                        self.mygut.update_frame() # TODO move this to independent process...
 
-                        self.draw_version_label(version_label_surf, fps)
+                    ## This is our main loop, draw input screen and update tweener
 
-                        self.draw_panel_label(panel_label_surf)
-                        self.draw_components_on_surf(component_surf)
+                    if(break_flag.value == -1): # -1 means "pause a bit..."
+                            sleep(2) # sleep for two seconds then try again
+                            continue;
+                    elif(break_flag.value == 0): # 0 means stop
+                            self.internal_sid.signal_extinguish()
+                            break ;
 
-                        self.screen.blit(version_label_surf
-                        ,  version_label_where)
-                        self.screen.blit(component_surf, component_box_where)
-                        self.screen.blit(component_surf, component_box_where)
-                        self.screen.blit(panel_label_surf, panel_label_where)
+                    self.user_console.process_input()
+                    for event in pygame.event.get():
+                        if event.type == pygame.QUIT:
+                            self.extinguish_and_deload()
 
-                        pygame.display.flip()
-                        elapsed_time = time.time() - frame_counter_start_time
+                            pygame.quit(); sys.exit();
+                    self.user_console.draw()
 
-                        if(elapsed_time >= 8): # updates every 3 seconds
-                                ## Calculate fps
-                                fps = frame_counter / 8 ## number of frames / 10 secs...
-                                frame_counter_start_time = time.time() # set time again...
-                                frame_counter = 0 # set starting frame again
-                        else:
-                                frame_counter += 1
+                    self.mygut.update_frame() # TODO move this to independent process...
+
+                    self.draw_version_label(version_label_surf, fps)
+
+                    self.draw_panel_label(panel_label_surf)
+                    self.draw_components_on_surf(component_surf)
+
+                    self.draw_links_on_surf(component_surf)
+                    self.screen.blit(version_label_surf
+                    ,  version_label_where)
+                    self.screen.blit(component_surf, component_box_where)
+                    self.screen.blit(component_surf, component_box_where)
+                    self.screen.blit(panel_label_surf, panel_label_where)
+
+                    pygame.display.flip()
+                    elapsed_time = time.time() - frame_counter_start_time
+
+                    if(elapsed_time >= FPS_AVG):  # FPS_AVG is how many seconds fps is averaged over...
+                            ## Calculate fps
+                            fps = frame_counter / FPS_AVG
+                            frame_counter_start_time = time.time() # set time again...
+                            frame_counter = 0.0 # set starting frame again
+                    else:
+                            frame_counter += 1.0
 
                 llog.info("exiting main draw loop...")
 
@@ -306,6 +359,8 @@ if __name__ == '__main__':
         ## all processes are now ready to start.
 
         GLOBAL_LIVE_FLAG.value = -1
+
+        bn.internal_sid.make_components_friends(2,16)
 
         # This gives around 2 seconds of synchronization
         # time for all processes to start.

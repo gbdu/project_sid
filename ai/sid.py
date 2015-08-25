@@ -26,8 +26,19 @@ class Sid:
 
     # locks, myname
     mystate = Value("d", 0) # 0 for dead, 1 for alive, set by creator
-    components = [] # alist of tuples of form  (c, s, a, b, h, l)
+    components = [] # A list of dictionaries {'component':c, 'lock'}:l
+    component_friends = [] # a list of the tuples of the form (id1,id2)
+    # id 1 ==
     processes = []
+
+
+
+    def make_components_friends(self, componentid1, componentid2):
+        '''componentids must be in the form of integers!'''
+        self.component_friends.append((componentid1, componentid2))
+
+    def get_component_friends(self):
+        return self.component_friends
 
     def add_component(self, component_hints):
         '''
@@ -48,7 +59,6 @@ class Sid:
     def get_component_by_id(self, c_id):
         '''returns a handle to the component object if found'''
         for i in self.components:
-            if i["component"].get_id() == c_id:
                 return i
 
         raise exceptions.ValueError("component not found [%d]" % c_id)
@@ -88,6 +98,7 @@ class Sid:
         for the processes to finish and dies
         '''
 
+        log.info("other process entering live_loop...")
         while 1:
             if(break_flag_ref.value == -1):
                 ## Slee for a bit
@@ -103,7 +114,7 @@ class Sid:
                 for p in self.processes:
                     p.join() ## These will die once global state is set to 0
 
-        log.info("sid live_loop exited")
+        log.info("other process sid live_loop exited")
         return
 
     def count_human_components(self):
