@@ -4,9 +4,9 @@
 - [ ] earth - allow persistant save/restart for components -- make it feel alive
 - [ ] kratos - focus on live data connection
 - [ ] jupiter - focus on prediction
-- [ ] saturn - build in hadoop, focus on dissolution
+- [ ] spiders - build in hadoop, focus on dissolution
 - [ ] sky - start studying google earth data
-- [ ] water - allow it to have random behavior
+- [ ] solar - allow it to have random behavior
 
 
 ### steps to achieve intelligence:
@@ -24,25 +24,27 @@
 - [ ] Allow for various kinds of components (deep dream, internal, yt, etc...)
 - [ ] incorporate google images recognition
 - [ ] User interactivity with components via GUI
-- [  ] set component option with mouse for example
+- [ ] set component option with mouse for example
+- [ ] must work on audio/visual/language at least (+ more)
 
-#### 1.6 (in dev):
+#### 1.6 (in dev, two items to work on and then commit...):
 - [ ] abilility for user to link components
-- [ ] draw lines indicating dopamine
+- [ ] draw molecule pool (indicate dopamine, etc)
+- [x] draw lines
 
 ###1.5 released :
--[x] one all_loops_live or live_flag_ref to terminate all processes/loops
--[x] Turn bigned into an actual class...
--[x] all the processes exit properly with ctrl-d now...
--[x] Move tween updater to separate process
+- [x] one all_loops_live or live_flag_ref to terminate all processes/loops
+- [x] Turn bigned into an actual class...
+- [x] all the processes exit properly with ctrl-d now...
+- [x] Move tween updater to separate process
 
 
 ###1.4 released...
--[x] Push new todo
--[x] Make sure github markup works fine...
+- [x] Push new todo
+- [x] Make sure github markup works fine...
 
 ###1.3 released...
--[x] tweening code is now complete with sine/cyclic support
--[x] drawing component panel info
--[x] components now are drawn completely asynch
--[x] things are starting to look prettier
+- [x] tweening code is now complete with sine/cyclic support
+- [x] drawing component panel info
+- [x] components now are drawn completely asynch
+- [x] things are starting to look prettier
