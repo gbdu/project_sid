@@ -32,7 +32,7 @@ except ImportError as e:
 try:
         from helpers import getmylogger
         from ai import sid
-        from mylibs import u    -t
+        from mylibs import ut
         from mylibs import gut
         from gui import gui_helpers,pyconsole
 except ImportError as e:
