@@ -32,6 +32,8 @@ class Gut:
     def add_default_color_tweens(self):
         self.internal_ut.add_tweener("rotation_angle", "cycle", 0, 360)
         self.internal_ut.add_tweener("default_box", "constant", 50)
+
+        self.internal_ut.add_tweener("linesr", "cycle", 50,200)
         self.internal_ut.add_tweener("default_box_text", "cycle",
                                      random.randint(0,50),
                                      random.randint(50, 200))

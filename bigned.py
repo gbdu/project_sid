@@ -40,7 +40,7 @@ except ImportError as e:
         print e
         exit (1)
 
-GLOBAL_LIVE_FLAG = Value("d", 0)
+GLOBAL_LIVE_FLAG = Value("d", -1)
 
 selected_component_id = 0
 
@@ -51,7 +51,7 @@ llog.info("set up all the globals... ")
 
 class BigNed:
 
-        internal_sid = None
+        _mysid = None
         screen = None
         myfont = None
         user_console = None
@@ -73,27 +73,22 @@ class BigNed:
                 llog.info(" EXIT -> extinguish_and_deload called" )
                 global GLOBAL_LIVE_FLAG
                 GLOBAL_LIVE_FLAG.value = 0
-                self.internal_sid.signal_extinguish()
+                self._mysid.signal_extinguish()
 
         def __init__(self):
                 '''inits big ned and draws a visual representation of its state'''
                 try:
-                        try:
-                                self.mygut = gut.Gut()
-                        except Exception as e:
-                                print "Unable to init a gut"
-                                print e
-                                exit(1)
+                    self.mygut = gut.Gut()
+                    self._mysid = sid.Sid()
+                    self._mysid.make_components_friends(10, 20)
+                    self._mysid.setname("BigNed")
+                    self.screen = gui_helpers.init_pygame()
+                    self.myfont = gui_helpers.create_font()
 
-                        self.internal_sid = sid.Sid()
-                        self.internal_sid.setname("BigNed")
-                        self.screen = gui_helpers.init_pygame()
-                        self.myfont = gui_helpers.create_font()
-                        key_calls={"d": self.extinguish_and_deload}
+                    key_calls={"d": self.extinguish_and_deload}
+                    self.user_console = self.init_console(key_calls)
 
-                        self.user_console = self.init_console(key_calls)
-
-                        llog.info("The sid %s was created successfully, he's not alive yet though [ SUCCESS ] " % self.internal_sid.getname() )
+                    llog.info("The sid %s was created successfully, he's not alive yet though [ SUCCESS ] " % self._mysid.getname() )
 
                 except Exception as e:
                         llog.info("failed to init a bigned ... [ FAIL ] ")
@@ -113,65 +108,62 @@ class BigNed:
                 global selected_component_id
 
                 surf.fill((40,40,40))
-                info_paragraph = []
+                linfo = []
 
-                info_paragraph.append("Currently selected component: %d " % selected_component_id)
-                c_dict = self.internal_sid.get_component_by_id(selected_component_id)
+                linfo.append("Currently selected component: %d " % selected_component_id)
+                c_dict = self._mysid.get_component_by_id(selected_component_id)
 
-                c_dict['lock'].acquire()
+                #c_dict['component'].add_friend(10)
                 octo = c_dict['component'].get_octo()
-                c_dict['lock'].release()
 
-                #info_paragraph.append("Internal octo: ")
 
-                info_paragraph.append("    octo-hints : %s" % octo["type_hints"])
-                info_paragraph.append("    octo-source : %s" % octo["source"])
-                info_paragraph.append("    octo-id : %s" % octo["id"])
+                #linfo.append("Internal octo: ")
 
-                info_paragraph.append("")
+                linfo.append("    octo-hints : %s" % octo["type_hints"])
+                linfo.append("    octo-color : %s %s %s" % octo["mycolor"])
+                linfo.append("    octo-source : %s" % octo["source"])
+                linfo.append("    octo-id : %s" % octo["id"])
+                linfo.append("    octo-friends : %s" % octo["friends"])
+                linfo.append("")
 
-                for number,line in enumerate(info_paragraph):
+
+                for number,line in enumerate(linfo):
                         rpos = pygame.Rect(0, (number*self.myfont.get_height()), 20,20) # location of text
                         text = self.myfont.render(line, 1, (100,200,100))
                         surf.blit(text, rpos)
 
-        def draw_box_label(self, surf, color, component_counter, boxrect):
+        def draw_box_label(self, surf, color, bc, boxrect):
                 # Display some text
-                text = self.myfont.render(str(component_counter), 1, color)
+                text = self.myfont.render(str(bc), 1, color)
                 textpos = boxrect
                 surf.blit(text, textpos)
 
-        def draw_box(self, surf, i, inrow, color, width, height, component_counter):
+        def draw_box(self, surf, i, inrow, color, width, height, bc):
                 '''draw a single box'''
+                c_dict = self._mysid.get_component_by_id(bc)
+                c_dict['lock'].acquire()
+                octo = c_dict['component'].get_octo()
+                c_dict['lock'].release()
 
                 pos = pygame.mouse.get_pos()
                 boxrect = pygame.Rect(inrow*width, i*height, width, height)
                 a = b = c = 0
 
-
-
                 boxrect_big = pygame.Rect(inrow*width - width*1, i*height - height*1, width*3, height*3)
-                t = self.mygut.get_tween_value(str(component_counter))
+                t = self.mygut.get_tween_value(str(bc))
 
-                if boxrect.collidepoint(pos): # this is an active box
+                if boxrect.collidepoint(pos): # affect for active box
                         a = self.mygut.get_tween_value("active_box")
                         global selected_component_id
-                        selected_component_id = component_counter
-                        #llog.info("%d is selected", selected_component_counter)
-                        color = [200, 200 , 200+(t/2)]
-                elif boxrect_big.collidepoint(pos):
+                        selected_component_id = bc
+                        color = [180, 180 , 200+(t/2)]
+                elif boxrect_big.collidepoint(pos): # affect color by near
                         b = self.mygut.get_tween_value("nearbox_1")
-
-                        color=[a+b+t + 20, a+b+t + 20 , t/2 + 40]
+                        color=[a+b+t + 30, a+b+t + 30 , t/2 + 40]
                 else: # This is a regular component, draw it using its tween
                         color = [a+b+t, a+b+t, 20+ (t/2)]
 
-                if(selected_component_id != component_counter):
-                        c_dict = self.internal_sid.get_component_by_id(component_counter)
-                        c_dict['lock'].acquire()
-                        octo = c_dict['component'].get_octo()
-                        c_dict['lock'].release()
-
+                if(selected_component_id != bc): ## Affect color by hint type
                         if(octo["type_hints"] == "audio"):
                                 color = (color[0], color[1]+15, color[2]+10)
                         if(octo["type_hints"] == "video"):
@@ -180,7 +172,7 @@ class BigNed:
                                 color = (color[0]+15, color[1]+5, color[2]+20)
 
                 pygame.draw.rect(surf, color, boxrect , 0)
-                self.draw_box_label(surf, color, component_counter, boxrect)
+                self.draw_box_label(surf, color, bc, boxrect)
 
         def draw_components_on_surf(self, surf):
                 '''Draw a grid of 16x16 boxes representing our components'''
@@ -198,47 +190,40 @@ class BigNed:
                 width = 32
                 height= 32
 
-                component_counter = 0
+                bc = 0
+
+                linesps = []
+                linescl = []
+
+                f_flag = 0
+
                 for i in range(8):
                         for inrow in range(8):
                             d = self.mygut.get_tween_value("default_box")
                             color = [d,d,d]
-                            self.draw_box(surf, i, inrow, color, width, height, component_counter)
-                            component_counter += 1
-
-                            dlog.info("drew box")
-
-        def draw_a_link(self, surf, c1, c2):
-            '''c1 c2 are ids'''
-
-            c = 0
-            for row in range(8):
-                for column in range(8):
-                    if c == c1:
-                        p1 = (row*10,column*10)
-
-                    if c == c2:
-                        p2 = (row*10),(column*10)
-
-                    p1=p2=(0,1)
-
-                    c+=1
-
-            pygame.draw.line(surf, (200,0,0), p1, p2)
+                            self.draw_box(surf, i, inrow, color, width, height, bc)
 
 
-        def draw_links_on_surf(self, surf):
-            friend_list = self.internal_sid.get_component_friends()
-            friend_list.append((5,15))
-            for f in friend_list :
-                c1_id = f[0]
-                c2_id = f[1]
+                            c_dict = self._mysid.get_component_by_id(bc)
+                            c_dict['lock'].acquire()
+                            octo = c_dict['component'].get_octo()
+                            c_dict['lock'].release()
 
-                self.draw_a_link(surf, c1_id, c2_id)
+                            for p in octo["friends"]:
+                                linesps.append( (inrow*width+width/2, i*height+height/2) )
+                                linesps.append( (inrow*width+15, i*height+3+height/2) )
+                                linescl.append(octo["mycolor"][0])
+                                linescl.append(octo["mycolor"][1])
+                                linescl.append(octo["mycolor"][2])
 
-            #llog.info("drew component links... on %d " % len(friend_list))
-            #dlog.warn("drew links")
-            pass
+
+
+                            bc += 1
+
+                s = sum(linescl)
+                avg = s/len(linescl)
+
+                pygame.draw.lines(surf, (avg,avg,avg), False, linesps, 2)
 
         #XXX : INFINITE/BREAKABLE LOOP 1 (DRAW)
         def draw_loop(self, break_flag):
@@ -252,9 +237,6 @@ class BigNed:
 
 
                 self.screen.fill((35, 35, 35))
-
-
-
                 panel_label_surf = pygame.Surface((256, 170))
                 component_surf = pygame.Surface((256, 256))
                 version_label_surf = pygame.Surface((100, self.myfont.get_height()))
@@ -274,17 +256,13 @@ class BigNed:
                 FPS_AVG = 10.0
 
                 while True :
-
-
-
-
                     ## This is our main loop, draw input screen and update tweener
 
                     if(break_flag.value == -1): # -1 means "pause a bit..."
                             sleep(2) # sleep for two seconds then try again
                             continue;
                     elif(break_flag.value == 0): # 0 means stop
-                            self.internal_sid.signal_extinguish()
+                            self._mysid.signal_extinguish()
                             break ;
 
                     self.user_console.process_input()
@@ -327,7 +305,7 @@ class BigNed:
                 start the sid loop process
                 break_flag -- a value indicating live loop exit state
                 '''
-                SidProcess = Process(target=self.internal_sid.live_loop, args=(break_flag,)) # sid process
+                SidProcess = Process(target=self._mysid.live_loop, args=(break_flag,)) # sid process
                 llog.info("started sid process...")
                 SidProcess.start()
                 return SidProcess
@@ -358,7 +336,6 @@ if __name__ == '__main__':
 
         GLOBAL_LIVE_FLAG.value = -1
 
-        #bn.internal_sid.make_components_friends(2,16)
 
         # This gives around 2 seconds of synchronization
         # time for all processes to start.

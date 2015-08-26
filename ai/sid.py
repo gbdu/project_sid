@@ -27,18 +27,11 @@ class Sid:
     # locks, myname
     mystate = Value("d", 0) # 0 for dead, 1 for alive, set by creator
     components = [] # A list of dictionaries {'component':c, 'lock'}:l
-    component_friends = [] # a list of the tuples of the form (id1,id2)
     # id 1 ==
     processes = []
 
 
 
-    def make_components_friends(self, componentid1, componentid2):
-        '''componentids must be in the form of integers!'''
-        self.component_friends.append((componentid1, componentid2))
-
-    def get_component_friends(self):
-        return self.component_friends
 
     def add_component(self, component_hints):
         '''
@@ -63,6 +56,17 @@ class Sid:
                 return i
 
         raise exceptions.ValueError("component not found [%d]" % c_id)
+
+    def make_components_friends(self, componentid1, componentid2):
+        '''componentids must be in the form of integers!'''
+        a = (self.get_component_by_id(componentid1))["component"]
+        b = (self.get_component_by_id(componentid2))["component"]
+
+        a.add_friend(componentid2)
+        b.add_friend(componentid1)
+
+        log.info("added friends %d %d" % (componentid1,componentid2))
+        pass
 
     def __init__(self):
         log.info("a new sid wants to be created")
@@ -107,6 +111,7 @@ class Sid:
                 continue;
             if(break_flag_ref.value == 0):
                 self.mystate.value = 0
+                log.info("break ")
                 break ;
             else:
                 for c in self.components:

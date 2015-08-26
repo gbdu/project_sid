@@ -51,6 +51,12 @@ class component:
     #internal:
     mymolecules = None # Internal list of neurotransmitter-like communication
     mylayers = None # a list of neurons + their neurotransmitters
+    myfriends = [] # a list of friend IDS
+
+    def add_friend(self, friendid):
+        log.warning("added friend %d to %d" , friendid, self.myid )
+        self.myfriends.append(friendid)
+        print self.get_octo()
 
     def get_molecule_list(self):
         return ["dopamine", "beans", "potato", "from component"]
@@ -83,22 +89,22 @@ class component:
         # Create 8 layers of 128^2 neurons
         for i in range(DEFAULT_LAYERS_FOR_EACH_TYPE):
             for j in range(DEFAULT_NEURONS_PER_LAYER):
-                #log.info("created layer")
+                #log.warning("created layer")
                 new_pool = self.create_molecule_pool()
                 new_layer = self.create_default_neuron_layer(DEFAULT_NEURONS_PER_LAYER, new_pool)
 
                 l.append(new_layer)
         return
 
-        log.info("created layers")
+        log.warning("created layers")
 
 
     def init_layers(self, hints):
         '''inits the internal data stream, these are numpy arrays'''
-        log.info("setting the data for component with hints %s", hints)
-        self.mylayers = self.create_layers()
-        log.info("layers created ")
-        return
+        #log.warning("setting the data for component with hints %s", hints)
+        #self.mylayers = self.create_layers()
+        #log.warning("layers created ")
+        return 1
 
 
     def get_id(self):
@@ -110,7 +116,7 @@ class component:
         self.mystate = Value("d", 1)
         self.myid = myid
         self.global_state = global_state
-
+        self.myfriends = [ ]
         self.mycolor = [random.randint(0, 100), random.randint(40, 150),
                         random.randint(40, 150)]
 
@@ -136,17 +142,19 @@ class component:
 
     def get_octo(self):
         '''send an 8 channel list representing current state of component'''
-        self.mycolor = (random.randint(0, 100), random.randint(0, 100), random.randint(0, 100))
+        self.mycolor = (200,0,0)
+
         octo = {
             "type_hints": self.type_hints,
             "mycolor":self.mycolor,
             "source":self.mysource,
             "id": self.myid,
-            "five":5,
+            "friends":self.myfriends,
             "six":6,
             "seven":7,
             "eight":8
         }
+
         return octo
 
     def live_loop(self):
@@ -156,7 +164,7 @@ class component:
             if self.mystate.value == 1:
                 self.get_input()  # get a new data frame for this run
                 sleep(1)
-                log.info("COMPONENT %d RAN!", self.mynumber)
+                log.warning("COMPONENT %d RAN!", self.mynumber)
             elif self.mystate.value == 0:
                 #self.clean()
                 return
