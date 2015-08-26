@@ -29,14 +29,14 @@
 	- [ ] Helpful popups/fade
 	- [ ] set component options
 	- [ ] First inter-component communication is made
+	- [ ] Allow for various kinds of components (deep dream, internal, yt, etc...)
+	- [ ] output from one of the text components
 
 #### alpha 1.6 (in dev, commit as soon as one is done!):
 - Branch as stable and screenscast when:
 	- [ ] draw layer panels
 
 - [ ] draw molecule pool (indicate dopamine, etc)
-- [ ] Allow for various kinds of components (deep dream, internal, yt, etc...)
-- [ ] output from one of the text components
 - [x] draw smaller component box with color of internal component
 - [x] ability for user to link components with mouse
 - [x] mouse is processed, some events are now handled better, better console...

@@ -35,7 +35,7 @@ def error(n):
     raise(BadValue(n))
 
 DEFAULT_NEURONS_PER_LAYER = 8
-DEFAULT_LAYERS_FOR_EACH_TYPE = 8
+DEFAULT_NUMBER_OF_LAYERS = 8
 
 class component:
     ''' an octo is an 8 channel parallel (list of 8 floats from numpy)
@@ -50,7 +50,7 @@ class component:
     mysource = "None so far..."
     #internal:
     mymolecules = None # Internal list of neurotransmitter-like communication
-    mylayers = None # a list of neurons + their neurotransmitters
+    layers = [ ] # a list of neurons + their neurotransmitters
     myfriends = [] # a list of friend IDS
 
     def add_friend(self, friendid):
@@ -73,32 +73,7 @@ class component:
 
         return molecules
 
-    def create_default_neuron_layer(self, size, molecule_pool):
-        """returns a default, basic neuron layer"""
-        if not molecule_pool:
-            error("need to set neurotransmitters first!")
 
-
-        l = []
-        for i in range(size):
-            new_neuron = Neuron(molecule_pool, l)
-            l.append(new_neuron)
-
-        return l
-
-    def create_layers(self):
-        l = []
-        # Create 8 layers of 128^2 neurons
-        for i in range(DEFAULT_LAYERS_FOR_EACH_TYPE):
-            for j in range(DEFAULT_NEURONS_PER_LAYER):
-                #log.warning("created layer")
-                new_pool = self.create_molecule_pool()
-                new_layer = self.create_default_neuron_layer(DEFAULT_NEURONS_PER_LAYER, new_pool)
-
-                l.append(new_layer)
-        return
-
-        log.warning("created layers")
 
 
     def init_layers(self, hints):
@@ -106,7 +81,16 @@ class component:
         #log.warning("setting the data for component with hints %s", hints)
         #self.mylayers = self.create_layers()
         #log.warning("layers created ")
-        return 1
+
+        molecule_pool = {"dopamine":10, "serotonin":20}
+
+
+        for l in range(DEFAULT_NUMBER_OF_LAYERS):
+            for n in range(DEFAULT_NEURONS_PER_LAYER):
+                self.layers.append( Neuron() )
+
+        #return 1
+        pass
 
 
     def get_id(self):
@@ -151,8 +135,8 @@ class component:
             "source":self.mysource,
             "id": self.myid,
             "friends":self.myfriends,
-            "six":6,
-            "seven":7,
+            "layers":self.layers,
+            "neurons_per_layer":7,
             "eight":8
         }
 

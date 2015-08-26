@@ -44,6 +44,11 @@ def init_pygame():
                 logger.error("unable to init screen")
                 exit(1)
 
+def get_color_inverse(color):
+    r = abs(255-color[0])
+    g = abs(255-color[1])
+    b = abs(255-color[2])
+    return (r,g,b)
 
 def create_font(name="default.ttf",size=8):
         '''

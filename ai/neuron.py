@@ -38,14 +38,14 @@ log = loud_logger("neuron_stim")
 
 
 class Neuron:
-    def __init__(self, n, parent_layer):
+    def __init__(self, n={"dopamine":10, "serotonin":10}):
         '''
         n is a dict of moleculename:molecule_concentration,molecule_lock
         parent_layer is a list of "friend" neurons (could include self!)
         '''
         self.mymolecules = n
-        self.myfriends = parent_layer
-        self.friends = parent_layer # a list of friend neurons
+        #self.myfriends = parent_layer
+        #self.friends = parent_layer # a list of friend neurons
 
     def dopamine_response(self, value):
         log.info("responding to dopamine value %d", value)

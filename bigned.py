@@ -174,39 +174,24 @@ class BigNed:
                 linfo.append("    octo-source : %s" % octo["source"])
                 linfo.append("    octo-id : %s" % octo["id"])
                 linfo.append("    octo-friends : %s" % octo["friends"])
+                linfo.append("    octo-layers : %d" % len(octo["layers"]))
+
                 linfo.append("")
 
 
                 for number,line in enumerate(linfo):
                         rpos = pygame.Rect(0, (number*self.myfont.get_height()), 20,20) # location of text
-                        text = self.myfont.render(line, 1, (150+number,150,190))
+                        text = self.myfont.render(line, 1, (150,150,160))
                         surf.blit(text, rpos)
 
         def draw_box_label(self, surf, color, bc, boxrect):
-                # Display some text
                 text = self.myfont.render(str(bc), 1, color)
-                textpos = boxrect
+                textpos = (boxrect[0],boxrect[1])
                 surf.blit(text, textpos)
 
-        def draw_smaller_box(self, surf, boxrect, bc, bgcolor):
-            top = boxrect[0]
-            left = boxrect[1]
-
-            oldred = oldgreen = oldblue = 0
-
-            for i in range(1,4):
-
-                width = boxrect[2] /2
-                height = boxrect[3] /2
-                top = boxrect[0] + (width/2)
-                left = boxrect[1] + (height/2)
-
-                c = self.okto(bc)["mycolor"]
-
-                r = pygame.Rect(top,left,width,height)
-                boxrect = r
-                pygame.draw.rect(surf, c, r, 1)
-
+        def draw_layer_panel(self, surf, for_component_id=0):
+            octo = self.okto(for_component_id)
+            #layers = octo["layers"]
 
         def okto(self, cid):
             '''should I lock here?'''
@@ -214,6 +199,24 @@ class BigNed:
             octo = c_dict['component'].get_octo()
 
             return octo
+
+        def draw_smaller_box(self, surf, boxrect, bc, bgcolor):
+            top = boxrect[0]
+            left = boxrect[1]
+
+            oldred = oldgreen = oldblue = 0
+
+            for i in range(1,2):
+                width = boxrect[2] /5
+                height = boxrect[3] /5
+                top = boxrect[0] + (32/2)
+                left = boxrect[1] + (32/2)
+                c = self.okto(bc)["mycolor"]
+
+                r = pygame.Rect(top,left,width,height)
+                boxrect = r
+                pygame.draw.rect(surf, c, r, 0)
+
 
         def draw_box(self, surf, boxrect, bc):
                 a = b = c = 0 # used for fancy tweening
@@ -250,7 +253,7 @@ class BigNed:
                 pygame.draw.rect(surf, color, boxrect , 0)
 
                 self.draw_smaller_box(surf, boxrect, bc, color)
-                self.draw_box_label(surf, color, bc, boxrect)
+                self.draw_box_label(surf, gui_helpers.get_color_inverse(color), bc, boxrect)
 
         def draw_components_on_surf(self, surf):
                 '''Draw a grid of 16x16 boxes representing our components'''

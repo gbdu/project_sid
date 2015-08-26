@@ -65,7 +65,7 @@ class Sid:
         a.add_friend(componentid2)
         b.add_friend(componentid1)
 
-        log.info("added friends %d %d" % (componentid1,componentid2))
+        #log.info("added friends %d %d" % (componentid1,componentid2))
         pass
 
     def __init__(self):
