@@ -32,7 +32,7 @@ except ImportError as e:
 try:
         from helpers import getmylogger
         from ai import sid
-        from mylibs import ut
+        from mylibs import u    -t
         from mylibs import gut
         from gui import gui_helpers,pyconsole
 except ImportError as e:
@@ -164,10 +164,10 @@ class BigNed:
                 linfo = []
 
                 linfo.append("Currently selected component: %d " % selected_component_id)
-                c_dict = self._mysid.get_component_by_id(selected_component_id)
+                c = self._mysid.get_component_by_id(selected_component_id)
 
                 #c_dict['component'].add_friend(10)
-                octo = c_dict['component'].get_octo()
+                octo = c.get_octo()
 
 
                 #linfo.append("Internal octo: ")
@@ -180,8 +180,6 @@ class BigNed:
                 linfo.append("    octo-layers : %d" % len(octo["layers"]))
 
                 linfo.append("")
-
-
                 for number,line in enumerate(linfo):
                         rpos = pygame.Rect(5, 5+(number*self.myfont.get_height()), 20,20) # location of text
                         text = self.myfont.render(line, 1, (150,150,160))
@@ -206,32 +204,42 @@ class BigNed:
 
         def okto(self, cid):
             '''should I lock here?'''
-            c_dict = self._mysid.get_component_by_id(cid)
-            octo = c_dict['component'].get_octo()
+            c = self._mysid.get_component_by_id(cid)
+            octo = c.get_octo()
 
             return octo
 
-        def draw_smaller_box(self, surf, boxrect, bc, bgcolor):
-            top = boxrect[0]
-            left = boxrect[1]
-
-            oldred = oldgreen = oldblue = 0
-
+        def draw_smaller_boxes(self, surf, boxrect, bc, bgcolor):
             width = boxrect[2] / 5
             height = boxrect[3] / 5
-            top = boxrect[0] + 20
-            left = boxrect[1]+20
-            c = self.okto(bc)["mycolor"]
+            top = boxrect[0] + 32 - width
+            left = boxrect[1] + 32 - height
 
+            oc = self.okto(bc)["mycolor"]
+            c = (bgcolor[0]+oc[0])/2,(oc[1]+bgcolor[1])/2,(oc[1]+bgcolor[2])/2
             r = pygame.Rect(top,left,width,height)
-            boxrect = r
+
             pygame.draw.rect(surf, c, r, 0)
+
+            # Right most minbox just shows the color avg between oct color from process and the background color1
+            r2 = pygame.Rect(top-8, left, boxrect[2]/5, boxrect[3]/5)
+            pygame.draw.rect(surf, oc, r2, 0)
+
+            # The next box shows the color straight from the octo
+            r3 = pygame.Rect(top-16, left, boxrect[2]/5, boxrect[3]/5)
+            pygame.draw.rect(surf, oc, r3, 0)
+
+            # The next box is todo
+            r4 = pygame.Rect(top-24, left, boxrect[2]/5, boxrect[3]/5)
+            pygame.draw.rect(surf, (100,250,100), r4, 0 )
+
+
 
 
         def draw_box(self, surf, boxrect, bc):
                 a = b = c = 0 # used for fancy tweening
-                c_dict = self._mysid.get_component_by_id(bc) # lock?
-                octo = c_dict['component'].get_octo()
+                c = self._mysid.get_component_by_id(bc) # lock?
+                octo = c.get_octo()
                 width = boxrect[2]
                 height = boxrect[3]
                 #self.lg(str(boxrect))
@@ -277,7 +285,7 @@ class BigNed:
 
                 pygame.draw.rect(surf, color, boxrect , 1 if clicked else 0)
 
-                self.draw_smaller_box(surf, boxrect, bc, color)
+                self.draw_smaller_boxes(surf, boxrect, bc, color)
                 self.draw_box_label(surf, gui_helpers.get_color_inverse(color), bc, boxrect)
 
         def draw_components_on_surf(self, surf):
@@ -295,9 +303,6 @@ class BigNed:
                 pygame.draw.rect(surf, (150, 150, 150), c_r, 0 )
                 width = 32
                 height= 32
-
-
-
                 f_flag = 0
 
 
@@ -311,16 +316,19 @@ class BigNed:
                     brect = self.get_component_box(b)
 
 
-                    c_dict = self._mysid.get_component_by_id(b)
-                    c_dict['lock'].acquire()
-                    octo = c_dict['component'].get_octo()
-                    c_dict['lock'].release()
+                    c = self._mysid.get_component_by_id(b)
+
+                    #c_dict['lock'].acquire()
+
+                    octo = c.get_octo()
+
+                    #c_dict['lock'].release()
 
                     for p in octo["friends"]:
                         # aaline(Surface, color, startpos, endpos, blend=1) -> Rect
 
-                        c_friend_octo = self._mysid.get_component_by_id(p)
-                        f_octo = c_dict['component'].get_octo()
+                        cf = self._mysid.get_component_by_id(p)
+                        f_octo = cf.get_octo()
 
                         color1 = f_octo['mycolor']
                         color2 = octo['mycolor']
@@ -332,7 +340,7 @@ class BigNed:
                         p1 = brect[0] + (width/2),brect[1] + (height/2)
                         p2 = frect[0] + (width/2),frect[1] + (width/2)
 
-                        pygame.draw.aaline(surf, avgcolor, p1, p2, 1)
+                        pygame.draw.aaline(surf, avgcolor, p1, p2, 2)
 
 
 
@@ -427,7 +435,7 @@ class BigNed:
                 start the sid loop process
                 break_flag -- a value indicating live loop exit state
                 '''
-                SidProcess = Process(target=self._mysid.live_loop, args=(break_flag,)) # sid process
+                SidProcess = Process(target=self._mysid.start_and_return, args=(break_flag,)) # the breakflag is then passed to the components
                 llog.info("started sid process...")
                 SidProcess.start()
                 return SidProcess

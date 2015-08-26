@@ -116,12 +116,22 @@ class component:
             print "none set yet"
         return 0
 
+    def do_work_on_input(self, inn):
+        pass
+
     def get_input(self):
         '''reads from data stream...'''
 
         ## For now just change the octo randomly...
 
+        # TODO: mycolor responds to actual data state
+
+        self.mycolor = random.randint(50,150),random.randint(50,150),random.randint(50,250)
+
+
         pass
+
+        return self.mycolor
 
     def _get_color_dim(self):
         '''returns a random color for now....'''
@@ -143,21 +153,29 @@ class component:
 
         return octo
 
-    def live_loop(self):
-        '''loop repeatedly until global_state is not 1'''
+    def live_loop(self, break_flag):
+        '''loop repeatedly until breakflag is not 1 (breakflag comes from the parent process, in this case, sid...)'''
 
-        while self.global_state.value == 1:
-            if self.mystate.value == 1:
-                self.get_input()  # get a new data frame for this run
-                sleep(1)
-                log.warning("COMPONENT %d RAN!", self.mynumber)
-            elif self.mystate.value == 0:
-                #self.clean()
-                return
-            else:
-                # the component is not in a running state, do nothing
-                sleep(5)
+        while True:
+            ## 64 of these loops!
 
+            if break_flag.value == -1:
+                #print "process %d waiting for job flag... " % self.myid
+                sleep(4)
+                continue ;
+
+            if break_flag.value == 0:
+                #print "process %d told to break out of live_loop" % self.myid
+                self.signal_death()
+                break ;
+                return ;
+
+            if break_flag.value == 1: # 1 signals "work"
+                print "process %d doing work" % self.myid
+                inn = self.get_input()
+
+                self.do_work_on_input(inn)
+                sleep(4)
         return
 
     def signal_death(self):

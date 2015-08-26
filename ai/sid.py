@@ -25,13 +25,8 @@ class Sid:
     the components run'''
 
     # locks, myname
-    mystate = Value("d", 0) # 0 for dead, 1 for alive, set by creator
-    components = [] # A list of dictionaries {'component':c, 'lock'}:l
-    # id 1 ==
+    components = [] # A list of component objects
     processes = []
-
-
-
 
     def add_component(self, component_hints):
         '''
@@ -44,23 +39,22 @@ class Sid:
         global last_component_number
 
         # Components get their id based on the order they were added to the list...
-        c = component(self.mystate, component_hints, len(self.components))
-        lock = Lock()
+        c = component(0, component_hints, len(self.components))
 
-        self.components.append({"component":c, "lock":lock})
+        self.components.append(c)
 
     def get_component_by_id(self, c_id):
         '''returns a handle to the component object if found'''
         for i in self.components:
-            if i["component"].get_id() == c_id:
+            if i.get_id() == c_id:
                 return i
 
         raise exceptions.ValueError("component not found [%d]" % c_id)
 
     def make_components_friends(self, componentid1, componentid2):
         '''componentids must be in the form of integers!'''
-        a = (self.get_component_by_id(componentid1))["component"]
-        b = (self.get_component_by_id(componentid2))["component"]
+        a = (self.get_component_by_id(componentid1))
+        b = (self.get_component_by_id(componentid2))
 
         a.add_friend(componentid2)
         b.add_friend(componentid1)
@@ -80,15 +74,6 @@ class Sid:
             self.add_component("video")
         log.info("-----> (3/3) video components added [ SUCCESS ] ")
 
-    def create_process(self, c):
-        '''start the asynch process and appends it to list processes'''
-        qlog.info("creating process for new sid component ... ")
-        p = Process(target=c.live_loop)
-        self.processes.append(p)
-        p.start()
-        # do not join, just return
-        return
-
     def getname(self):
         return self.myname
 
@@ -96,7 +81,7 @@ class Sid:
         self.myname = myn
 
     # XXX: live loop #2, for sid
-    def live_loop(self, break_flag_ref):
+    def start_and_return(self, break_flag_ref):
         '''
         this tells sid to live, it goes over the compnents and sets their
         states to alive and creates new processes to run them, then it waits
@@ -104,23 +89,16 @@ class Sid:
         '''
 
         log.info("other process entering live_loop...")
-        while 1:
-            if(break_flag_ref.value == -1):
-                ## Slee for a bit
-                sleep(2)
-                continue;
-            if(break_flag_ref.value == 0):
-                self.mystate.value = 0
-                log.info("break ")
-                break ;
-            else:
-                for c in self.components:
-                    self.create_process(c['component'])
 
-                for p in self.processes:
-                    p.join() ## These will die once global state is set to 0
+        # Just create the 64 components and return...
+        counter=0
+        for comp_obj in self.components:
+            p = Process(target=comp_obj.live_loop, args=(break_flag_ref,))
 
-        log.info("other process sid live_loop exited")
+            self.processes.append(p)
+
+            p.start()
+
         return
 
     def count_human_components(self):
@@ -133,28 +111,12 @@ class Sid:
     def last_words(self):
         return "Default last word for ", self.myname
 
-
     def signal_extinguish(self):
-        '''called from another process. Kill the sid, sets the global value to 0,
-        then it goes over all the components and sets their state to dead. This
-        will (hopefully) cause the live() loop to die and the forked processes
-        to join'''
-
-        log.info("got signal extinguish")
-        self.mystate.value = 0 # set global state to dead
-
-        for c in self.components:
-            # Go over all forked components and set them to dead
-            # this will (hopefully) cause their live_loop to die
-
-            c['component'].signal_death()
+        ###
 
         log.info("  ----> got signal extinguish [ SUCCESS ]")
 
 
-    def print_panel(self):
-        sid_panel = ""
-        return sid_panel
 
 
 
