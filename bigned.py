@@ -60,6 +60,14 @@ class BigNed:
         global dlog
         global llog
 
+        clicked_components = () # whenever this reaches two, they get added
+                                # and the list gets emptied
+
+        def lg(self, msg="defaultmsg"):
+            '''drawn log output'''
+            self.user_console.output(msg)
+            llog.info(msg)
+
         def init_console(self, key_calls):
                 try:
                         r = pygame.Rect(300, 20, 320, 256)
@@ -94,6 +102,15 @@ class BigNed:
                         llog.info("failed to init a bigned ... [ FAIL ] ")
                         print e
                         exit(1)
+        # Processing
+
+        def process_mouse(self, event):
+            pos = pygame.mouse.get_pos()
+            if event.type == pygame.MOUSEBUTTONUP:
+                self.lg("processed up")
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                self.lg("processed down")
+
 
         def draw_version_label(self, surf, fps , color=(200,200,200)):
                 '''draws the version info and fps on the top of the main screen'''
@@ -129,7 +146,7 @@ class BigNed:
 
                 for number,line in enumerate(linfo):
                         rpos = pygame.Rect(0, (number*self.myfont.get_height()), 20,20) # location of text
-                        text = self.myfont.render(line, 1, (100,200,100))
+                        text = self.myfont.render(line, 1, (150+number*10,100,100+number*10))
                         surf.blit(text, rpos)
 
         def draw_box_label(self, surf, color, bc, boxrect):
@@ -245,10 +262,8 @@ class BigNed:
                 panel_label_where = (20, 300)
                 version_label_where = (5,5)
 
-                global user_console
 
-
-                llog.info("entering main draw loop")
+                self.lg("entering main draw loop")
 
                 frame_counter = 0.0
                 frame_counter_start_time = time.time()
@@ -258,19 +273,31 @@ class BigNed:
                 while True :
                     ## This is our main loop, draw input screen and update tweener
 
+                    self.user_console.process_input()
+
                     if(break_flag.value == -1): # -1 means "pause a bit..."
                             sleep(2) # sleep for two seconds then try again
                             continue;
                     elif(break_flag.value == 0): # 0 means stop
-                            self._mysid.signal_extinguish()
+                            self.extinguish_and_deload
                             break ;
 
-                    self.user_console.process_input()
-                    for event in pygame.event.get():
-                        if event.type == pygame.QUIT:
-                            self.extinguish_and_deload()
 
-                            pygame.quit(); sys.exit();
+                    event = pygame.event.poll()
+                    if event.type == pygame.QUIT:
+                        self.extinguish_and_deload()
+                        exit(0)
+
+
+                    if event.type == pygame.MOUSEBUTTONUP:
+                        self.process_mouse(event)
+                    elif event.type == pygame.MOUSEBUTTONDOWN:
+                        self.process_mouse(event)
+                    elif event.type == pygame.MOUSEMOTION:
+                        x, y = event.pos
+                    else:
+                        x,y=0,0
+
 
                     self.user_console.draw()
 

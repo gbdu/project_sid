@@ -18,8 +18,6 @@ import textwrap # Used for proper word wrapping
 from string import ascii_letters
 from code import InteractiveConsole             # Gives us access to the python interpreter
 
-__version__ = "0.7"
-
 WIDTH=0
 HEIGHT=1
 
@@ -122,7 +120,7 @@ class Console:
 		self.txt_layer.set_colorkey(self.bg_color)
 
 		try:
-			self.font = create_font();
+			self.font = create_font(name="console.ttf",size=14);
 		except IOError:
 			self.font = pygame.font.SysFont("monospace", 11)
 
@@ -182,8 +180,8 @@ class Console:
 		self.active = False
 		self.repeat_rate = [500,30]
 		self.python_mode = False
-		self.preserve_events = False
-		self.motd = ["[Sid console]"]
+		self.preserve_events = True
+		self.motd = ["[    Sid console     ]"]
 
 	def safe_set_attr(self, name, value):
 		'''\

@@ -17,7 +17,7 @@ __status__ = "dev"
 try:
         import pygame
         import os,sys
-        
+
 except ImportError as e:
         print "Couldnt load sys files from gui_helpers.py"
         print e
@@ -25,7 +25,7 @@ except ImportError as e:
 try:
         #from helpers.getmylogger import loud_logger,silent_logger
         from helpers.getmylogger import silent_logger,loud_logger
-        
+
 except ImportError as e:
         print "Couldn't load internal stuff from gui_helpers.py"
         print e
@@ -43,9 +43,9 @@ def init_pygame():
         except :
                 logger.error("unable to init screen")
                 exit(1)
-                
-   
-def create_font(name="default.ttf"):
+
+
+def create_font(name="default.ttf",size=8):
         '''
         returns a font from pygame.font.Font() using the
         "resources/fonts/(name)" dir,
@@ -55,7 +55,7 @@ def create_font(name="default.ttf"):
                 wk_dir = os.path.dirname(os.path.realpath('__file__'))
                 font_dir = os.path.join(wk_dir, "resources/fonts/" )
                 font_path = os.path.join(font_dir, name)
-                font = pygame.font.Font(font_path, 8)
+                font = pygame.font.Font(font_path, size)
                 return font
         except IOError as e:
                 print font_path
@@ -71,4 +71,3 @@ def log(msg, log=None, console=None): # visual log that also goes to user consol
             console.out(msg)
         if log:
                 log.info(msg)
-                

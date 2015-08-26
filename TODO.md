@@ -9,35 +9,31 @@
 - [ ] solar - allow it to have random behavior
 
 
-### steps to achieve intelligence:
-- [ ] it has to learn/do
-- [ ] must work on audio/visual/language at least (+ more)
-- [ ] xcomponent
-- [ ] all components must be interactive and interlinked
-
 ### future/wishlight/thoughts:
-- [ ] look up watson, opencyc
+- [ ] look up watson, opencyc, hadoop
+- [ ] for interface, look up vispy or study opengl tutorial
 - [ ] What sid thinks it looks like (as a person)
-- [ ] output from one of the text components
 - [ ] Right-click menu
 - [ ] components that fire together wire together
-- [ ] Allow for various kinds of components (deep dream, internal, yt, etc...)
 - [ ] incorporate google images recognition
 - [ ] User interactivity with components via GUI
 - [ ] set component option with mouse for example
 - [ ] must work on audio/visual/language at least (+ more)
 
-#### 1.6 (in dev, two items to work on and then commit...):
-- [ ] abilility for user to link components
+#### alpha 1.6 (in dev, commit as soon as one is done!):
+- [ ] ability for user to link components with mouse
 - [ ] draw molecule pool (indicate dopamine, etc)
+- [ ] Allow for various kinds of components (deep dream, internal, yt, etc...)
+- [ ] output from one of the text components
+- [ ] set component options
+- [x] mouse is processed, some events are now handled better, better console...
 - [x] draw lines
 
-###1.5 released :
+### alpha 1.5 released :
 - [x] one all_loops_live or live_flag_ref to terminate all processes/loops
 - [x] Turn bigned into an actual class...
 - [x] all the processes exit properly with ctrl-d now...
 - [x] Move tween updater to separate process
-
 
 ###1.4 released...
 - [x] Push new todo
