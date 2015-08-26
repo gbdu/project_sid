@@ -44,7 +44,7 @@ class component:
 
     octo_layer_average = []
     mystate = None # You get this from parent
-    mycolor = None # You give this to parent
+    mycolor = (0,0,0) # You give this to parent
     mynumber = None # You get this from parent
     myid = None # You get this from parent
     mysource = "None so far..."
@@ -54,7 +54,9 @@ class component:
     myfriends = [] # a list of friend IDS
 
     def add_friend(self, friendid):
-        log.warning("added friend %d to %d" , friendid, self.myid )
+        if friendid in self.myfriends:
+            return False
+
         self.myfriends.append(friendid)
         print self.get_octo()
 
@@ -117,8 +119,8 @@ class component:
         self.myid = myid
         self.global_state = global_state
         self.myfriends = [ ]
-        self.mycolor = [random.randint(0, 100), random.randint(40, 150),
-                        random.randint(40, 150)]
+        self.mycolor = (random.randint(0, 100), random.randint(40, 150),
+                        random.randint(40, 150))
 
         #internal:
         self.init_layers(type_hints)
@@ -142,7 +144,6 @@ class component:
 
     def get_octo(self):
         '''send an 8 channel list representing current state of component'''
-        self.mycolor = (200,0,0)
 
         octo = {
             "type_hints": self.type_hints,

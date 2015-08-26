@@ -13,19 +13,32 @@
 - [ ] look up watson, opencyc, hadoop
 - [ ] for interface, look up vispy or study opengl tutorial
 - [ ] What sid thinks it looks like (as a person)
-- [ ] Right-click menu
 - [ ] components that fire together wire together
 - [ ] incorporate google images recognition
 - [ ] User interactivity with components via GUI
 - [ ] set component option with mouse for example
 - [ ] must work on audio/visual/language at least (+ more)
 
+#### alpha 1.8 (future):
+- Branch as stable and screenscast when:
+	- [ ] Right-click menu
+
+	- [ ] Helpful popups/fade
+#### alpha 1.7 (future):
+- Branch as stable and screenscast when:
+	- [ ] Helpful popups/fade
+	- [ ] set component options
+	- [ ] First inter-component communication is made
+
 #### alpha 1.6 (in dev, commit as soon as one is done!):
-- [ ] ability for user to link components with mouse
+- Branch as stable and screenscast when:
+	- [ ] draw layer panels
+
 - [ ] draw molecule pool (indicate dopamine, etc)
 - [ ] Allow for various kinds of components (deep dream, internal, yt, etc...)
 - [ ] output from one of the text components
-- [ ] set component options
+- [x] draw smaller component box with color of internal component
+- [x] ability for user to link components with mouse
 - [x] mouse is processed, some events are now handled better, better console...
 - [x] draw lines
 

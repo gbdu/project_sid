@@ -56,7 +56,8 @@ class BigNed:
         myfont = None
         user_console = None
         mygut = None
-        myboxes = []  # A list of tuples (component_id,boxrect)
+        click = [] # clearead every two points...
+
         global dlog
         global llog
 
@@ -88,8 +89,8 @@ class BigNed:
                 try:
                     self.mygut = gut.Gut()
                     self._mysid = sid.Sid()
-                    self._mysid.make_components_friends(10, 20)
                     self._mysid.setname("BigNed")
+                    self._mysid.make_components_friends(10,20)
                     self.screen = gui_helpers.init_pygame()
                     self.myfont = gui_helpers.create_font()
 
@@ -104,12 +105,44 @@ class BigNed:
                         exit(1)
         # Processing
 
+        def get_component_box(self, cid):
+            width = 32
+            height = 32
+
+            counter = 0
+            for row in range(8):
+                for col in range(8):
+                    if counter == cid:
+                        return pygame.Rect(col*width, row*height, width, height)
+                    #else :
+                        #self.lg(str(row+col))
+
+                    counter += 1
+            return pygame.Rect(col*width+cid,col*width+cid,width,height)
+
         def process_mouse(self, event):
+            if (len(self.click)) == 2:
+                self._mysid.make_components_friends(self.click[0], self.click[1])
+                self.click = [ ]
+
+
             pos = pygame.mouse.get_pos()
+
             if event.type == pygame.MOUSEBUTTONUP:
-                self.lg("processed up")
+                boxes = []
+                for i in range(64):
+                    box = self.get_component_box(i)
+                    if box.collidepoint(pos):
+                        self.click.append(i)
+                        if (len(self.click)) == 2:
+                            self._mysid.make_components_friends(self.click[0], self.click[1])
+                            self.click = [ ]
+
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                self.lg("processed down")
+
+                if (len(self.click)) == 2:
+                    self._mysid.make_components_friends(self.click[0], self.click[1])
+                    self.click = [ ]
 
 
         def draw_version_label(self, surf, fps , color=(200,200,200)):
@@ -146,7 +179,7 @@ class BigNed:
 
                 for number,line in enumerate(linfo):
                         rpos = pygame.Rect(0, (number*self.myfont.get_height()), 20,20) # location of text
-                        text = self.myfont.render(line, 1, (150+number*10,100,100+number*10))
+                        text = self.myfont.render(line, 1, (150+number,150,190))
                         surf.blit(text, rpos)
 
         def draw_box_label(self, surf, color, bc, boxrect):
@@ -155,18 +188,44 @@ class BigNed:
                 textpos = boxrect
                 surf.blit(text, textpos)
 
-        def draw_box(self, surf, i, inrow, color, width, height, bc):
-                '''draw a single box'''
-                c_dict = self._mysid.get_component_by_id(bc)
-                c_dict['lock'].acquire()
+        def draw_smaller_box(self, surf, boxrect, bc, bgcolor):
+            top = boxrect[0]
+            left = boxrect[1]
+
+            oldred = oldgreen = oldblue = 0
+
+            for i in range(1,4):
+
+                width = boxrect[2] /2
+                height = boxrect[3] /2
+                top = boxrect[0] + (width/2)
+                left = boxrect[1] + (height/2)
+
+                c = self.okto(bc)["mycolor"]
+
+                r = pygame.Rect(top,left,width,height)
+                boxrect = r
+                pygame.draw.rect(surf, c, r, 1)
+
+
+        def okto(self, cid):
+            '''should I lock here?'''
+            c_dict = self._mysid.get_component_by_id(cid)
+            octo = c_dict['component'].get_octo()
+
+            return octo
+
+        def draw_box(self, surf, boxrect, bc):
+                a = b = c = 0 # used for fancy tweening
+                c_dict = self._mysid.get_component_by_id(bc) # lock?
                 octo = c_dict['component'].get_octo()
-                c_dict['lock'].release()
-
+                width = boxrect[2]
+                height = boxrect[3]
+                #self.lg(str(boxrect))
+                i = boxrect[1]/width
+                col = boxrect[0]/height
                 pos = pygame.mouse.get_pos()
-                boxrect = pygame.Rect(inrow*width, i*height, width, height)
-                a = b = c = 0
-
-                boxrect_big = pygame.Rect(inrow*width - width*1, i*height - height*1, width*3, height*3)
+                boxrect_big = pygame.Rect(col*width - width*1, i*height - height*1, width*3, height*3)
                 t = self.mygut.get_tween_value(str(bc))
 
                 if boxrect.collidepoint(pos): # affect for active box
@@ -189,6 +248,8 @@ class BigNed:
                                 color = (color[0]+15, color[1]+5, color[2]+20)
 
                 pygame.draw.rect(surf, color, boxrect , 0)
+
+                self.draw_smaller_box(surf, boxrect, bc, color)
                 self.draw_box_label(surf, color, bc, boxrect)
 
         def draw_components_on_surf(self, surf):
@@ -207,40 +268,45 @@ class BigNed:
                 width = 32
                 height= 32
 
-                bc = 0
 
-                linesps = []
-                linescl = []
 
                 f_flag = 0
 
-                for i in range(8):
-                        for inrow in range(8):
-                            d = self.mygut.get_tween_value("default_box")
-                            color = [d,d,d]
-                            self.draw_box(surf, i, inrow, color, width, height, bc)
+
+                for b in range(64):
+                    #[b, width,height]
+                    brect = self.get_component_box(b)
+                    self.draw_box(surf, brect, b)
+
+                for b in range(64):
+                    #[b, width,height]
+                    brect = self.get_component_box(b)
 
 
-                            c_dict = self._mysid.get_component_by_id(bc)
-                            c_dict['lock'].acquire()
-                            octo = c_dict['component'].get_octo()
-                            c_dict['lock'].release()
+                    c_dict = self._mysid.get_component_by_id(b)
+                    c_dict['lock'].acquire()
+                    octo = c_dict['component'].get_octo()
+                    c_dict['lock'].release()
 
-                            for p in octo["friends"]:
-                                linesps.append( (inrow*width+width/2, i*height+height/2) )
-                                linesps.append( (inrow*width+15, i*height+3+height/2) )
-                                linescl.append(octo["mycolor"][0])
-                                linescl.append(octo["mycolor"][1])
-                                linescl.append(octo["mycolor"][2])
+                    for p in octo["friends"]:
+                        # aaline(Surface, color, startpos, endpos, blend=1) -> Rect
+
+                        c_friend_octo = self._mysid.get_component_by_id(p)
+                        f_octo = c_dict['component'].get_octo()
+
+                        color1 = f_octo['mycolor']
+                        color2 = octo['mycolor']
+
+                        avgcolor = ((color1[0]+color2[0])/2, (color1[1]+color2[1])/2, (color1[1]+color2[1])/2)
+
+                        frect = self.get_component_box(p)
+
+                        p1 = brect[0] + (width/2),brect[1] + (height/2)
+                        p2 = frect[0] + (width/2),frect[1] + (width/2)
+
+                        pygame.draw.aaline(surf, avgcolor, p1, p2, 1)
 
 
-
-                            bc += 1
-
-                s = sum(linescl)
-                avg = s/len(linescl)
-
-                pygame.draw.lines(surf, (avg,avg,avg), False, linesps, 2)
 
         #XXX : INFINITE/BREAKABLE LOOP 1 (DRAW)
         def draw_loop(self, break_flag):
@@ -325,7 +391,7 @@ class BigNed:
                     else:
                             frame_counter += 1.0
 
-                llog.info("exiting main draw loop...")
+                self.lg("exiting main draw loop...")
 
         def create_sid_process(self, break_flag):
                 '''
