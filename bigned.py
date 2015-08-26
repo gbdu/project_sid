@@ -12,7 +12,7 @@ __author__ = 'gbdu'
 __copyright__ = "Copyright 2015, gbdu"
 __credits__ = ["gbdu"]
 __license__ = "GPL"
-__version__ = "1.5-alpha"
+__version__ = "1.6-alpha"
 __email__ = "ogrum@live.com"
 __status__ = "dev"
 
@@ -31,6 +31,8 @@ except ImportError as e:
 # Import my dependencies:
 try:
         from helpers import getmylogger
+        from helpers import octo_snapper
+
         from ai import sid
         from mylibs import ut
         from mylibs import gut
@@ -57,6 +59,7 @@ class BigNed:
         user_console = None
         mygut = None
         click = [] # clearead every two points...
+        osnapper = None
 
         global dlog
         global llog
@@ -96,6 +99,7 @@ class BigNed:
                     self._mysid.make_components_friends(10,20)
                     self.screen = gui_helpers.init_pygame()
                     self.myfont = gui_helpers.create_font()
+                    self.osnapper = octo_snapper.OctoSnapper()
 
                     key_calls={"d": self.extinguish_and_deload}
                     self.user_console = self.init_console(key_calls)
@@ -204,10 +208,18 @@ class BigNed:
 
         def okto(self, cid):
             '''should I lock here?'''
-            c = self._mysid.get_component_by_id(cid)
-            octo = c.get_octo()
+            DEFAULT_OCTO = {
+                "type_hints": "DEFAULT OCTO",
+                "mycolor":(100,100,100),
+                "source":"DEFAULT OCTO",
+                "id": 10,
+                "friends":[],
+                "layers":[],
+                "neurons_per_layer":8,
+                "eight":"DEFAULT OCTO"
+            }
 
-            return octo
+            return DEFAULT_OCTO
 
         def draw_smaller_boxes(self, surf, boxrect, bc, bgcolor):
             width = boxrect[2] / 5
@@ -430,28 +442,28 @@ class BigNed:
 
                 self.lg("exiting main draw loop...")
 
-        def create_sid_process(self, break_flag):
+        def create_sid_process(self, break_flag, pipelist):
                 '''
                 start the sid loop process
                 break_flag -- a value indicating live loop exit state
                 '''
-                SidProcess = Process(target=self._mysid.start_and_return, args=(break_flag,)) # the breakflag is then passed to the components
-                llog.info("started sid process...")
+                SidProcess = Process(target=self._mysid.start_and_return, args=(break_flag,pipelist)) # the breakflag is then passed to the components
                 SidProcess.start()
+                llog.info("started sid process...")
                 return SidProcess
 
         def create_draw_process(self, break_flag):
                 ''' start the draw loop process '''
                 drawp = Process(target=self.draw_loop, args=(break_flag,)) # sid process
-                llog.info("started draw process...")
                 drawp.start()
+                llog.info("started draw process...")
                 return drawp
 
         def info_loop(self, breakflag, user_console):
             while True:
                 if breakflag.value == 0:
                     break;
-                self.lg("some info", uc=user_console)
+                #self.lg("some info", uc=user_console)
                 sleep(5)
 
         def create_info_process(self, break_flag):
@@ -459,14 +471,27 @@ class BigNed:
                 infop = Process(target=self.info_loop, args=(break_flag,self.user_console)) # sid process
                 infop.start()
                 return infop
+        def create_octo_process(self, break_flag, pipelist):
+                op = Process(target=self.osnapper.live_loop, args=(break_flag,pipelist)) # sid process
+                op.start()
+                return op
 
 if __name__ == '__main__':
         llog.info("Here we go!!!")
+
+
+        pipelist = []
+
         bn = BigNed()
 
-        p1=bn.create_sid_process(GLOBAL_LIVE_FLAG)
+        p1=bn.create_sid_process(GLOBAL_LIVE_FLAG, pipelist)
+
+        sleep (2)
+
+
         p2=bn.create_draw_process(GLOBAL_LIVE_FLAG)
         p3=bn.create_info_process(GLOBAL_LIVE_FLAG)
+
 
         ## all processes are now ready to start.
 
@@ -477,16 +502,22 @@ if __name__ == '__main__':
         # time for all processes to start.
 
 
+        GLOBAL_LIVE_FLAG.value = 1
+
         time.sleep(2)
 
-        GLOBAL_LIVE_FLAG.value = 1
+        if len(pipelist) :
+            p4=bn.create_octo_process(GLOBAL_LIVE_FLAG, pipelist)
 
         p1.join();
         llog.info("p1  -> sid process is done")
         p2.join();
         llog.info("p2  -> draw process is done")
         p3.join();
-        llog.info("p3  -> tween process is done")
+        llog.info("p3  -> user info process is done")
+        p4.join();
+        llog.info("p4  -> snapper process is done")
+
 
         llog.info("All done, bye!")
 

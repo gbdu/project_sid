@@ -1,8 +1,8 @@
 ### roadmap:
-- [x] alpha - focus on interface
+- [x] alpha - focus on interface, allow persistant save/restart for components
 - [ ] brother - focus on interoperability with other ai modules
-- [ ] earth - allow persistant save/restart for components -- make it feel alive
-- [ ] kratos - focus on live data connection
+- [ ] gaia - run sid on its own machine, updated from git daily
+- [ ] kratos - focus on live data collection
 - [ ] jupiter - focus on prediction
 - [ ] spiders - build in hadoop, focus on dissolution
 - [ ] sky - start studying google earth data
@@ -13,9 +13,8 @@
 - [ ] look up watson, opencyc, hadoop
 - [ ] for interface, look up vispy or study opengl tutorial
 - [ ] What sid thinks it looks like (as a person)
-- [ ] components that fire together wire together
+- [ ] components that fire together wire together (interesting)
 - [ ] incorporate google images recognition
-- [ ] User interactivity with components via GUI
 - [ ] set component option with mouse for example
 - [ ] must work on audio/visual/language at least (+ more)
 
@@ -31,12 +30,13 @@
 	- [ ] First inter-component communication is made
 	- [ ] Allow for various kinds of components (deep dream, internal, yt, etc...)
 	- [ ] output from one of the text components
+	- [ ] draw molecule pool (indicate dopamine, etc)
 
 #### alpha 1.6 (in dev, commit as soon as one is done!):
 - Branch as stable and screenscast when:
 	- [ ] draw layer panels
-
-- [ ] draw molecule pool (indicate dopamine, etc)
+- [ ] fix asynch processes
+- [x] User interactivity with components via GUI
 - [x] draw smaller component box with color of internal component
 - [x] ability for user to link components with mouse
 - [x] mouse is processed, some events are now handled better, better console...

@@ -3,7 +3,7 @@
 __author__ = 'gargantua'
 
 import exceptions
-from multiprocessing import Process, Pipe, Value, Lock
+from multiprocessing import Process, Pipe, Value, Lock, Queue
 import os,sys
 from time import sleep
 
@@ -19,6 +19,18 @@ last_component_number = 0
 
 log = getmylogger.loud_logger("sid")
 qlog = getmylogger.silent_logger("sid_silent")
+
+
+DEFAULT_OCTO = {
+    "type_hints": "DEFAULT OCTO",
+    "mycolor":(100,100,100),
+    "source":"DEFAULT OCTO",
+    "id": 10,
+    "friends":[],
+    "layers":[],
+    "neurons_per_layer":8,
+    "eight":"DEFAULT OCTO"
+}
 
 class Sid:
     '''create 256 components, then hang and print a message every 1 sec as
@@ -80,8 +92,21 @@ class Sid:
     def setname(self, myn):
         self.myname = myn
 
+    def find_octo(self, cid, pipe_list):
+        # first fine the two way pipe for this component id
+
+        for d in pipe_list:
+            dc = d[0] # the component id
+            dt = d[1] # two way pipe tuple (parent,child)
+
+            if dc == cid:
+                return dt[0].recv()
+
+
+        return DEFAULT_OCTO
+
     # XXX: live loop #2, for sid
-    def start_and_return(self, break_flag_ref):
+    def start_and_return(self, break_flag_ref, pipe_list):
         '''
         this tells sid to live, it goes over the compnents and sets their
         states to alive and creates new processes to run them, then it waits
@@ -92,12 +117,22 @@ class Sid:
 
         # Just create the 64 components and return...
         counter=0
+
         for comp_obj in self.components:
-            p = Process(target=comp_obj.live_loop, args=(break_flag_ref,))
+            parent,sub = Pipe()
+            pt = (parent,sub)
+
+            p = Process(target=comp_obj.live_loop, args=(break_flag_ref, sub))
 
             self.processes.append(p)
+            pipe_list.append( ( comp_obj.get_id(), pt ) )
 
             p.start()
+
+            counter += 1
+
+
+        print " > sid process returned"
 
         return
 
