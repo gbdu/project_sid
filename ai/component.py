@@ -58,7 +58,8 @@ class component:
             return False
 
         self.myfriends.append(friendid)
-        print self.get_octo()
+        log.info("friend added")
+        #print self.get_octo()
 
     def get_molecule_list(self):
         return ["dopamine", "beans", "potato", "from component"]

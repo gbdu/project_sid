@@ -64,9 +64,12 @@ class BigNed:
         clicked_components = () # whenever this reaches two, they get added
                                 # and the list gets emptied
 
-        def lg(self, msg="defaultmsg"):
+        def lg(self, msg="defaultmsg", uc=None):
             '''drawn log output'''
-            self.user_console.output(msg)
+            if uc == None:
+                uc = self.user_console
+
+            uc.output(msg)
             llog.info(msg)
 
         def init_console(self, key_calls):
@@ -180,7 +183,7 @@ class BigNed:
 
 
                 for number,line in enumerate(linfo):
-                        rpos = pygame.Rect(0, (number*self.myfont.get_height()), 20,20) # location of text
+                        rpos = pygame.Rect(5, 5+(number*self.myfont.get_height()), 20,20) # location of text
                         text = self.myfont.render(line, 1, (150,150,160))
                         surf.blit(text, rpos)
 
@@ -189,9 +192,17 @@ class BigNed:
                 textpos = (boxrect[0],boxrect[1])
                 surf.blit(text, textpos)
 
-        def draw_layer_panel(self, surf, for_component_id=0):
-            octo = self.okto(for_component_id)
-            #layers = octo["layers"]
+        def draw_layer_panel_on_surf(self, surf):
+                '''draw the bottom panel label'''
+                global selected_component_id
+
+                surf.fill((40,40,40))
+                octo = self.okto(selected_component_id)
+
+
+                #linfo.append("Internal octo: ")
+
+
 
         def okto(self, cid):
             '''should I lock here?'''
@@ -206,16 +217,15 @@ class BigNed:
 
             oldred = oldgreen = oldblue = 0
 
-            for i in range(1,2):
-                width = boxrect[2] /5
-                height = boxrect[3] /5
-                top = boxrect[0] + (32/2)
-                left = boxrect[1] + (32/2)
-                c = self.okto(bc)["mycolor"]
+            width = boxrect[2] / 5
+            height = boxrect[3] / 5
+            top = boxrect[0] + 20
+            left = boxrect[1]+20
+            c = self.okto(bc)["mycolor"]
 
-                r = pygame.Rect(top,left,width,height)
-                boxrect = r
-                pygame.draw.rect(surf, c, r, 0)
+            r = pygame.Rect(top,left,width,height)
+            boxrect = r
+            pygame.draw.rect(surf, c, r, 0)
 
 
         def draw_box(self, surf, boxrect, bc):
@@ -236,11 +246,26 @@ class BigNed:
                         global selected_component_id
                         selected_component_id = bc
                         color = [180, 180 , 200+(t/2)]
+
                 elif boxrect_big.collidepoint(pos): # affect color by near
                         b = self.mygut.get_tween_value("nearbox_1")
                         color=[a+b+t + 30, a+b+t + 30 , t/2 + 40]
                 else: # This is a regular component, draw it using its tween
                         color = [a+b+t, a+b+t, 20+ (t/2)]
+
+                clicked = 0
+                if bc in self.click:
+                    clicked = 1
+
+                if len(self.click) == 1:
+                    p1_rect = self.get_component_box(self.click[0])
+                    p1 = p1_rect[0]+16,p1_rect[1]+16
+
+                    p2 = pos
+
+                    st = self.mygut.get_tween_value("selected_line")
+                    pygame.draw.aaline(surf, (st,st,st), p1, p2, 5)
+
 
                 if(selected_component_id != bc): ## Affect color by hint type
                         if(octo["type_hints"] == "audio"):
@@ -250,7 +275,7 @@ class BigNed:
                         if(octo["type_hints"] == "langu"):
                                 color = (color[0]+15, color[1]+5, color[2]+20)
 
-                pygame.draw.rect(surf, color, boxrect , 0)
+                pygame.draw.rect(surf, color, boxrect , 1 if clicked else 0)
 
                 self.draw_smaller_box(surf, boxrect, bc, color)
                 self.draw_box_label(surf, gui_helpers.get_color_inverse(color), bc, boxrect)
@@ -267,7 +292,7 @@ class BigNed:
                 else:
                         pygame.mouse.set_visible(1)
 
-                pygame.draw.rect(surf, (45, 45, 45), c_r, 0 )
+                pygame.draw.rect(surf, (150, 150, 150), c_r, 0 )
                 width = 32
                 height= 32
 
@@ -300,7 +325,7 @@ class BigNed:
                         color1 = f_octo['mycolor']
                         color2 = octo['mycolor']
 
-                        avgcolor = ((color1[0]+color2[0])/2, (color1[1]+color2[1])/2, (color1[1]+color2[1])/2)
+                        avgcolor = ((color1[0]+color2[0]+50)/2, (color1[1]+color2[1]+50)/2, (color1[1]+color2[1]+50)/2)
 
                         frect = self.get_component_box(p)
 
@@ -325,12 +350,14 @@ class BigNed:
                 self.screen.fill((35, 35, 35))
                 panel_label_surf = pygame.Surface((256, 170))
                 component_surf = pygame.Surface((256, 256))
-                version_label_surf = pygame.Surface((100, self.myfont.get_height()))
+                version_label_surf = pygame.Surface((150, self.myfont.get_height()))
+
+                layer_panel_surf = pygame.Surface((256,170))
 
                 component_box_where= (20,20)
                 panel_label_where = (20, 300)
                 version_label_where = (5,5)
-
+                layer_panel_where = (300, 300)
 
                 self.lg("entering main draw loop")
 
@@ -339,9 +366,9 @@ class BigNed:
                 fps = 0.0
                 FPS_AVG = 10.0
 
-                while True :
-                    ## This is our main loop, draw input screen and update tweener
 
+                # Main process blocks here
+                while True :
                     self.user_console.process_input()
 
                     if(break_flag.value == -1): # -1 means "pause a bit..."
@@ -373,16 +400,15 @@ class BigNed:
                     self.mygut.update_frame() # TODO move this to independent process...
 
                     self.draw_version_label(version_label_surf, fps)
-
+                    self.draw_layer_panel_on_surf(layer_panel_surf)
                     self.draw_panel_label(panel_label_surf)
                     self.draw_components_on_surf(component_surf)
 
                     #self.draw_links_on_surf(component_surf)
-                    self.screen.blit(version_label_surf
-                    ,  version_label_where)
+                    self.screen.blit(version_label_surf,version_label_where)
                     self.screen.blit(component_surf, component_box_where)
                     self.screen.blit(panel_label_surf, panel_label_where)
-
+                    self.screen.blit(layer_panel_surf, layer_panel_where)
                     pygame.display.flip()
                     elapsed_time = time.time() - frame_counter_start_time
 
@@ -413,12 +439,18 @@ class BigNed:
                 drawp.start()
                 return drawp
 
-        def create_tween_process(self, break_flag):
-                ''' start the gut process '''
-                tweenp = Process(target=self.mygut.update_frame_loop, args=(break_flag,)) # sid process
-                llog.info("started tween process...")
-                tweenp.start()
-                return tweenp
+        def info_loop(self, breakflag, user_console):
+            while True:
+                if breakflag.value == 0:
+                    break;
+                self.lg("some info", uc=user_console)
+                sleep(5)
+
+        def create_info_process(self, break_flag):
+                ''' start the info process, sends useful hints to user'''
+                infop = Process(target=self.info_loop, args=(break_flag,self.user_console)) # sid process
+                infop.start()
+                return infop
 
 if __name__ == '__main__':
         llog.info("Here we go!!!")
@@ -426,7 +458,7 @@ if __name__ == '__main__':
 
         p1=bn.create_sid_process(GLOBAL_LIVE_FLAG)
         p2=bn.create_draw_process(GLOBAL_LIVE_FLAG)
-        p3=bn.create_tween_process(GLOBAL_LIVE_FLAG)
+        p3=bn.create_info_process(GLOBAL_LIVE_FLAG)
 
         ## all processes are now ready to start.
 
