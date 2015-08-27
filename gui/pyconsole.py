@@ -181,7 +181,7 @@ class Console:
 		self.repeat_rate = [500,30]
 		self.python_mode = False
 		self.preserve_events = True
-		self.motd = ["[    Sid console     ]"]
+		self.motd = ["[    Hello     ]"]
 
 	def safe_set_attr(self, name, value):
 		'''\

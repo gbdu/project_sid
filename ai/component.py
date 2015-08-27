@@ -43,7 +43,6 @@ class component:
     '''
 
     octo_layer_average = []
-    mystate = None # You get this from parent
     mycolor = (0,0,0) # You give this to parent
     mynumber = None # You get this from parent
     myid = None # You get this from parent
@@ -100,7 +99,6 @@ class component:
     def __init__(self, global_state, type_hints="langu", myid=0):
         # from parent:
         self.type_hints = type_hints
-        self.mystate = Value("d", 1)
         self.myid = myid
         self.global_state = global_state
         self.myfriends = [ ]
@@ -185,8 +183,8 @@ class component:
         return
 
     def signal_death(self):
-        self.mystate.value = 0
-
+        # = 0
+        pass
 
     def read_user_input(self):
         pass

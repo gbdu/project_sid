@@ -9,24 +9,23 @@ This has the following asynch processes running:
 """
 
 __author__ = 'gbdu'
-__copyright__ = "Copyright 2015, gbdu"
-__credits__ = ["gbdu"]
 __license__ = "GPL"
 __version__ = "1.6-alpha"
 __email__ = "ogrum@live.com"
-__status__ = "dev"
 
 # Import main dependencies:
 try:
-        import os,sys
+        import os
+        import sys
         import pygame
         import time
         from multiprocessing import Process, Value
         from time import sleep
         import random
+
 except ImportError as e:
-        print "failed to import main dependencies... "
-        print e
+        print("failed to import main dependencies...")
+        print(e)
         exit(1)
 # Import my dependencies:
 try:
@@ -36,10 +35,11 @@ try:
         from ai import sid
         from mylibs import ut
         from mylibs import gut
-        from gui import gui_helpers,pyconsole
+        from gui import gui_helpers
+        from gui import pyconsole
 except ImportError as e:
-        print "failed to import bigned dependencies... "
-        print e
+        print("failed to import bigned dependencies... ")
+        print(e)
         exit (1)
 
 GLOBAL_LIVE_FLAG = Value("d", -1)
@@ -51,15 +51,20 @@ llog = getmylogger.loud_logger("bigned") #silent drawing logger
 
 llog.info("set up all the globals... ")
 
+#llog.info("The sid %s was created successfully, he's not alive yet though [ SUCCESS ] " % self._mysid.getname() )
+
+
+
 class BigNed:
 
         _mysid = None
         screen = None
         myfont = None
-        user_console = None
         mygut = None
         click = [] # clearead every two points...
         osnapper = None
+
+        myoutlines = [ ]
 
         global dlog
         global llog
@@ -67,25 +72,29 @@ class BigNed:
         clicked_components = () # whenever this reaches two, they get added
                                 # and the list gets emptied
 
+
+        def init_console(self, key_calls):
+            try:
+                r = pygame.Rect(300, 20, 320, 256)
+                uc = pyconsole.Console(self.screen, r, key_calls=key_calls  )
+                return uc
+            except:
+                llog.error("unable to init console %s" % sys.exc_info()[0])
+                exit(1)
+
+        def add_line(self, l):
+            self.myoutlines.append(l)
+
         def lg(self, msg="defaultmsg", uc=None):
             '''drawn log output'''
             if uc == None:
-                uc = self.user_console
-
+                global user_console
+                uc=user_console
+            self.add_line(msg)
             uc.output(msg)
-            llog.info(msg)
-
-        def init_console(self, key_calls):
-                try:
-                        r = pygame.Rect(300, 20, 320, 256)
-                        uc = pyconsole.Console(self.screen, r, key_calls=key_calls  )
-                        return uc
-                except:
-                        llog.error("unable to init console %s" % sys.exc_info()[0])
-                        exit(1)
 
         def extinguish_and_deload(self):
-                llog.info(" EXIT -> extinguish_and_deload called" )
+                llog.info("extinguish_and_deload called" )
                 global GLOBAL_LIVE_FLAG
                 GLOBAL_LIVE_FLAG.value = 0
                 self._mysid.signal_extinguish()
@@ -100,11 +109,6 @@ class BigNed:
                     self.screen = gui_helpers.init_pygame()
                     self.myfont = gui_helpers.create_font()
                     self.osnapper = octo_snapper.OctoSnapper()
-
-                    key_calls={"d": self.extinguish_and_deload}
-                    self.user_console = self.init_console(key_calls)
-
-                    llog.info("The sid %s was created successfully, he's not alive yet though [ SUCCESS ] " % self._mysid.getname() )
 
                 except Exception as e:
                         llog.info("failed to init a bigned ... [ FAIL ] ")
@@ -358,168 +362,180 @@ class BigNed:
 
         #XXX : INFINITE/BREAKABLE LOOP 1 (DRAW)
         def draw_loop(self, break_flag):
-                """
-                draw the given Ned on INIT'd scr
-                """
-                llog.info("* PROCESS: Draw process started")
+            """
+            draw the given Ned on INIT'd scr
+            """
+            llog.info("* PROCESS: Draw process started")
 
 
-                ## Actual Draw() starts here
+            ## Actual Draw() starts here
 
 
-                self.screen.fill((35, 35, 35))
-                panel_label_surf = pygame.Surface((256, 170))
-                component_surf = pygame.Surface((256, 256))
-                version_label_surf = pygame.Surface((150, self.myfont.get_height()))
+            self.screen.fill((35, 35, 35))
+            panel_label_surf = pygame.Surface((256, 170))
+            component_surf = pygame.Surface((256, 256))
+            version_label_surf = pygame.Surface((150, self.myfont.get_height()))
 
-                layer_panel_surf = pygame.Surface((256,170))
+            layer_panel_surf = pygame.Surface((256,170))
 
-                component_box_where= (20,20)
-                panel_label_where = (20, 300)
-                version_label_where = (5,5)
-                layer_panel_where = (300, 300)
+            component_box_where= (20,20)
+            panel_label_where = (20, 300)
+            version_label_where = (5,5)
+            layer_panel_where = (300, 300)
 
-                self.lg("entering main draw loop")
+            frame_counter = 0.0
+            frame_counter_start_time = time.time()
+            fps = 0.0
+            FPS_AVG = 10.0
 
-                frame_counter = 0.0
-                frame_counter_start_time = time.time()
-                fps = 0.0
-                FPS_AVG = 10.0
+            # Main process blocks here
+            while True :
 
+                if(break_flag.value == -1): # -1 means "pause a bit..."
+                        sleep(2) # sleep for two seconds then try again
+                        continue;
+                elif(break_flag.value == 0): # 0 means stop
 
-                # Main process blocks here
-                while True :
-                    self.user_console.process_input()
+                        break ;
 
-                    if(break_flag.value == -1): # -1 means "pause a bit..."
-                            sleep(2) # sleep for two seconds then try again
-                            continue;
-                    elif(break_flag.value == 0): # 0 means stop
-                            self.extinguish_and_deload
-                            break ;
+                global user_console
+                if user_console: user_console.process_input()
 
+                for i in range(len(self.myoutlines)):
+                    self.lg(self.myoutlines.pop())
 
-                    event = pygame.event.poll()
-                    if event.type == pygame.QUIT:
-                        self.extinguish_and_deload()
-                        exit(0)
-
-
-                    if event.type == pygame.MOUSEBUTTONUP:
-                        self.process_mouse(event)
-                    elif event.type == pygame.MOUSEBUTTONDOWN:
-                        self.process_mouse(event)
-                    elif event.type == pygame.MOUSEMOTION:
-                        x, y = event.pos
-                    else:
-                        x,y=0,0
+                event = pygame.event.poll()
+                if event.type == pygame.QUIT:
+                    self.extinguish_and_deload()
+                    break ;
 
 
-                    self.user_console.draw()
+                if event.type == pygame.MOUSEBUTTONUP:
+                    self.process_mouse(event)
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    self.process_mouse(event)
+                elif event.type == pygame.MOUSEMOTION:
+                    x, y = event.pos
+                else:
+                    x,y=0,0
 
-                    self.mygut.update_frame() # TODO move this to independent process...
 
-                    self.draw_version_label(version_label_surf, fps)
-                    self.draw_layer_panel_on_surf(layer_panel_surf)
-                    self.draw_panel_label(panel_label_surf)
-                    self.draw_components_on_surf(component_surf)
+                if user_console: user_console.draw()
 
-                    #self.draw_links_on_surf(component_surf)
-                    self.screen.blit(version_label_surf,version_label_where)
-                    self.screen.blit(component_surf, component_box_where)
-                    self.screen.blit(panel_label_surf, panel_label_where)
-                    self.screen.blit(layer_panel_surf, layer_panel_where)
-                    pygame.display.flip()
-                    elapsed_time = time.time() - frame_counter_start_time
+                self.mygut.update_frame() # TODO move this to independent process...
 
-                    if(elapsed_time >= FPS_AVG):  # FPS_AVG is how many seconds fps is averaged over...
-                            ## Calculate fps
-                            fps = frame_counter / FPS_AVG
-                            frame_counter_start_time = time.time() # set time again...
-                            frame_counter = 0.0 # set starting frame again
-                    else:
-                            frame_counter += 1.0
+                self.draw_version_label(version_label_surf, fps)
+                self.draw_layer_panel_on_surf(layer_panel_surf)
+                self.draw_panel_label(panel_label_surf)
+                self.draw_components_on_surf(component_surf)
 
-                self.lg("exiting main draw loop...")
+                #self.draw_links_on_surf(component_surf)
+                self.screen.blit(version_label_surf,version_label_where)
+                self.screen.blit(component_surf, component_box_where)
+                self.screen.blit(panel_label_surf, panel_label_where)
+                self.screen.blit(layer_panel_surf, layer_panel_where)
+                pygame.display.flip()
+                elapsed_time = time.time() - frame_counter_start_time
 
-        def create_sid_process(self, break_flag, pipelist):
+                if(elapsed_time >= FPS_AVG):  # FPS_AVG is how many seconds fps is averaged over...
+                        ## Calculate fps
+                        fps = frame_counter / FPS_AVG
+                        frame_counter_start_time = time.time() # set time again...
+                        frame_counter = 0.0 # set starting frame again
+                else:
+                        frame_counter += 1.0
+
+        def create_sid_process(self, break_flag, pipelist, uc):
                 '''
                 start the sid loop process
                 break_flag -- a value indicating live loop exit state
                 '''
-                SidProcess = Process(target=self._mysid.start_and_return, args=(break_flag,pipelist)) # the breakflag is then passed to the components
+                SidProcess = Process(target=self._mysid.start_and_block,args=(break_flag, pipelist, ))
                 SidProcess.start()
                 llog.info("started sid process...")
                 return SidProcess
 
-        def create_draw_process(self, break_flag):
+        def create_draw_process(self, break_flag, uc):
                 ''' start the draw loop process '''
-                drawp = Process(target=self.draw_loop, args=(break_flag,)) # sid process
+                #print(uc)
+                drawp = Process(target=self.draw_loop, args=(break_flag,))
+                    #sid process
                 drawp.start()
                 llog.info("started draw process...")
                 return drawp
 
         def info_loop(self, breakflag, user_console):
             while True:
+                print user_console
                 if breakflag.value == 0:
-                    break;
-                #self.lg("some info", uc=user_console)
+                    break
+                #self.lg("some info", user_console)
+                self.myoutlines.append("AAAAAelllo ")
                 sleep(5)
 
-        def create_info_process(self, break_flag):
+
+        def create_info_process(self, break_flag, uc):
                 ''' start the info process, sends useful hints to user'''
-                infop = Process(target=self.info_loop, args=(break_flag,self.user_console)) # sid process
+                print uc
+                infop = Process(target=self.info_loop, args=(break_flag,uc)) # sid process
                 infop.start()
                 return infop
         def create_octo_process(self, break_flag, pipelist):
                 op = Process(target=self.osnapper.live_loop, args=(break_flag,pipelist)) # sid process
                 op.start()
+                print "started octo process"
                 return op
 
 if __name__ == '__main__':
-        llog.info("Here we go!!!")
+    global user_console
+    llog.info("Here we go!!!")
+    pipelist = []
 
-
-        pipelist = []
-
+    try:
         bn = BigNed()
 
-        p1=bn.create_sid_process(GLOBAL_LIVE_FLAG, pipelist)
+        key_calls={
+            "d": bn.extinguish_and_deload
+        }
 
-        sleep (2)
+        user_console = bn.init_console(key_calls)
 
+    except Exception as e :
+         llog.error("could not create bigned or console")
+         print e
+         exit(1)
 
-        p2=bn.create_draw_process(GLOBAL_LIVE_FLAG)
-        p3=bn.create_info_process(GLOBAL_LIVE_FLAG)
-
-
-        ## all processes are now ready to start.
-
-        GLOBAL_LIVE_FLAG.value = -1
-
-
-        # This gives around 2 seconds of synchronization
-        # time for all processes to start.
-
-
-        GLOBAL_LIVE_FLAG.value = 1
-
-        time.sleep(2)
-
-        if len(pipelist) :
-            p4=bn.create_octo_process(GLOBAL_LIVE_FLAG, pipelist)
-
-        p1.join();
-        llog.info("p1  -> sid process is done")
-        p2.join();
-        llog.info("p2  -> draw process is done")
-        p3.join();
-        llog.info("p3  -> user info process is done")
-        p4.join();
-        llog.info("p4  -> snapper process is done")
+    try:
+        p1=bn.create_sid_process(GLOBAL_LIVE_FLAG, pipelist, user_console)
+        p2=bn.create_draw_process(GLOBAL_LIVE_FLAG, user_console)
+        p3=bn.create_info_process(GLOBAL_LIVE_FLAG, user_console)
+    except Exception as e:
+        llog.error("could not create processes")
+        print e
+        exit(1)
 
 
-        llog.info("All done, bye!")
+    ## all processes are now ready to start.
 
-        pygame.quit()
-        pass
+    sleep(1)
+    # This gives 1 second of synchronization
+    
+    # time for all processes to start and init all their data.
+    
+    GLOBAL_LIVE_FLAG.value = 1
+
+
+    print " -> We are now waiting for the first process to join back"
+    p1.join();
+    llog.info("p1  -> sid process is done")
+    p2.join();
+    llog.info("p2  -> draw process is done")
+    p3.join();
+    llog.info("p3  -> user info process is done")
+    llog.info("p4  -> snapper process is done")
+
+
+    llog.info("All done, bye!")
+
+    pygame.quit()
+    pass

@@ -105,8 +105,8 @@ class Sid:
 
         return DEFAULT_OCTO
 
-    # XXX: live loop #2, for sid
-    def start_and_return(self, break_flag_ref, pipe_list):
+    # XXX: live loop 2, for sid
+    def start_and_block(self, break_flag_ref, pipe_list):
         '''
         this tells sid to live, it goes over the compnents and sets their
         states to alive and creates new processes to run them, then it waits
@@ -116,25 +116,25 @@ class Sid:
         log.info("other process entering live_loop...")
 
         # Just create the 64 components and return...
-        counter=0
+        counter = 0
 
         for comp_obj in self.components:
-            parent,sub = Pipe()
-            pt = (parent,sub)
-
+            parent, sub = Pipe()
+            pt = (parent, sub)
             p = Process(target=comp_obj.live_loop, args=(break_flag_ref, sub))
-
             self.processes.append(p)
-            pipe_list.append( ( comp_obj.get_id(), pt ) )
-
+            pipe_list.append((comp_obj.get_id(), pt))
+            
             p.start()
-
+            log.info("%d started", comp_obj.get_id())
             counter += 1
 
 
-        print " > sid process returned"
-
-        return
+        log.info('> sid process blocking ')
+        for c,i in enumerate(self.processes):
+            i.join()
+            log.info("%d joined", c)
+        log.info("all processes joined")
 
     def count_human_components(self):
         return 3
