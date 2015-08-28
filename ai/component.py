@@ -141,8 +141,11 @@ class component:
 
         return octo
 
-    def send_output(self, data_to_work_on=None, con=None):
-        con.send(self.get_octo())  # just send an octo for now
+    def send_output(self, data_to_work_on=None, octo_q=None):
+        try:
+            octo_q.put(self.get_octo())  # just send an octo for now
+        except:
+            log.warn("component %d unable to send octo!", self.get_id())
 
     def live_loop(self, break_flag, mypipe):
         '''loop repeatedly until breakflag is not 1 (breakflag comes from the parent process, in this case, sid...)'''
@@ -164,10 +167,10 @@ class component:
             if break_flag.value == 1:  # 1 signals "work"
                 # print "process %d doing work" % self.myid
 
-                #inn = self.get_input()
-                #self.do_work_on_input(inn)  # todo: do actual work
+                inn = self.get_input()
+                self.do_work_on_input(inn)  # todo: do actual work
                 #print "breakflag is 1"
-                #self.send_output(inn, mypipe)
+                self.send_output(inn, mypipe)
                 sleep(2)
         return
 

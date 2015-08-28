@@ -3,9 +3,14 @@
 __author__ = 'gargantua'
 
 import exceptions
-from multiprocessing import Process, Pipe, Value, Lock, Queue, Manager
+from multiprocessing import *
+from multiprocessing import forking
+
+from pickle import *
 import os,sys
+import io
 from time import sleep
+import cPickle as pickle
 
 try:
     from helpers import getmylogger
@@ -40,6 +45,7 @@ class Sid:
     # locks, myname
     components = [] # A list of component objects
     processes = []
+    cid_pipes = [] #(cid,(ppipe,cpipe))
 
     def add_component(self, component_hints):
         '''
@@ -104,7 +110,7 @@ class Sid:
         return DEFAULT_OCTO
 
     # XXX: live loop 2, for sid
-    def start_and_block(self, break_flag_ref, managed, pipe_list_c):
+    def start_and_block(self, break_flag_ref, octo_q):
         '''
         this tells sid to live, it goes over the compnents and sets their
         states to alive and creates new processes to run them, then it waits
@@ -117,21 +123,12 @@ class Sid:
         counter = 0
 
         for comp_obj in self.components:
-            parent, sub = Pipe()
-            pt = (parent, sub)
-            p = Process(target=comp_obj.live_loop, args=(break_flag_ref, sub))
-            
+            p = Process(target=comp_obj.live_loop, args=(break_flag_ref, octo_q))
+
             self.processes.append(p)
-            
-            managed.append("A")
-            
+
             p.start()
             counter += 1
-
-        for (c, i) in enumerate(self.processes):
-            i.join()
-            log.info("%d joined", c)
-        log.info("all processes joined")
 
     def count_human_components(self):
         return 3

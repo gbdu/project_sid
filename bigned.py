@@ -54,6 +54,8 @@ class BigNed:
         click = []  # clearead every two points...
         osnapper = None
         user_msg_q = None
+        octo_q = None
+
         global dlog
         global llog
         clicked_components = ()
@@ -78,7 +80,7 @@ class BigNed:
                 llog.info("extinguish_and_deload called")
                 GLOBAL_LIVE_FLAG.value = 0
 
-        def __init__(self, user_msg_q, osnapper):
+        def __init__(self, user_msg_q, octo_q):
                 '''inits big ned and draws a visual representation of it'''
                 try:
                     self.mygut = gut.Gut()
@@ -86,7 +88,8 @@ class BigNed:
                     self._mysid.setname("BigNed")
                     self.screen = gui_helpers.init_pygame()
                     self.myfont = gui_helpers.create_font()
-                    self.osnapper = osnapper
+                    #self.osnapper = osnapper
+                    self.octo_q = octo_q
                     self.user_msg_q = user_msg_q
                 
                 except Exception as e:
@@ -94,6 +97,10 @@ class BigNed:
                         print e
                         exit(1)
 
+        def get_component_octo_from_q(self, cid):
+            s = self.octo_q.get()
+            return s 
+        
         def get_component_box(self, cid):
             width = 32
             height = 32
@@ -429,13 +436,13 @@ class BigNed:
                 else:
                         frame_counter += 1.0
 
-        def create_sid_process(self, break_flag, managed_list, pipelist_c):
+        def create_sid_process(self, break_flag, octo_q):
                 '''
                 start the sid loop process
                 break_flag -- a value indicating live loop exit state
                 '''
                 SidProcess = Process(target=self._mysid.start_and_block,args=
-                    (break_flag, managed_list, pipelist_c ))
+                    (break_flag, octo_q ))
                 SidProcess.start()
                 sleep(2)
                 #print pipelist_q.get()
@@ -455,6 +462,8 @@ class BigNed:
                 msg = str( datetime.datetime.now() )
                 msg += " is the time" 
                 q.put(msg)
+                q.put("  sadsad ")
+                q.put(self._mysid.get_tween_snapshot())
                 sleep(5)
                 pass
 
@@ -480,15 +489,11 @@ if __name__ == '__main__':
     global llog
 
     llog.info("Here we go!!!")
-    pipelist_p = Queue()  # a list of (componentid,(lockparent,lockchild))
-    pipelist_c = Queue()
-    user_msg_q = Queue()  # some helpful hints to display to the user
-
-    manager = Manager()
-    managed_list = manager.list()
+    octo_q = Queue()  # a list of (componentid,(lockparent,lockchild))
+    user_msg_q = Queue()
 
     try:
-        bn = BigNed(user_msg_q, pipelist_p)
+        bn = BigNed(user_msg_q, octo_q)
         key_calls = {
             "d": bn.extinguish_and_deload
         }
@@ -500,9 +505,8 @@ if __name__ == '__main__':
 
     try:
         GLOBAL_LIVE_FLAG.value = -1
-        p1 = bn.create_sid_process(GLOBAL_LIVE_FLAG, managed_list, pipelist_c)
+        p1 = bn.create_sid_process(GLOBAL_LIVE_FLAG, octo_q)
         p2 = bn.create_draw_process(GLOBAL_LIVE_FLAG, user_console)
-        print "passed", bn
         p3 = bn.create_info_process(GLOBAL_LIVE_FLAG, user_msg_q)
 
     except Exception as e:
@@ -510,17 +514,21 @@ if __name__ == '__main__':
         print e
         exit(1)
 
-    pl = []
-    c = 0
-    while c != 63:
-        pl.append(pipelist_p.get())
-        print c 
-        c += 1
+    # pl = []
+    # c = 0
+    # while c != 63:
+    #     pl.append(pipelist_p.get())
+    #     print c 
+    #     c += 1
+    # llog.info("%d pipes received -- waiting for main processes" % c)
 
-    llog.info("%d pipes received -- waiting for main processes" % c)
 
     GLOBAL_LIVE_FLAG.value = 1
-    
+
+    bn.lg("Started processes - now waiting to join")
+    oc = bn.get_component_octo_from_q(1)
+    print oc
+
     p2.join()
     llog.info("p2  -> draw process is done")
     GLOBAL_LIVE_FLAG.value = 0
