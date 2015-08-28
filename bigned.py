@@ -15,13 +15,11 @@ __email__ = "ogrum@live.com"
 
 # Import main dependencies:
 try:
-        import os
         import sys
         import pygame
         import time
         from multiprocessing import Process, Value, Queue
         from time import sleep
-        import random
 
 except ImportError as e:
         print("failed to import main dependencies...")
@@ -33,19 +31,18 @@ try:
     from helpers import octo_snapper
 
     from ai import sid
-    from mylibs import ut
     from mylibs import gut
     from gui import gui_helpers
     from gui import pyconsole
 except ImportError as e:
     print("failed to import bigned dependencies... ")
     print(e)
-    exit (1)
+    exit(1)
 
 GLOBAL_LIVE_FLAG = Value("d", 0)
 selected_component_id = 0
-dlog = getmylogger.silent_logger("silent_bigned") #silent drawing logger
-llog = getmylogger.loud_logger("bigned") #silent drawing logger
+dlog = getmylogger.silent_logger("silent_bigned")  # silent drawing logger
+llog = getmylogger.loud_logger("bigned")  # silent drawing logger
 llog.info("set up all the globals... ")
 
 
@@ -54,23 +51,23 @@ class BigNed:
         screen = None
         myfont = None
         mygut = None
-        click = [] # clearead every two points...
+        click = []  # clearead every two points...
         osnapper = None
         user_msg_q = None
         global dlog
         global llog
-        clicked_components = () # whenever this reaches two, they get added
-                                # and the list gets emptied
+        clicked_components = ()
+        # whenever this reaches two, they get added and the list gets emptied
 
         def init_console(self, key_calls):
             try:
                 r = pygame.Rect(300, 20, 320, 256)
-                uc = pyconsole.Console(self.screen, r, key_calls=key_calls  )
+                uc = pyconsole.Console(self.screen, r, key_calls=key_calls)
                 return uc
             except:
                 llog.error("unable to init console %s" % sys.exc_info()[0])
                 exit(1)
-        
+                
         def lg(self, msg="defaultmsg"):
             '''drawn log output'''
             self.user_msg_q.put(msg)
@@ -93,7 +90,8 @@ class BigNed:
                 except Exception as e:
                         llog.info("failed to init a bigned ... [ FAIL ] ")
                         print e
-                        exit(1) 
+                        exit(1)
+
         def get_component_box(self, cid):
             width = 32
             hello = 32
@@ -102,8 +100,6 @@ class BigNed:
                 for col in range(8):
                     if counter == cid:
                         return pygame.Rect(col*width, row*hello, width, hello)
-                    #else :
-                        #self.lg(str(row+col))
                     counter += 1
             return pygame.Rect(col*width+cid,col*width+cid,width,hello)
 
@@ -401,7 +397,8 @@ class BigNed:
                 elapsed_time = time.time() - frame_counter_start_time
 
 
-                if(elapsed_time >= FPS_AVG):  # FPS_AVG is how many seconds fps is averaged over...
+                if(elapsed_time >= FPS_AVG):  # FPS_AVG is how many seconds fps
+                # is averaged over...
                         ## Calculate fps
                         fps = frame_counter / FPS_AVG
                         frame_counter_start_time = time.time() # set time again...
@@ -409,27 +406,27 @@ class BigNed:
                 else:
                         frame_counter += 1.0
 
-        def create_sid_process(self, break_flag, pipelist, uc):
+        def create_sid_process(self, break_flag, pipelist_q, uc):
                 '''
                 start the sid loop process
                 break_flag -- a value indicating live loop exit state
                 '''
-                SidProcess = Process(target=self._mysid.start_and_block,args=(break_flag, pipelist, ))
+                SidProcess = Process(target=self._mysid.start_and_block,args=(break_flag, pipelist_q, ))
                 SidProcess.start()
                 llog.info("started sid process...")
                 return SidProcess
 
         def create_draw_process(self, break_flag, uc):
                 ''' start the draw loop process '''
-                #print(uc)
+                #  print(uc)
                 drawp = Process(target=self.draw_loop, args=(break_flag,))
-                    #sid process
+                #  sid process
                 drawp.start()
                 return drawp
 
         def info_loop(self, breakflag, q):
             while(breakflag.value != 0):
-                q.put("this is a helpful random message... sending again in a few secs")
+                q.put("this is a helpful random message... ")
                 sleep(5)
                 pass
 
@@ -444,16 +441,17 @@ class BigNed:
                 return infop
 
         def create_octo_process(self, break_flag, pipelist):
-                op = Process(target=self.osnapper.live_loop, args=(break_flag,pipelist)) # sid process
-                op.start()
+                #op = Process(target=self.osnapper.live_loop,
+                # args=(break_flag,pipelist)) # sid process
+                #op.start()
+                op=None
                 return op
 
 if __name__ == '__main__':
     global user_console
     llog.info("Here we go!!!")
-    
-    pipelist = []
-    user_msg_q = Queue()
+    pipelist_q = Queue()  # a list of (componentid,(lockparent,lockchild))
+    user_msg_q = Queue()  # some helpful hints to display to the user
 
     try:
         bn = BigNed(user_msg_q)
@@ -472,7 +470,7 @@ if __name__ == '__main__':
     try:
         GLOBAL_LIVE_FLAG.value = -1
 
-        p1 = bn.create_sid_process(GLOBAL_LIVE_FLAG, pipelist, user_console)
+        p1 = bn.create_sid_process(GLOBAL_LIVE_FLAG, pipelist_q)
         p2 = bn.create_draw_process(GLOBAL_LIVE_FLAG, user_console)
         print "passed", bn
         p3 = bn.create_info_process(GLOBAL_LIVE_FLAG, user_msg_q)
@@ -482,23 +480,19 @@ if __name__ == '__main__':
         print e
         exit(1)
 
-
-    ## all processes are now ready to start.
-
     sleep(1)
     GLOBAL_LIVE_FLAG.value = 1
 
 
-    print " -> We are now waiting for the first process to join back"
+    print(" -> We are now waiting for the first process to join back")
 
-    p2.join();
+    p2.join()
     llog.info("p2  -> draw process is done")
 
-    p1.join();
+    p1.join()
     llog.info("p1  -> sid process is done")
 
-
-    p3.join();
+    p3.join()
     llog.info("p3  -> user info process is done")
     llog.info("p4  -> snapper process is done")
 

@@ -97,13 +97,10 @@ class Sid:
         # first fine the two way pipe for this component id
 
         for d in pipe_list:
-            dc = d[0] # the component id
-            dt = d[1] # two way pipe tuple (parent,child)
-
+            dc = d[0]  # the component id
+            dt = d[1]  # two way pipe tuple (parent,child)
             if dc == cid:
                 return dt[0].recv()
-
-
         return DEFAULT_OCTO
 
     # XXX: live loop 2, for sid
@@ -125,11 +122,9 @@ class Sid:
             p = Process(target=comp_obj.live_loop, args=(break_flag_ref, sub))
             self.processes.append(p)
             pipe_list.append((comp_obj.get_id(), pt))
-            
             p.start()
             counter += 1
-
-        log.info('waiting for components to join back')
+            log.info('waiting for components to join back')
         for (c, i) in enumerate(self.processes):
             i.join()
             log.info("%d joined", c)
@@ -144,10 +139,6 @@ class Sid:
 
     def last_words(self):
         return "Default last word for ", self.myname
-
-
-
-
 
 if __name__ == "__main__":
     ned = Sid()  # create a new instance of our AI
