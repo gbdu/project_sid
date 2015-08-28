@@ -41,6 +41,11 @@ class Gut:
         self.internal_ut.add_tweener("active_box", "cycle", 0, 100)
         self.internal_ut.add_tweener("nearbox_1", "cycle", 0, 40)
         self.internal_ut.add_tweener("nearbox_2", "cycle", 0, 30)
+        
+        self.internal_ut.add_tweener("linetween1", "cycle", 0, 250)
+        self.internal_ut.add_tweener("linetween2", "cycle", 0, 200)
+
+
 
     def get_color_inverse(self,color):
             inverse = [abs(250-color[0]), abs(250-color[1]), abs(250-color[2])]

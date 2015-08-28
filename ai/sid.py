@@ -3,7 +3,7 @@
 __author__ = 'gargantua'
 
 import exceptions
-from multiprocessing import Process, Pipe, Value, Lock, Queue
+from multiprocessing import Process, Pipe, Value, Lock, Queue, Manager
 import os,sys
 from time import sleep
 
@@ -104,7 +104,7 @@ class Sid:
         return DEFAULT_OCTO
 
     # XXX: live loop 2, for sid
-    def start_and_block(self, break_flag_ref, pipe_list_q):
+    def start_and_block(self, break_flag_ref, managed, pipe_list_c):
         '''
         this tells sid to live, it goes over the compnents and sets their
         states to alive and creates new processes to run them, then it waits
@@ -120,8 +120,11 @@ class Sid:
             parent, sub = Pipe()
             pt = (parent, sub)
             p = Process(target=comp_obj.live_loop, args=(break_flag_ref, sub))
+            
             self.processes.append(p)
-            pipe_list_q.put( comp_obj.get_id() )
+            
+            managed.append("A")
+            
             p.start()
             counter += 1
 

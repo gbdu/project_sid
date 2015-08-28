@@ -120,7 +120,7 @@ class Console:
 		self.txt_layer.set_colorkey(self.bg_color)
 
 		try:
-			self.font = create_font(name="console.ttf",size=14);
+			self.font = create_font(name="console.ttf",size=11);
 		except IOError:
 			self.font = pygame.font.SysFont("monospace", 11)
 

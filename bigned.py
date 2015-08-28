@@ -18,7 +18,7 @@ try:
         import sys
         import pygame
         import time
-        from multiprocessing import Process, Value, Queue
+        from multiprocessing import Process, Value, Queue, Manager
         from time import sleep
 
 except ImportError as e:
@@ -96,14 +96,14 @@ class BigNed:
 
         def get_component_box(self, cid):
             width = 32
-            hello = 32
+            height = 32
             counter = 0
             for row in range(8):
                 for col in range(8):
                     if counter == cid:
-                        return pygame.Rect(col*width, row*hello, width, hello)
+                        return pygame.Rect(col*width, row*height, width, height)
                     counter += 1
-            return pygame.Rect(col*width+cid,col*width+cid,width,hello)
+            return pygame.Rect(col*width+cid,col*width+cid,width,height)
 
         def process_mouse(self, event):
             if (len(self.click)) == 2:
@@ -113,7 +113,7 @@ class BigNed:
             pos = pygame.mouse.get_pos()
             pos = pos[0]-20,pos[1]-20
 
-            if event.type == pygame.MOUSEBUTTONUP:
+            if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                 boxes = []
                 for i in range(64):
                     box = self.get_component_box(i)
@@ -124,8 +124,9 @@ class BigNed:
                             self.click = [ ]
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
-
-                if (len(self.click)) == 2:
+                if (event.button == 3):
+                    self.click = []
+                elif (len(self.click)) == 2:
                     self._mysid.make_components_friends(self.click[0], self.click[1])
                     self.click = [ ]
 
@@ -222,10 +223,7 @@ class BigNed:
 
             # The next box is todo
             r4 = pygame.Rect(top-24, left, boxrect[2]/5, boxrect[3]/5)
-            pygame.draw.rect(surf, (100,250,100), r4, 0 )
-
-
-
+            pygame.draw.rect(surf, (50,50,50), r4, 0 )
 
         def draw_box(self, surf, boxrect, bc):
                 a = b = c = 0 # used for fancy tweening
@@ -333,8 +331,24 @@ class BigNed:
 
                         p1 = brect[0] + (width/2),brect[1] + (height/2)
                         p2 = frect[0] + (width/2),frect[1] + (width/2)
+                        
+                        p3 = brect[0] + (width/2),brect[1] + (height/2) + 1
+                        p4 = frect[0] + (width/2),frect[1] + (width/2) + 1
+
+                        p5 = brect[0] + (width/2),brect[1] + (height/2) - 1
+                        p6 = frect[0] + (width/2),frect[1] + (width/2) - 1
+                        
+                        t2 = self.mygut.get_tween_value("linetween1")
+                        t3 = self.mygut.get_tween_value("linetween2")
+
+                        cc = (t2,150,250)
+                        cd = (t3,150,250)
+
 
                         pygame.draw.aaline(surf, avgcolor, p1, p2, 2)
+                        pygame.draw.aaline(surf, cc, p3, p4, 2)
+                        pygame.draw.aaline(surf, cd, p5, p6, 2)
+
         #XXX : INFINITE/BREAKABLE LOOP 1 (DRAW)
         def draw_loop(self, break_flag):
             """\
@@ -415,16 +429,16 @@ class BigNed:
                 else:
                         frame_counter += 1.0
 
-        def create_sid_process(self, break_flag, pipelist_q):
+        def create_sid_process(self, break_flag, managed_list, pipelist_c):
                 '''
                 start the sid loop process
                 break_flag -- a value indicating live loop exit state
                 '''
-                SidProcess = Process(target=self._mysid.start_and_block,args=(break_flag, pipelist_q, ))
+                SidProcess = Process(target=self._mysid.start_and_block,args=
+                    (break_flag, managed_list, pipelist_c ))
                 SidProcess.start()
                 sleep(2)
-                print pipelist_q.get()
-                llog.info("started sid process...")
+                #print pipelist_q.get()
                 return SidProcess
 
         def create_draw_process(self, break_flag, uc):
@@ -436,8 +450,11 @@ class BigNed:
                 return drawp
 
         def info_loop(self, breakflag, q):
+            import datetime
             while(breakflag.value != 0):
-                q.put("this is a helpful random message... ")
+                msg = str( datetime.datetime.now() )
+                msg += " is the time" 
+                q.put(msg)
                 sleep(5)
                 pass
 
@@ -460,19 +477,22 @@ class BigNed:
 
 if __name__ == '__main__':
     global user_console
+    global llog
+
     llog.info("Here we go!!!")
-    pipelist_q = Queue()  # a list of (componentid,(lockparent,lockchild))
+    pipelist_p = Queue()  # a list of (componentid,(lockparent,lockchild))
+    pipelist_c = Queue()
     user_msg_q = Queue()  # some helpful hints to display to the user
 
-    try:
-        bn = BigNed(user_msg_q, pipelist_q)
+    manager = Manager()
+    managed_list = manager.list()
 
+    try:
+        bn = BigNed(user_msg_q, pipelist_p)
         key_calls = {
             "d": bn.extinguish_and_deload
         }
-
         user_console = bn.init_console(key_calls)
-
     except Exception as e:
         llog.error("could not create bigned or console")
         print e
@@ -480,8 +500,7 @@ if __name__ == '__main__':
 
     try:
         GLOBAL_LIVE_FLAG.value = -1
-
-        p1 = bn.create_sid_process(GLOBAL_LIVE_FLAG, pipelist_q)
+        p1 = bn.create_sid_process(GLOBAL_LIVE_FLAG, managed_list, pipelist_c)
         p2 = bn.create_draw_process(GLOBAL_LIVE_FLAG, user_console)
         print "passed", bn
         p3 = bn.create_info_process(GLOBAL_LIVE_FLAG, user_msg_q)
@@ -491,11 +510,17 @@ if __name__ == '__main__':
         print e
         exit(1)
 
-    print pipelist_q.get()
+    pl = []
+    c = 0
+    while c != 63:
+        pl.append(pipelist_p.get())
+        print c 
+        c += 1
+
+    llog.info("%d pipes received -- waiting for main processes" % c)
+
     GLOBAL_LIVE_FLAG.value = 1
-
-    print(" -> We are now waiting for the first process to join back")
-
+    
     p2.join()
     llog.info("p2  -> draw process is done")
     GLOBAL_LIVE_FLAG.value = 0

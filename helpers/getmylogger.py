@@ -13,7 +13,7 @@ import logging
 
 #formatter = logging.Formatter('%(processName)s %(threadName)s %(asctime)s {%(name)s:%(lineno)d} %(levelname)s - %(message)s ','%M:%S')
 
-formatter = logging.Formatter('%(processName)s {%(name)s.py on line %(lineno)d}  %(message)s ')
+formatter = logging.Formatter('%(processName)s {%(name)s.py-%(lineno)d} %(message)s ')
 
 def silent_logger(name):
     """use for high/busy logs"""

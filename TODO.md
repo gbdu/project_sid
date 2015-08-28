@@ -21,8 +21,8 @@
 #### alpha 1.8 (future):
 - Branch as stable and screenscast when:
 	- [ ] Right-click menu
-
 	- [ ] Helpful popups/fade
+
 #### alpha 1.7 (future):
 - Branch as stable and screenscast when:
 	- [ ] Helpful popups/fade
@@ -35,7 +35,7 @@
 #### alpha 1.6 (in dev, commit as soon as one is done!):
 - Branch as stable and screenscast when:
 	- [ ] draw layer panels
-- [ ] fix asynch processes
+- [ ] fix asynch processes/user manager
 - [x] User interactivity with components via GUI
 - [x] draw smaller component box with color of internal component
 - [x] ability for user to link components with mouse
