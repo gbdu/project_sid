@@ -8,6 +8,7 @@ import os,sys
 from time import sleep
 
 try:
+    from helpers import getmylogger
     from component import component
     from helpers import getmylogger
 
@@ -126,12 +127,10 @@ class Sid:
             pipe_list.append((comp_obj.get_id(), pt))
             
             p.start()
-            log.info("%d started", comp_obj.get_id())
             counter += 1
 
-
-        log.info('> sid process blocking ')
-        for c,i in enumerate(self.processes):
+        log.info('waiting for components to join back')
+        for (c, i) in enumerate(self.processes):
             i.join()
             log.info("%d joined", c)
         log.info("all processes joined")
@@ -145,11 +144,6 @@ class Sid:
 
     def last_words(self):
         return "Default last word for ", self.myname
-
-    def signal_extinguish(self):
-        ###
-
-        log.info("  ----> got signal extinguish [ SUCCESS ]")
 
 
 

@@ -162,7 +162,7 @@ class component:
 
             if break_flag.value == -1:
                 #print "process %d waiting for job flag... " % self.myid
-                sleep(4)
+                sleep(2)
                 continue ;
 
             if break_flag.value == 0:
@@ -178,8 +178,7 @@ class component:
                 self.do_work_on_input(inn) # todo: do actual work
 
                 self.send_output(inn, mypipe)
-
-                sleep(4)
+                sleep(2)
         return
 
     def signal_death(self):
