@@ -87,6 +87,7 @@ class component:
         pass
 
     def get_id(self):
+        '''returns the id for the object'''
         return self.myid
 
     def __init__(self, global_state, type_hints="langu", myid=0):
@@ -102,6 +103,8 @@ class component:
         self.init_layers(type_hints)
 
     def do_work_on_input(self, inn):
+        ''' works on the input data '''
+        
         pass
 
     def get_input(self):
@@ -161,10 +164,10 @@ class component:
             if break_flag.value == 1:  # 1 signals "work"
                 # print "process %d doing work" % self.myid
 
-                inn = self.get_input()
-                self.do_work_on_input(inn)  # todo: do actual work
-
-                self.send_output(inn, mypipe)
+                #inn = self.get_input()
+                #self.do_work_on_input(inn)  # todo: do actual work
+                #print "breakflag is 1"
+                #self.send_output(inn, mypipe)
                 sleep(2)
         return
 

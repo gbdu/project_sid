@@ -71,13 +71,14 @@ class BigNed:
         def lg(self, msg="defaultmsg"):
             '''drawn log output'''
             self.user_msg_q.put(msg)
-            self.llog(msg)
+            llog.info (msg)
+            pass
 
         def extinguish_and_deload(self):
                 llog.info("extinguish_and_deload called")
                 GLOBAL_LIVE_FLAG.value = 0
 
-        def __init__(self, user_msg_q):
+        def __init__(self, user_msg_q, osnapper):
                 '''inits big ned and draws a visual representation of it'''
                 try:
                     self.mygut = gut.Gut()
@@ -85,8 +86,9 @@ class BigNed:
                     self._mysid.setname("BigNed")
                     self.screen = gui_helpers.init_pygame()
                     self.myfont = gui_helpers.create_font()
-                    self.osnapper = octo_snapper.OctoSnapper()
+                    self.osnapper = osnapper
                     self.user_msg_q = user_msg_q
+                
                 except Exception as e:
                         llog.info("failed to init a bigned ... [ FAIL ] ")
                         print e
@@ -107,7 +109,10 @@ class BigNed:
             if (len(self.click)) == 2:
                 self._mysid.make_components_friends(self.click[0], self.click[1])
                 self.click = [ ] 
+
             pos = pygame.mouse.get_pos()
+            pos = pos[0]-20,pos[1]-20
+
             if event.type == pygame.MOUSEBUTTONUP:
                 boxes = []
                 for i in range(64):
@@ -206,7 +211,8 @@ class BigNed:
 
             pygame.draw.rect(surf, c, r, 0)
 
-            # Right most minbox just shows the color avg between oct color from process and the background color1
+            # Right most minbox just shows the color avg between oct color from
+            # process and the background color1
             r2 = pygame.Rect(top-8, left, boxrect[2]/5, boxrect[3]/5)
             pygame.draw.rect(surf, oc, r2, 0)
 
@@ -231,7 +237,10 @@ class BigNed:
                 i = boxrect[1]/width
                 col = boxrect[0]/height
                 pos = pygame.mouse.get_pos()
-                boxrect_big = pygame.Rect(col*width - width*1, i*height - height*1, width*3, height*3)
+                pos = pos[0]-20,pos[1]-20
+
+                boxrect_big = pygame.Rect(col*width - width*1, i*height -
+                    height*1, width*3, height*3)
                 t = self.mygut.get_tween_value(str(bc))
 
                 if boxrect.collidepoint(pos): # affect for active box
@@ -406,13 +415,15 @@ class BigNed:
                 else:
                         frame_counter += 1.0
 
-        def create_sid_process(self, break_flag, pipelist_q, uc):
+        def create_sid_process(self, break_flag, pipelist_q):
                 '''
                 start the sid loop process
                 break_flag -- a value indicating live loop exit state
                 '''
                 SidProcess = Process(target=self._mysid.start_and_block,args=(break_flag, pipelist_q, ))
                 SidProcess.start()
+                sleep(2)
+                print pipelist_q.get()
                 llog.info("started sid process...")
                 return SidProcess
 
@@ -454,7 +465,7 @@ if __name__ == '__main__':
     user_msg_q = Queue()  # some helpful hints to display to the user
 
     try:
-        bn = BigNed(user_msg_q)
+        bn = BigNed(user_msg_q, pipelist_q)
 
         key_calls = {
             "d": bn.extinguish_and_deload
@@ -480,15 +491,14 @@ if __name__ == '__main__':
         print e
         exit(1)
 
-    sleep(1)
+    print pipelist_q.get()
     GLOBAL_LIVE_FLAG.value = 1
-
 
     print(" -> We are now waiting for the first process to join back")
 
     p2.join()
     llog.info("p2  -> draw process is done")
-
+    GLOBAL_LIVE_FLAG.value = 0
     p1.join()
     llog.info("p1  -> sid process is done")
 

@@ -104,7 +104,7 @@ class Sid:
         return DEFAULT_OCTO
 
     # XXX: live loop 2, for sid
-    def start_and_block(self, break_flag_ref, pipe_list):
+    def start_and_block(self, break_flag_ref, pipe_list_q):
         '''
         this tells sid to live, it goes over the compnents and sets their
         states to alive and creates new processes to run them, then it waits
@@ -121,10 +121,10 @@ class Sid:
             pt = (parent, sub)
             p = Process(target=comp_obj.live_loop, args=(break_flag_ref, sub))
             self.processes.append(p)
-            pipe_list.append((comp_obj.get_id(), pt))
+            pipe_list_q.put( comp_obj.get_id() )
             p.start()
             counter += 1
-            log.info('waiting for components to join back')
+
         for (c, i) in enumerate(self.processes):
             i.join()
             log.info("%d joined", c)
@@ -134,10 +134,12 @@ class Sid:
         return 3
 
     def get_media_numbers(self):
+        '''returns some stats about the sid'''
         return 0
         # todo: add code to watch media to ned
 
     def last_words(self):
+        '''hello world'''
         return "Default last word for ", self.myname
 
 if __name__ == "__main__":
