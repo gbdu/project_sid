@@ -28,7 +28,6 @@ except ImportError as e:
 # Import my dependencies:
 try:
     from helpers import getmylogger
-    from helpers import octo_snapper
 
     from ai import sid
     from mylibs import gut
@@ -52,9 +51,8 @@ class BigNed:
         myfont = None
         mygut = None
         click = []  # clearead every two points...
-        osnapper = None
+        octosnap = None
         user_msg_q = None
-        octo_q = None
 
         global dlog
         global llog
@@ -80,7 +78,7 @@ class BigNed:
                 llog.info("extinguish_and_deload called")
                 GLOBAL_LIVE_FLAG.value = 0
 
-        def __init__(self, user_msg_q, octo_q):
+        def __init__(self, user_msg_q, octosnap):
                 '''inits big ned and draws a visual representation of it'''
                 try:
                     self.mygut = gut.Gut()
@@ -88,8 +86,8 @@ class BigNed:
                     self._mysid.setname("BigNed")
                     self.screen = gui_helpers.init_pygame()
                     self.myfont = gui_helpers.create_font()
-                    #self.osnapper = osnapper
-                    self.octo_q = octo_q
+                    self.osnapper = octosnap
+                    #self.octo_q = octo_q
                     self.user_msg_q = user_msg_q
                 
                 except Exception as e:
@@ -98,8 +96,8 @@ class BigNed:
                         exit(1)
 
         def get_component_octo_from_q(self, cid):
-            s = self.octo_q.get()
-            return s 
+            #s = self.osnapper.okto(cid)
+            pass
         
         def get_component_box(self, cid):
             width = 32
@@ -154,10 +152,11 @@ class BigNed:
                 linfo = []
 
                 linfo.append("Currently selected component: %d " % selected_component_id)
+
                 c = self._mysid.get_component_by_id(selected_component_id)
 
                 #c_dict['component'].add_friend(10)
-                octo = c.get_octo()
+                octo = self.okto(selected_component_id)
 
 
                 #linfo.append("Internal octo: ")
@@ -463,7 +462,7 @@ class BigNed:
                 msg += " is the time" 
                 q.put(msg)
                 q.put("  sadsad ")
-                q.put(self._mysid.get_tween_snapshot())
+                #q.put(self._mysid.get_tween_snapshot())
                 sleep(5)
                 pass
 
@@ -477,23 +476,29 @@ class BigNed:
                 infop.start()
                 return infop
 
-        def create_octo_process(self, break_flag, pipelist):
-                #op = Process(target=self.osnapper.live_loop,
-                # args=(break_flag,pipelist)) # sid process
-                #op.start()
-                op=None
-                return op
+        def fetch_octos_from_q(self, q):
+            while not q.empty():
+                try:
+                    o = q.get()
+                    print "Got an octo, with " + str(o)
+                except:
+                    pass
+            print "fetch got empty q"
+
+                    
+
 
 if __name__ == '__main__':
     global user_console
     global llog
+    component_num = 64
 
     llog.info("Here we go!!!")
     octo_q = Queue()  # a list of (componentid,(lockparent,lockchild))
     user_msg_q = Queue()
 
     try:
-        bn = BigNed(user_msg_q, octo_q)
+        bn = BigNed(user_msg_q, None)
         key_calls = {
             "d": bn.extinguish_and_deload
         }
@@ -508,7 +513,7 @@ if __name__ == '__main__':
         p1 = bn.create_sid_process(GLOBAL_LIVE_FLAG, octo_q)
         p2 = bn.create_draw_process(GLOBAL_LIVE_FLAG, user_console)
         p3 = bn.create_info_process(GLOBAL_LIVE_FLAG, user_msg_q)
-
+       # p4 = bn.create_octo_process(GLOBAL_LIVE_FLAG)
     except Exception as e:
         llog.error("could not create processes")
         print e
@@ -524,11 +529,12 @@ if __name__ == '__main__':
 
 
     GLOBAL_LIVE_FLAG.value = 1
+    
+
+    bn.fetch_octos_from_q(octo_q)
 
     bn.lg("Started processes - now waiting to join")
-    oc = bn.get_component_octo_from_q(1)
-    print oc
-
+    
     p2.join()
     llog.info("p2  -> draw process is done")
     GLOBAL_LIVE_FLAG.value = 0

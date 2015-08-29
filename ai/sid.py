@@ -130,6 +130,10 @@ class Sid:
             p.start()
             counter += 1
 
+        #for p in self.processes:
+           # p.join() # how to do this with with
+
+
     def count_human_components(self):
         return 3
 

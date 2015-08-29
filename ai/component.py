@@ -134,7 +134,7 @@ class component:
             "source": self.mysource,
             "id": self.myid,
             "friends": self.myfriends,
-            "layers": self.layers,
+            "layers": None,
             "neurons_per_layer": 7,
             "eight": 8
         }
@@ -143,11 +143,15 @@ class component:
 
     def send_output(self, data_to_work_on=None, octo_q=None):
         try:
-            octo_q.put(self.get_octo())  # just send an octo for now
-        except:
+            print "put an object"
+            octo_q.put({self.get_id(), self.get_octo()})  # just send an octo for now
+            print "put an object"
+        except Exception as e:
+            print e
             log.warn("component %d unable to send octo!", self.get_id())
 
-    def live_loop(self, break_flag, mypipe):
+            print "put asn object"
+    def live_loop(self, break_flag, q):
         '''loop repeatedly until breakflag is not 1 (breakflag comes from the parent process, in this case, sid...)'''
 
         while True:
@@ -170,7 +174,7 @@ class component:
                 inn = self.get_input()
                 self.do_work_on_input(inn)  # todo: do actual work
                 #print "breakflag is 1"
-                self.send_output(inn, mypipe)
+                self.send_output(inn, q)
                 sleep(2)
         return
 
