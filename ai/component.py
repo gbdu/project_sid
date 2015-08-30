@@ -144,7 +144,7 @@ class component:
     def send_output(self, data_to_work_on=None, octo_q=None):
         try:
             print "put an object"
-            octo_q.put({self.get_id(), self.get_octo()})  # just send an octo for now
+            octo_q.put(self.get_octo())  # just send an octo for now
             print "put an object"
         except Exception as e:
             print e
