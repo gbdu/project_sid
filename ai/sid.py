@@ -4,19 +4,14 @@ __author__ = 'gargantua'
 
 import exceptions
 from multiprocessing import *
-from multiprocessing import forking
-
 from pickle import *
-import os,sys
-import io
 from time import sleep
-import cPickle as pickle
-
+import sys
+allow_connection_pickling
 try:
     from helpers import getmylogger
     from component import component
-    from helpers import getmylogger
-
+    from helpers.octo import Octo
 except ImportError as e:
     print "could not import internal from sid"
     print e
@@ -46,6 +41,7 @@ class Sid:
     components = [] # A list of component objects
     processes = []
     cid_pipes = [] #(cid,(ppipe,cpipe))
+    latest_octos = {} # a list of unique Octo objects for each component
 
     def add_component(self, component_hints):
         '''
@@ -99,18 +95,8 @@ class Sid:
     def setname(self, myn):
         self.myname = myn
 
-    def find_octo(self, cid, pipe_list):
-        # first fine the two way pipe for this component id
-
-        for d in pipe_list:
-            dc = d[0]  # the component id
-            dt = d[1]  # two way pipe tuple (parent,child)
-            if dc == cid:
-                return dt[0].recv()
-        return DEFAULT_OCTO
-
     # XXX: live loop 2, for sid
-    def start_and_block(self, break_flag_ref, octo_q):
+    def start_and_block(self, break_flag, octo_q, latest_octos):
         '''
         this tells sid to live, it goes over the compnents and sets their
         states to alive and creates new processes to run them, then it waits
@@ -123,15 +109,46 @@ class Sid:
         counter = 0
 
         for comp_obj in self.components:
-            p = Process(target=comp_obj.live_loop, args=(break_flag_ref, octo_q))
+            p = Process(target=comp_obj.live_loop, args=(break_flag, octo_q))
 
             self.processes.append(p)
 
             p.start()
             counter += 1
 
-        #for p in self.processes:
-           # p.join() # how to do this with with
+
+        log.info("sid now filling cache... ")
+
+        while True:
+            if break_flag.value == -1:
+                sleep(2)
+                continue
+
+            if break_flag.value == 0:
+                done = 0
+                out_of = len(self.processes)
+                for p in self.processes:
+                    p.join()
+                    done += 1
+                    progress_string = ('*' * (done/3)) + ('-' * ((out_of-done)/3))  
+                    progress_string += " [%d %% processes joined] \r" % int(float(done)/out_of * 100.0)
+                    sys.stdout.flush()
+                    sys.stdout.write(progress_string)
+                print progress_string
+                return
+
+            if break_flag.value == 1:  # 1 signals "work"
+                # Try to fill from queue
+                if octo_q.empty():
+                    sleep(1)
+                    continue
+                else:
+                    popped = octo_q.get()
+                    latest_octos[str(popped.myid)] = popped
+                    log.info(popped.color)
+        return
+
+
 
 
     def count_human_components(self):

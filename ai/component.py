@@ -21,6 +21,7 @@ from time import sleep
 
 try:
     from neuron import Neuron
+    from helpers.octo import Octo
     from helpers.getmylogger import loud_logger, silent_logger
 
 except ImportError as e:
@@ -117,7 +118,6 @@ class component:
         self.mycolor = random.randint(50, 150), random.randint(
             50, 150), random.randint(50, 250)
 
-        pass
 
         return self.mycolor
 
@@ -128,24 +128,25 @@ class component:
     def get_octo(self):
         '''send an 8 channel list representing current state of component'''
 
-        octo = {
+        octo_dict = {
             "type_hints": self.type_hints,
-            "mycolor": self.mycolor,
+            "color": self.mycolor,
             "source": self.mysource,
-            "id": self.myid,
+            "myid": self.myid,
             "friends": self.myfriends,
-            "layers": None,
+            "layers": 2,
             "neurons_per_layer": 7,
-            "eight": 8
+            "x": 8
         }
+
+        octo = Octo(octo_dict)
 
         return octo
 
     def send_output(self, data_to_work_on=None, octo_q=None):
         try:
-            print "put an object"
             octo_q.put(self.get_octo())  # just send an octo for now
-            print "put an object"
+            
         except Exception as e:
             print e
             log.warn("component %d unable to send octo!", self.get_id())
