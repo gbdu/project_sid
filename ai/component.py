@@ -16,13 +16,13 @@ __email__ = "ogrum@live.com"
 __status__ = "dev"
 
 import random
-from multiprocessing import Process, Value, Lock
+from multiprocessing import Lock
 from time import sleep
 
 try:
     from neuron import Neuron
     from helpers.octo import Octo
-    from helpers.getmylogger import loud_logger, silent_logger
+    from helpers.getmylogger import silent_logger
 
 except ImportError as e:
     print("Could not import from component")
@@ -115,8 +115,8 @@ class component:
 
         # TODO: mycolor responds to actual data state
 
-        self.mycolor = random.randint(50, 150), random.randint(
-            50, 150), random.randint(50, 250)
+        self.mycolor = (random.randint(50, 150), random.randint(
+            50, 150), random.randint(50, 250))
 
 
         return self.mycolor
@@ -176,7 +176,7 @@ class component:
                 self.do_work_on_input(inn)  # todo: do actual work
                 #print "breakflag is 1"
                 self.send_output(inn, q)
-                sleep(2)
+                sleep(1)
         return
 
     def signal_death(self):

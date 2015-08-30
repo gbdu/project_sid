@@ -185,30 +185,31 @@ class BigNed:
             #linfo.append("Internal octo: ")
 
     def draw_smaller_boxes(self, surf, boxrect, bc, bgcolor):
-        pass
-        # width = boxrect[2] / 5
-        # height = boxrect[3] / 5
-        # top = boxrect[0] + 32 - width
-        # left = boxrect[1] + 32 - height
+        width = boxrect[2] / 5
+        height = boxrect[3] / 5
+        top = boxrect[0] + 32 - width
+        left = boxrect[1] + 32 - height
 
-        # oc = self.okto(bc)["mycolor"]
-        # c = (bgcolor[0]+oc[0])/2,(oc[1]+bgcolor[1])/2,(oc[1]+bgcolor[2])/2
-        # r = pygame.Rect(top,left,width,height)
+        o = self.get_latest_octo_from(bc)
+        oc = o.color
 
-        # pygame.draw.rect(surf, c, r, 0)
+        c = (bgcolor[0]+oc[0])/2,(oc[1]+bgcolor[1])/2,(oc[1]+bgcolor[2])/2
+        r = pygame.Rect(top,left,width,height)
 
-        # # Right most minbox just shows the color avg between oct color from
-        # # process and the background color1
-        # r2 = pygame.Rect(top-8, left, boxrect[2]/5, boxrect[3]/5)
-        # pygame.draw.rect(surf, oc, r2, 0)
+        pygame.draw.rect(surf, c, r, 0)
 
-        # # The next box shows the color straight from the octo
-        # r3 = pygame.Rect(top-16, left, boxrect[2]/5, boxrect[3]/5)
-        # pygame.draw.rect(surf, oc, r3, 0)
+        # Right most minbox just shows the color avg between oct color from
+        # process and the background color1
+        r2 = pygame.Rect(top-8, left, boxrect[2]/5, boxrect[3]/5)
+        pygame.draw.rect(surf, oc, r2, 0)
 
-        # # The next box is todo
-        # r4 = pygame.Rect(top-24, left, boxrect[2]/5, boxrect[3]/5)
-        # pygame.draw.rect(surf, (50,50,50), r4, 0 )
+        # The next box shows the color straight from the octo
+        r3 = pygame.Rect(top-16, left, boxrect[2]/5, boxrect[3]/5)
+        pygame.draw.rect(surf, oc, r3, 0)
+
+        # The next box is todo
+        r4 = pygame.Rect(top-24, left, boxrect[2]/5, boxrect[3]/5)
+        pygame.draw.rect(surf, (50,50,50), r4, 0 )
 
     def draw_box(self, surf, boxrect, bc):
             a = b = c = 0 # used for fancy tweening
@@ -289,33 +290,15 @@ class BigNed:
             # for b in range(64): ## draw the connection
             #     #[b, width,height]
             #     brect = self.get_component_box(b)
-            #     octo = self._mysid.get_latest_octo_from(b)
+            #     octo = self.get_latest_octo_from(b)
 
             #     for p in octo.friends:
-            #         color1= octo.color
-            #         avgcolor = ((color1[0]+color2[0]+50)/2, (color1[1]+color2[1]+50)/2, (color1[1]+color2[1]+50)/2)
-
             #         frect = self.get_component_box(p)
 
             #         p1 = brect[0] + (width/2),brect[1] + (height/2)
             #         p2 = frect[0] + (width/2),frect[1] + (width/2)
                     
-            #         p3 = brect[0] + (width/2),brect[1] + (height/2) + 1
-            #         p4 = frect[0] + (width/2),frect[1] + (width/2) + 1
-
-            #         p5 = brect[0] + (width/2),brect[1] + (height/2) - 1
-            #         p6 = frect[0] + (width/2),frect[1] + (width/2) - 1
-                    
-            #         t2 = self.mygut.get_tween_value("linetween1")
-            #         t3 = self.mygut.get_tween_value("linetween2")
-
-            #         cc = (t2,150,250)
-            #         cd = (t3,150,250)
-
-
-            #         # pygame.draw.aaline(surf, avgcolor, p1, p2, 2)
-            #         pygame.draw.aaline(surf, cc, p3, p4, 2)
-            #         pygame.draw.aaline(surf, cd, p5, p6, 2)
+            #         pygame.draw.aaline(surf, (200,200,200), p1, p2, 2)
 
     #XXX : INFINITE/BREAKABLE LOOP 1 (DRAW)
     def draw_loop(self, break_flag):
@@ -406,12 +389,10 @@ class BigNed:
                 (break_flag, octo_q, octo_d ))
             SidProcess.start()
             sleep(2)
-            #print pipelist_q.get()
             return SidProcess
 
     def create_draw_process(self, break_flag, uc):
             ''' start the draw loop process '''
-            #  print(uc)
             drawp = Process(target=self.draw_loop, args=(break_flag,))
             #  sid process
             drawp.start()
@@ -439,13 +420,10 @@ class BigNed:
             return infop
 
     def get_latest_octo_from(self, cid):
-        #return self.latest_octos[str(cid)]Tab
-
         if str(cid) in self.latest_octos:
             o = self.latest_octos[str(cid)]
             return o.get_a_copy() # Get a copy so we dont accidentally write it over 
         else:
-            #print "No octo from" + str(self.latest_octos) + "for" + str(cid) 
             return octo.Octo()
 
 

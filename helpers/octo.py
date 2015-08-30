@@ -28,7 +28,7 @@ class Octo:
 			self.myid = "-1"
 			self.source= "default"
 			self.type_hints = "default"
-			self.color="default"
+			self.color=(20,20,90)
 			self.friends= "default"
 			self.layers="default"
 			self.neurons_per_layer="default"
@@ -42,7 +42,7 @@ class Octo:
 		c = copy.copy(self)
 
 		return c
-		
+
 	@staticmethod
 	def fill_from_pickled(p):
 		return pickle.loads(p)

@@ -140,12 +140,10 @@ class Sid:
             if break_flag.value == 1:  # 1 signals "work"
                 # Try to fill from queue
                 if octo_q.empty():
-                    sleep(1)
                     continue
                 else:
                     popped = octo_q.get()
                     latest_octos[str(popped.myid)] = popped
-                    log.info(popped.color)
         return
 
 
