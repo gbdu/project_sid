@@ -44,8 +44,7 @@ GLOBAL_LIVE_FLAG = Value("d", 0)
 selected_component_id = 0
 dlog = getmylogger.silent_logger("silent_bigned")  # silent drawing logger
 llog = getmylogger.loud_logger("bigned")  # silent drawing logger
-llog.info("set up all the globals... ")
-
+zoom = 1
 
 class BigNed:
     _mysid = None
@@ -63,7 +62,7 @@ class BigNed:
 
     def init_console(self, key_calls):
         try:
-            r = pygame.Rect(300, 20, 320, 256)
+            r = pygame.Rect(300, 20, 300, 256)
             uc = pyconsole.Console(self.screen, r, key_calls=key_calls)
             return uc
         except:
@@ -114,9 +113,18 @@ class BigNed:
             self._mysid.make_components_friends(self.click[0], self.click[1])
             self.click = [ ] 
 
-        pos = pygame.mouse.get_pos()
+        #pos = pygame.mouse.get_pos()
+        pos = event.pos
         pos = pos[0]-20,pos[1]-20
 
+        # First, check if this is a mousewheel op
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 4:
+                global zoom
+                if zoom < 2: zoom += 0.01
+            elif event.button == 5:
+                global zoom
+                if zoom > 0.5: zoom -= 0.01
         if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
             boxes = []
             for i in range(64):
@@ -160,7 +168,7 @@ class BigNed:
                 linfo.append("    octo-source : %s" % octo.source)
                 linfo.append("    octo-id : %s" % octo.myid)
                 linfo.append("    octo-friends : %s" % octo.friends)
-                linfo.append("    octo-layers :" + str(octo.layers) )
+                #linfo.append("    octo-layers :" + str(octo.layers) )
             else:
                 linfo.append("{ This component has not queued an octo state\
                  yet...}")
@@ -182,11 +190,15 @@ class BigNed:
 
             surf.fill((40,40,40))
 
+            octo = self.get_latest_octo_from(selected_component_id)
+
+            layers = octo.layers
+            #print layers
             #linfo.append("Internal octo: ")
 
     def draw_smaller_boxes(self, surf, boxrect, bc, bgcolor):
-        width = boxrect[2] / 5
-        height = boxrect[3] / 5
+        width = boxrect[2] / 6
+        height = boxrect[3] / 8
         top = boxrect[0] + 32 - width
         left = boxrect[1] + 32 - height
 
@@ -205,11 +217,11 @@ class BigNed:
 
         # The next box shows the color straight from the octo
         r3 = pygame.Rect(top-16, left, boxrect[2]/5, boxrect[3]/5)
-        pygame.draw.rect(surf, oc, r3, 0)
+        # pygame.draw.rect(surf, oc, r3, 0)
 
         # The next box is todo
         r4 = pygame.Rect(top-24, left, boxrect[2]/5, boxrect[3]/5)
-        pygame.draw.rect(surf, (50,50,50), r4, 0 )
+        # pygame.draw.rect(surf, (50,50,50), r4, 0 )
 
     def draw_box(self, surf, boxrect, bc):
             a = b = c = 0 # used for fancy tweening
@@ -306,11 +318,11 @@ class BigNed:
         draw the given Ned on INIT'd scr
         """
         self.screen.fill((35, 35, 35))
-        panel_label_surf = pygame.Surface((256, 170))
+        panel_label_surf = pygame.Surface((256, 120))
         component_surf = pygame.Surface((256, 256))
         version_surf = pygame.Surface( (150,
             self.myfont.get_height()) )
-        layer_panel_surf = pygame.Surface((256, 170))
+        layer_panel_surf = pygame.Surface((256, 120))
 
         component_box_where = (20, 20)
         panel_label_where = (20, 300)
@@ -362,9 +374,12 @@ class BigNed:
             self.draw_panel_label(panel_label_surf)
             self.draw_components_on_surf(component_surf)
 
+            
+            rod = pygame.transform.rotozoom(component_surf, 0, zoom) if zoom != 1 else component_surf
+
             #self.draw_links_on_surf(component_surf)
             self.screen.blit(version_surf, version_label_where)
-            self.screen.blit(component_surf, component_box_where)
+            self.screen.blit(rod, component_box_where)
             self.screen.blit(panel_label_surf, panel_label_where)
             self.screen.blit(layer_panel_surf, layer_panel_where)
             pygame.display.flip()
@@ -380,13 +395,13 @@ class BigNed:
             else:
                     frame_counter += 1.0
 
-    def create_sid_process(self, break_flag, octo_q, octo_d):
+    def create_sid_process(self, break_flag, msg_q, octo_q, octo_d):
             '''
             start the sid loop process
             break_flag -- a value indicating live loop exit state
             '''
             SidProcess = Process(target=self._mysid.start_and_block,args=
-                (break_flag, octo_q, octo_d ))
+                (break_flag, msg_q, octo_q, octo_d ))
             SidProcess.start()
             sleep(2)
             return SidProcess
@@ -402,10 +417,7 @@ class BigNed:
         import datetime
         while(breakflag.value != 0):
             msg = str( datetime.datetime.now() )
-            msg += " is the time" 
-            q.put(msg)
-            q.put("  sadsad ")
-            #q.put(self._mysid.get_tween_snapshot())
+            q.put(str(msg))
             sleep(5)
             pass
 
@@ -435,14 +447,17 @@ if __name__ == '__main__':
     llog.info("Here we go!!!")
     octo_q = Queue()  # a list of (componentid,(lockparent,lockchild))
     user_msg_q = Queue()
+    cmd_q = Queue()
     manager = Manager()
     latest_octos = manager.dict()
 
     try:
         bn = BigNed(user_msg_q, latest_octos)
+        
         key_calls = {
             "d": bn.extinguish_and_deload
         }
+
         user_console = bn.init_console(key_calls)
     except Exception as e:
         llog.error("could not create bigned or console")
@@ -451,7 +466,7 @@ if __name__ == '__main__':
 
     try:
         GLOBAL_LIVE_FLAG.value = -1
-        p1 = bn.create_sid_process(GLOBAL_LIVE_FLAG, octo_q, latest_octos)
+        p1 = bn.create_sid_process(GLOBAL_LIVE_FLAG, cmd_q, octo_q, latest_octos)
         p2 = bn.create_draw_process(GLOBAL_LIVE_FLAG, user_console)
         p3 = bn.create_info_process(GLOBAL_LIVE_FLAG, user_msg_q)
        # p4 = bn.create_octo_process(GLOBAL_LIVE_FLAG)

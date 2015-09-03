@@ -126,7 +126,6 @@ class component:
         return (200, 0, 0)
 
     def get_octo(self):
-        '''send an 8 channel list representing current state of component'''
 
         octo_dict = {
             "type_hints": self.type_hints,
@@ -134,7 +133,7 @@ class component:
             "source": self.mysource,
             "myid": self.myid,
             "friends": self.myfriends,
-            "layers": 2,
+            "layers": self.layers,
             "neurons_per_layer": 7,
             "x": 8
         }
@@ -176,7 +175,7 @@ class component:
                 self.do_work_on_input(inn)  # todo: do actual work
                 #print "breakflag is 1"
                 self.send_output(inn, q)
-                sleep(1)
+                sleep(0.1) # Careful!
         return
 
     def signal_death(self):

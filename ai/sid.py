@@ -95,8 +95,11 @@ class Sid:
     def setname(self, myn):
         self.myname = myn
 
+    def process_cmd_q(self, cmd_q):
+        pass
+
     # XXX: live loop 2, for sid
-    def start_and_block(self, break_flag, octo_q, latest_octos):
+    def start_and_block(self, break_flag, cmd_q, octo_q, latest_octos):
         '''
         this tells sid to live, it goes over the compnents and sets their
         states to alive and creates new processes to run them, then it waits
@@ -139,10 +142,12 @@ class Sid:
 
             if break_flag.value == 1:  # 1 signals "work"
                 # Try to fill from queue
+                if cmd_q.empty():
+                    pass
                 if octo_q.empty():
                     continue
                 else:
-                    popped = octo_q.get()
+                    popped = octo_q.get_nowait()
                     latest_octos[str(popped.myid)] = popped
         return
 

@@ -25,17 +25,18 @@
 
 #### alpha 1.7 (future):
 - Branch as stable and screenscast when:
-	- [ ] Helpful popups/fade
 	- [ ] set component options
 	- [ ] First inter-component communication is made
 	- [ ] Allow for various kinds of components (deep dream, internal, yt, etc...)
 	- [ ] output from one of the text components
 	- [ ] draw molecule pool (indicate dopamine, etc)
+- [ ] Fix friendship/connections with command queue
 
 #### alpha 1.6 (in dev, commit as soon as one is done!):
 - Branch as stable and screenscast when:
-	- [ ] draw layer panels
-- [ ] Fix small box drawing
+	- [ ] draw layer panels	
+- [x] when checking for octos, do a timeout...
+- [x] Fix small box drawing
 - [x] all octos go through queue 
 - [x] User interactivity with components via GUI
 - [x] draw smaller component box with color of internal component
