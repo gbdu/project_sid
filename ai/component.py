@@ -133,7 +133,7 @@ class component:
             "source": self.mysource,
             "myid": self.myid,
             "friends": self.myfriends,
-            "layers": self.layers,
+            "layers": len(self.layers),
             "neurons_per_layer": 7,
             "x": 8
         }
