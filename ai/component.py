@@ -151,7 +151,8 @@ class component:
             log.warn("component %d unable to send octo!", self.get_id())
 
             print "put asn object"
-    def live_loop(self, break_flag, q):
+
+    def live_loop(self, break_flag, q, cmd_q):
         '''loop repeatedly until breakflag is not 1 (breakflag comes from the parent process, in this case, sid...)'''
 
         while True:

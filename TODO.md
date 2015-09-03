@@ -33,8 +33,7 @@
 - [ ] Fix friendship/connections with command queue
 
 #### alpha 1.6 (in dev, commit as soon as one is done!):
-- Branch as stable and screenscast when:
-	- [ ] draw layer panels	
+- [ ] draw layer panels	
 - [x] when checking for octos, do a timeout...
 - [x] Fix small box drawing
 - [x] all octos go through queue 
