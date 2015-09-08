@@ -31,6 +31,7 @@
 	- [ ] output from one of the text components
 	- [ ] draw molecule pool (indicate dopamine, etc)
 - [ ] Fix friendship/connections with command queue
+- [ ] Fix blocking recv call when exiting...
 
 #### alpha 1.6 (in dev, commit as soon as one is done!):
 - [ ] draw layer panels	

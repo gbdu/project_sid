@@ -16,6 +16,7 @@ except ImportError as e:
     print "could not import internal from sid"
     print e
     exit(1)
+    
 last_component_number = 0
 
 log = getmylogger.loud_logger("sid")
@@ -95,11 +96,10 @@ class Sid:
     def setname(self, myn):
         self.myname = myn
 
-    def process_cmd_q(self, cmd_q):
-        pass
 
     # XXX: live loop 2, for sid
-    def start_and_block(self, break_flag, cmd_q, octo_q, latest_octos):
+    def start_and_block(self, break_flag, cmd_q, octo_q, latest_octos,
+        main_pipe):
         '''
         this tells sid to live, it goes over the compnents and sets their
         states to alive and creates new processes to run them, then it waits
@@ -112,13 +112,13 @@ class Sid:
         counter = 0
 
         for comp_obj in self.components:
-            p = Process(target=comp_obj.live_loop, args=(break_flag, octo_q))
+            r = (break_flag, octo_q, cmd_q, main_pipe)
+            p = Process(target=comp_obj.live_loop, args=r)
 
             self.processes.append(p)
 
             p.start()
             counter += 1
-
 
         log.info("sid now filling cache... ")
 
@@ -128,31 +128,34 @@ class Sid:
                 continue
 
             if break_flag.value == 0:
+                main_pipe.close()
                 done = 0
                 out_of = len(self.processes)
                 for p in self.processes:
                     p.join()
                     done += 1
-                    progress_string = ('*' * (done/3)) + ('-' * ((out_of-done)/3))  
-                    progress_string += " [%d %% processes joined] \r" % int(float(done)/out_of * 100.0)
+
+                    dd = ('*' * (done/3))
+                    od = ('-' * ((out_of-done)/3))  
+                    perc = int(float(done)/out_of * 100.0)
+
+                    progress_string = dd + od
+                    progress_string += " [%d %% ] \r" % perc
+
                     sys.stdout.flush()
                     sys.stdout.write(progress_string)
+                    
                 print progress_string
                 return
 
             if break_flag.value == 1:  # 1 signals "work"
                 # Try to fill from queue
-                if cmd_q.empty():
-                    pass
                 if octo_q.empty():
                     continue
                 else:
                     popped = octo_q.get_nowait()
                     latest_octos[str(popped.myid)] = popped
         return
-
-
-
 
     def count_human_components(self):
         return 3

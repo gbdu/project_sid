@@ -15,11 +15,12 @@ __email__ = "ogrum@live.com"
 
 # Import main dependencies:
 try:
-        import sys
-        import pygame
-        import time
-        from multiprocessing import Process, Value, Queue, Manager
-        from time import sleep
+    import sys
+    import pygame
+    import time
+    from multiprocessing import * 
+    import traceback
+    from time import sleep
 
 except ImportError as e:
         print("failed to import main dependencies...")
@@ -41,19 +42,24 @@ except ImportError as e:
     exit(1)
 
 GLOBAL_LIVE_FLAG = Value("d", 0)
+
 selected_component_id = 0
+clicked_component_id = None
+
 dlog = getmylogger.silent_logger("silent_bigned")  # silent drawing logger
 llog = getmylogger.loud_logger("bigned")  # silent drawing logger
 zoom = 1
 
 class BigNed:
     _mysid = None
+    _layercache = None
     screen = None
     myfont = None
     mygut = None
     click = []  # clearead every two points...
     user_msg_q = None
     latest_octos = None
+    layer_pipe = None
 
     global dlog
     global llog
@@ -76,26 +82,40 @@ class BigNed:
         pass
 
     def extinguish_and_deload(self):
-            llog.info("extinguish_and_deload called")
-            GLOBAL_LIVE_FLAG.value = 0
+        llog.info("extinguish_and_deload called")
+        GLOBAL_LIVE_FLAG.value = 0
 
-    def __init__(self, user_msg_q, latest_octos):
-            '''inits big ned and draws a visual representation of it'''
-            try:
-                self.mygut = gut.Gut()
-                self._mysid = sid.Sid()
-                self._mysid.setname("BigNed")
-                self.screen = gui_helpers.init_pygame()
-                self.myfont = gui_helpers.create_font()
-                self.latest_octos = latest_octos
+    def __init__(self, user_msg_q, latest_octos, cmd_q, p):
+        try:
+            self.mygut = gut.Gut()
+            self._mysid = sid.Sid()
+            self._mysid.setname("BigNed")
+            self.screen = gui_helpers.init_pygame()
+            self.myfont = gui_helpers.create_font()
+            self.latest_octos = latest_octos
+            self.cmd_q = cmd_q
+            self.layer_pipe = p
+            #self.octo_q = octo_q
+            self.user_msg_q = user_msg_q
+        
+        except Exception as e:
+                llog.info("failed to init a bigned ... [ FAIL ] ")
+                print traceback.print_exc()
+                exit(1)
 
-                #self.octo_q = octo_q
-                self.user_msg_q = user_msg_q
-            
-            except Exception as e:
-                    llog.info("failed to init a bigned ... [ FAIL ] ")
-                    print e
-                    exit(1)
+    def change_clicked(self, i):
+        global clicked_component_id
+
+        if(clicked_component_id == i):
+            # This is to avoid putting multiple SELECTs in the queue
+            # for the same ID.
+            return
+
+        if clicked_component_id: # Deselect the old one
+            self.cmd_q.put("DESELECT %d" % clicked_component_id)
+
+        clicked_component_id = i
+        self.cmd_q.put("SELECT " + str(i) )
 
     def get_component_box(self, cid):
         width = 32
@@ -125,14 +145,16 @@ class BigNed:
             elif event.button == 5:
                 global zoom
                 if zoom > 0.5: zoom -= 0.01
+
         if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
-            boxes = []
             for i in range(64):
                 box = self.get_component_box(i)
                 if box.collidepoint(pos):
                     self.click.append(i)
+                    self.change_clicked(i)
                     if (len(self.click)) == 2:
-                        self._mysid.make_components_friends(self.click[0], self.click[1])
+                        self._mysid.make_components_friends(self.click[0],
+                            self.click[1])
                         self.click = [ ]
 
         elif event.type == pygame.MOUSEBUTTONDOWN:
@@ -141,7 +163,6 @@ class BigNed:
             elif (len(self.click)) == 2:
                 self._mysid.make_components_friends(self.click[0], self.click[1])
                 self.click = [ ]
-
 
     def draw_version_label(self, surf, fps , color=(200,200,200)):
             '''draws the version info and fps on the top of the main screen'''
@@ -184,17 +205,64 @@ class BigNed:
             textpos = (boxrect[0],boxrect[1])
             surf.blit(text, textpos)
 
+    def get_neuron_box(self, surf, idx):
+        sz = surf.get_size()
+
+        n_width = 10
+        n_height = 10
+
+        padding=5
+
+        rows = (sz[0] / n_width)-1
+        cols = (sz[1] / n_height)-1
+
+        counter = 0
+        for r in range(rows):
+            for c in range(cols):
+                if counter == idx :
+                    return (r*10 + 10, c*10 + 10, n_width-padding, n_height-padding)
+
+                counter += 1
+
+
+    def draw_neurons(self, surf, n, connections):
+        ''' draws a representation of the connections between the neurons
+        n and their connections '''
+
+        for counter,i in enumerate(n):
+            color = (100, 50, i[1])
+            print color
+            rect = self.get_neuron_box(surf, counter)
+            pygame.draw.rect(surf, color, rect, 0)
+                
+        pass
+
     def draw_layer_panel_on_surf(self, surf):
             '''draw the bottom panel label'''
             global selected_component_id
 
-            surf.fill((40,40,40))
+            # surf.fill((40,40,40))
 
-            octo = self.get_latest_octo_from(selected_component_id)
+            global clicked_component_id
+            if not self._layercache and clicked_component_id :
+                self._layercache = self.layer_pipe.recv()
+                
+                n = []
+                for i in self._layercache :
+                    n.append(i)
 
-            layers = octo.layers
-            #print layers
-            #linfo.append("Internal octo: ")
+                # get connections
+                self._layercache = self.layer_pipe.recv()
+                
+                connections = []
+                for i in self._layercache :
+                    connections.append(i)
+
+                self.draw_neurons(surf, n, connections)
+
+            else:
+                pass
+
 
     def draw_smaller_boxes(self, surf, boxrect, bc, bgcolor):
         width = boxrect[2] / 6
@@ -239,6 +307,7 @@ class BigNed:
             boxrect_big = pygame.Rect(col*width - width*1, i*height -
                 height*1, width*3, height*3)
             t = self.mygut.get_tween_value(str(bc))
+            color = (0,0,0)
 
             if boxrect.collidepoint(pos): # affect for active box
                     a = self.mygut.get_tween_value("active_box")
@@ -375,7 +444,8 @@ class BigNed:
             self.draw_components_on_surf(component_surf)
 
             
-            rod = pygame.transform.rotozoom(component_surf, 0, zoom) if zoom != 1 else component_surf
+            rod = pygame.transform.rotozoom(component_surf, 0, zoom) \
+                if zoom != 1 else component_surf
 
             #self.draw_links_on_surf(component_surf)
             self.screen.blit(version_surf, version_label_where)
@@ -395,15 +465,14 @@ class BigNed:
             else:
                     frame_counter += 1.0
 
-    def create_sid_process(self, break_flag, msg_q, octo_q, octo_d):
+    def create_sid_process(self, break_flag, msg_q, octo_q, octo_d, p):
             '''
             start the sid loop process
             break_flag -- a value indicating live loop exit state
             '''
             SidProcess = Process(target=self._mysid.start_and_block,args=
-                (break_flag, msg_q, octo_q, octo_d ))
+                (break_flag, msg_q, octo_q, octo_d, p))
             SidProcess.start()
-            sleep(2)
             return SidProcess
 
     def create_draw_process(self, break_flag, uc):
@@ -413,19 +482,23 @@ class BigNed:
             drawp.start()
             return drawp
 
-    def info_loop(self, breakflag, q):
+    def info_loop(self, breakflag, q, m):
         import datetime
-        while(breakflag.value != 0):
-            msg = str( datetime.datetime.now() )
-            q.put(str(msg))
-            sleep(5)
+        while breakflag.value :
             pass
+            # msg = str( datetime.datetime.now() )
+            # try:
+            #     msg += m.recv()
+            #     q.put(str(msg))
+            # except:
+            #     traceback.print_exc()
 
-    def create_info_process(self, break_flag, msg_queue):
+
+    def create_info_process(self, break_flag, msg_queue, m):
             ''' start the info process, sends useful hints to user'''
             infop = Process(
                 target=self.info_loop,
-                args=(break_flag, msg_queue,)
+                args=(break_flag, msg_queue, m, )
                 )
 
             infop.start()
@@ -450,15 +523,16 @@ if __name__ == '__main__':
     cmd_q = Queue()
     manager = Manager()
     latest_octos = manager.dict()
+    pa1,pa2 = Pipe()
+    
 
     try:
-        bn = BigNed(user_msg_q, latest_octos)
-        
+        bn = BigNed(user_msg_q, latest_octos, cmd_q, pa1)
         key_calls = {
             "d": bn.extinguish_and_deload
         }
-
         user_console = bn.init_console(key_calls)
+
     except Exception as e:
         llog.error("could not create bigned or console")
         print e
@@ -466,9 +540,10 @@ if __name__ == '__main__':
 
     try:
         GLOBAL_LIVE_FLAG.value = -1
-        p1 = bn.create_sid_process(GLOBAL_LIVE_FLAG, cmd_q, octo_q, latest_octos)
+        p1 = bn.create_sid_process(GLOBAL_LIVE_FLAG, cmd_q,
+         octo_q, latest_octos, pa2)
         p2 = bn.create_draw_process(GLOBAL_LIVE_FLAG, user_console)
-        p3 = bn.create_info_process(GLOBAL_LIVE_FLAG, user_msg_q)
+        p3 = bn.create_info_process(GLOBAL_LIVE_FLAG, user_msg_q, pa1)
        # p4 = bn.create_octo_process(GLOBAL_LIVE_FLAG)
     except Exception as e:
         llog.error("could not create processes")

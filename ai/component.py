@@ -8,12 +8,6 @@ one another.
 """
 
 __author__ = 'gbdu'
-__copyright__ = "Copyright 2015, gbdu"
-__credits__ = ["gbdu"]
-__license__ = "GPL"
-__version__ = "1.0.1"
-__email__ = "ogrum@live.com"
-__status__ = "dev"
 
 import random
 from multiprocessing import Lock
@@ -48,8 +42,9 @@ class component:
     mysource = "None so far..."
     # internal:
     mymolecules = None  # Internal list of neurotransmitter-like communication
-    layers = []  # a list of neurons + their neurotransmitters
+    #layers = []  # a list of neurons + their neurotransmitters
     myfriends = []  # a list of friend IDS
+    isselected = None
 
     def add_friend(self, friendid):
         if friendid in self.myfriends:
@@ -72,20 +67,18 @@ class component:
 
         return molecules
 
-    def init_layers(self, hints):
+    def initlayers(self, hints):
         '''inits the internal data stream, these are numpy arrays'''
         #log.warning("setting the data for component with hints %s", hints)
-        #self.mylayers = self.create_layers()
+        #self.mylayers = self.createlayers()
         #log.warning("layers created ")
-
-        molecule_pool = {"dopamine": 10, "serotonin": 20}
+        
+        self.layers = []
 
         for l in range(DEFAULT_NUMBER_OF_LAYERS):
             for n in range(DEFAULT_NEURONS_PER_LAYER):
-                self.layers.append(Neuron())
+                self.layers.append(Neuron(parent_id=self.myid))
 
-        # return 1
-        pass
 
     def get_id(self):
         '''returns the id for the object'''
@@ -97,11 +90,12 @@ class component:
         self.myid = myid
         self.global_state = global_state
         self.myfriends = []
+        self.isselected = False
         self.mycolor = (random.randint(0, 100), random.randint(40, 150),
                         random.randint(40, 150))
 
         # internal:
-        self.init_layers(type_hints)
+        self.initlayers(type_hints)
 
     def do_work_on_input(self, inn):
         ''' works on the input data '''
@@ -121,12 +115,22 @@ class component:
 
         return self.mycolor
 
-    def _get_color_dim(self):
-        '''returns a random color for now....'''
-        return (200, 0, 0)
+    def proc_cmd_q(self, q):
+        if q.empty():
+            pass
+        try:
+            cmd = q.get_nowait()
+            if cmd[0:6] == "SELECT":
+                if int(cmd[7:]) == self.myid:
+                    self.isselected = True
+                    print "%d knows its selected" % self.myid
+                else: # This was not the intended component, throw the string back
+                    self.isselected = False
+                    q.put(cmd)
+        except:
+            pass
 
     def get_octo(self):
-
         octo_dict = {
             "type_hints": self.type_hints,
             "color": self.mycolor,
@@ -142,6 +146,30 @@ class component:
 
         return octo
 
+    def neurons_repr(self):
+        '''returns a list of (neuronid, state)'''
+        l = []
+        print len(self.layers)
+
+        for i in self.layers:
+            l.append((i.get_id(), i.get_state()))
+
+        return l
+
+    def connections_repr(self):
+        '''returns a list of tuples representing neuron connections'''
+
+        l = [(1, 2, 3), (3, 2), (4, 5) ]
+        return l 
+
+    def sendlayers_if_selected(self, p):
+        if self.isselected :    
+            p.send(self.neurons_repr())
+            p.send(self.connections_repr())
+            self.isselected = 0; # only send it once per SELECT command
+            print("id %d sent " % self.myid)
+
+
     def send_output(self, data_to_work_on=None, octo_q=None):
         try:
             octo_q.put(self.get_octo())  # just send an octo for now
@@ -152,8 +180,10 @@ class component:
 
             print "put asn object"
 
-    def live_loop(self, break_flag, q, cmd_q):
-        '''loop repeatedly until breakflag is not 1 (breakflag comes from the parent process, in this case, sid...)'''
+    def live_loop(self, break_flag, q, cmd_q, main_pipe):
+        '''loop repeatedly until breakflag is not 1 \
+        (breakflag comes from the parent process, in\
+        this case, sid...)'''
 
         while True:
             # 64 of these loops!
@@ -165,18 +195,26 @@ class component:
 
             if break_flag.value == 0:
                 # print "process %d told to break out of live_loop" % self.myid
-                self.signal_death()
-                break
+                main_pipe.close()
                 return
 
             if break_flag.value == 1:  # 1 signals "work"
-                # print "process %d doing work" % self.myid
+                try:
+                    self.proc_cmd_q(cmd_q)
+                    self.sendlayers_if_selected(main_pipe)
 
-                inn = self.get_input()
-                self.do_work_on_input(inn)  # todo: do actual work
-                #print "breakflag is 1"
-                self.send_output(inn, q)
-                sleep(0.1) # Careful!
+                    inn = self.get_input()
+
+                    self.do_work_on_input(inn)  # todo: do actual work
+                    self.send_output(inn, q)
+
+                except Exception as E:
+                    m = "Component %d couldn't do work, exitted" % self.myid
+                    print m
+                    raise E
+                    exit(1)
+                finally:
+                    sleep(0.5) # Careful!
         return
 
     def signal_death(self):
