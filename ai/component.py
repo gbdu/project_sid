@@ -149,7 +149,7 @@ class component:
     def neurons_repr(self):
         '''returns a list of (neuronid, state)'''
         l = []
-        print len(self.layers)
+        #print len(self.layers)
 
         for i in self.layers:
             l.append((i.get_id(), i.get_state()))
@@ -166,8 +166,9 @@ class component:
         if self.isselected :    
             p.send(self.neurons_repr())
             p.send(self.connections_repr())
-            self.isselected = 0; # only send it once per SELECT command
-            print("id %d sent " % self.myid)
+            sleep(1)
+            # self.isselected = 0; # only send it once per SELECT command
+            # print("id %d sent " % self.myid)
 
 
     def send_output(self, data_to_work_on=None, octo_q=None):

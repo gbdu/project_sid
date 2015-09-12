@@ -75,7 +75,7 @@ class Neuron:
         pass
     
     def get_id(self):
-        return str(id(self))[-4:] #dont judge me
+        return int(str(id(self))[-4:]) 
 
     def get_state(self):
         return random.randint(1, 255)

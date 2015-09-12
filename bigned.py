@@ -172,33 +172,36 @@ class BigNed:
             r=pygame.Rect(0,0,150,20)
             surf.blit(text, r)
 
+    def draw_paragraph(self, surf, para):
+        for number,line in enumerate(para):
+            rpos = pygame.Rect( 5, 5+(number*self.myfont.get_height()), 20,20)
+            text = self.myfont.render(line, 1, (150,150,160))
+            surf.blit(text, rpos)
+
     def draw_panel_label(self, surf):
-            '''draw the bottom panel label'''
-            global selected_component_id
+        '''draw the bottom panel label'''
+        global selected_component_id
 
-            surf.fill((40,40,40))
-            linfo = []
-            linfo.append("Currently selected component: %d " % selected_component_id)
+        surf.fill((40,40,40))
+        linfo = []
+        linfo.append("Currently selected: %d " % selected_component_id)
 
-            octo = self.get_latest_octo_from(selected_component_id)
+        octo = self.get_latest_octo_from(selected_component_id)
 
-            if octo is not None:
-                linfo.append("*---- OCTO PACK ----*")
-                linfo.append("    octo-hints : %s" % octo.type_hints)
-                linfo.append("    octo-color : " + str(octo.color))
-                linfo.append("    octo-source : %s" % octo.source)
-                linfo.append("    octo-id : %s" % octo.myid)
-                linfo.append("    octo-friends : %s" % octo.friends)
-                #linfo.append("    octo-layers :" + str(octo.layers) )
-            else:
-                linfo.append("{ This component has not queued an octo state\
-                 yet...}")
-
+        if octo is not None:
             linfo.append("*---- OCTO PACK ----*")
-            for number,line in enumerate(linfo):
-                    rpos = pygame.Rect(5, 5+(number*self.myfont.get_height()), 20,20) # location of text
-                    text = self.myfont.render(line, 1, (150,150,160))
-                    surf.blit(text, rpos)
+            linfo.append("    octo-hints : %s" % octo.type_hints)
+            linfo.append("    octo-color : " + str(octo.color))
+            linfo.append("    octo-source : %s" % octo.source)
+            linfo.append("    octo-id : %s" % octo.myid)
+            linfo.append("    octo-friends : %s" % octo.friends)
+        else:
+            linfo.append("{ This component has not queued an octo state\
+             yet...}")
+
+        linfo.append("*---- OCTO PACK ----*")
+
+        self.draw_paragraph(surf, linfo)
 
     def draw_box_label(self, surf, color, bc, boxrect):
             text = self.myfont.render(str(bc), 1, color)
@@ -207,35 +210,39 @@ class BigNed:
 
     def get_neuron_box(self, surf, idx):
         sz = surf.get_size()
-
         n_width = 10
         n_height = 10
-
         padding=5
-
         rows = (sz[0] / n_width)-1
         cols = (sz[1] / n_height)-1
-
         counter = 0
         for r in range(rows):
             for c in range(cols):
                 if counter == idx :
                     return (r*10 + 10, c*10 + 10, n_width-padding, n_height-padding)
-
                 counter += 1
-
 
     def draw_neurons(self, surf, n, connections):
         ''' draws a representation of the connections between the neurons
         n and their connections '''
 
+        # Draw neurons
         for counter,i in enumerate(n):
+            # First draw the neurons
             color = (100, 50, i[1])
-            print color
             rect = self.get_neuron_box(surf, counter)
             pygame.draw.rect(surf, color, rect, 0)
-                
-        pass
+        
+        # Draw connections
+        for counter,i in enumerate(connections):
+            p1 = (self.get_neuron_box(surf, i[0]))[0:2]
+            p1 = p1[0]+2, p1[1]+2
+
+            p2 = (self.get_neuron_box(surf, i[1]))[0:2]
+
+            p2 = p2[0]+2, p2[1]+2
+
+            pygame.draw.aaline(surf, (200,200,200), p1, p2, 1)
 
     def draw_layer_panel_on_surf(self, surf):
             '''draw the bottom panel label'''
@@ -244,7 +251,7 @@ class BigNed:
             # surf.fill((40,40,40))
 
             global clicked_component_id
-            if not self._layercache and clicked_component_id :
+            if clicked_component_id :
                 self._layercache = self.layer_pipe.recv()
                 
                 n = []
