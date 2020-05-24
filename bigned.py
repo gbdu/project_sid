@@ -13,12 +13,12 @@ __license__ = "GPL"
 __version__ = "1.6-alpha"
 __email__ = "ogrum@live.com"
 
-# Import main dependencies:
+# * Import main dependencies:
 try:
     import sys
     import pygame
     import time
-    from multiprocessing import * 
+    from multiprocessing import *
     import traceback
     from time import sleep
 
@@ -26,7 +26,8 @@ except ImportError as e:
         print("failed to import main dependencies...")
         print(e)
         exit(1)
-# Import my dependencies:
+        
+# * Import my dependencies:
 try:
     from helpers import getmylogger
 
@@ -74,7 +75,7 @@ class BigNed:
         except:
             llog.error("unable to init console %s" % sys.exc_info()[0])
             exit(1)
-            
+
     def lg(self, msg="defaultmsg"):
         '''drawn log output'''
         self.user_msg_q.put(msg)
@@ -135,16 +136,18 @@ class BigNed:
 
         #pos = pygame.mouse.get_pos()
         pos = event.pos
-        pos = pos[0]-20,pos[1]-20
+        pos = pos[0]-20, pos[1]-20
 
         # First, check if this is a mousewheel op
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 4:
                 global zoom
-                if zoom < 2: zoom += 0.01
+                if zoom < 2:
+                    zoom += 0.01
             elif event.button == 5:
                 global zoom
-                if zoom > 0.5: zoom -= 0.01
+                if zoom > 0.5:
+                    zoom -= 0.01
 
         if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
             for i in range(64):
@@ -227,6 +230,7 @@ class BigNed:
         n and their connections '''
 
         # Draw neurons
+        '''
         for counter,i in enumerate(n):
             # First draw the neurons
             color = (100, 50, i[1])
@@ -243,32 +247,14 @@ class BigNed:
             p2 = p2[0]+2, p2[1]+2
 
             pygame.draw.aaline(surf, (200,200,200), p1, p2, 1)
+        '''
+        pass
 
     def draw_layer_panel_on_surf(self, surf):
             '''draw the bottom panel label'''
-            global selected_component_id
 
-            # surf.fill((40,40,40))
 
-            global clicked_component_id
-            if clicked_component_id :
-                self._layercache = self.layer_pipe.recv()
-                
-                n = []
-                for i in self._layercache :
-                    n.append(i)
-
-                # get connections
-                self._layercache = self.layer_pipe.recv()
-                
-                connections = []
-                for i in self._layercache :
-                    connections.append(i)
-
-                self.draw_neurons(surf, n, connections)
-
-            else:
-                pass
+            pass
 
 
     def draw_smaller_boxes(self, surf, boxrect, bc, bgcolor):

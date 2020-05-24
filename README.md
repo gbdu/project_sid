@@ -3,7 +3,7 @@
     This is a basic form of AI, his name is Ned and he is a type of "sid"
 
 ##
-![latest_screencast](/screencasts/latest.gif)
+![latest_screencast](/screencasts/bigned.gif)
 ##
 [](TODO.md)
 
